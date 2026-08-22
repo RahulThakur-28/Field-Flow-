@@ -40,5 +40,23 @@ sealed class AppRoutes {
     data object EmailVerification : AppRoutes()
     
     @Serializable
-    data object Home : AppRoutes()
+    data object OwnerHome : AppRoutes()
+    
+    @Serializable
+    data object EmployeeHome : AppRoutes()
+
+    @Serializable
+    data object Tasks : AppRoutes()
+
+    @Serializable
+    data object Team : AppRoutes()
+
+    @Serializable
+    data object Reports : AppRoutes()
+
+    @Serializable
+    data object Analytics : AppRoutes()
+
+    @Serializable
+    data object Profile : AppRoutes()
 }

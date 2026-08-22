@@ -7,12 +7,20 @@ import androidx.navigation.compose.composable
 import com.rahul.fieldflow.features.onboarding.OnboardingScreen
 import com.rahul.fieldflow.features.splash.SplashScreen
 import com.rahul.fieldflow.features.auth.*
+import com.rahul.fieldflow.features.auth.Login.LoginScreen
+import com.rahul.fieldflow.features.auth.Registeration.EmployeeRegistrationScreen
+import com.rahul.fieldflow.features.home.owner.screen.OwnerHomeScreen
+import com.rahul.fieldflow.features.home.employee.screen.EmployeeHomeScreen
+import com.rahul.fieldflow.domain.models.UserRole
 
 @Composable
 fun AppNavGraph(navController: NavHostController) {
+
+    val simulatedRole = UserRole.EMPLOYEE
+
     NavHost(
         navController = navController,
-        startDestination = AppRoutes.Splash
+        startDestination =AppRoutes.EmployeeHome
     ) {
         composable<AppRoutes.Splash> {
             SplashScreen(
@@ -37,7 +45,12 @@ fun AppNavGraph(navController: NavHostController) {
         composable<AppRoutes.Login> {
             LoginScreen(
                 onNavigateToRegister = { navController.navigate(AppRoutes.RoleSelection) },
-                onLoginSuccess = { navController.navigate(AppRoutes.Home) { popUpTo(AppRoutes.Login) { inclusive = true } } }
+                onLoginSuccess = {
+                    val destination = if (simulatedRole == UserRole.OWNER) AppRoutes.OwnerHome else AppRoutes.EmployeeHome
+                    navController.navigate(destination) {
+                        popUpTo(AppRoutes.Login) { inclusive = true }
+                    }
+                }
             )
         }
 
@@ -99,13 +112,22 @@ fun AppNavGraph(navController: NavHostController) {
 
         composable<AppRoutes.EmailVerification> {
             EmailVerificationScreen(
-                onVerifySuccess = { navController.navigate(AppRoutes.Home) { popUpTo(AppRoutes.Login) { inclusive = true } } },
+                onVerifySuccess = {
+                    val destination = if (simulatedRole == UserRole.OWNER) AppRoutes.OwnerHome else AppRoutes.EmployeeHome
+                    navController.navigate(destination) {
+                        popUpTo(AppRoutes.Login) { inclusive = true }
+                    }
+                },
                 onChangeEmail = { navController.popBackStack() }
             )
         }
         
-        composable<AppRoutes.Home> {
-            // TODO: Replace with actual Home screen
+        composable<AppRoutes.OwnerHome> {
+            OwnerHomeScreen(navController = navController)
+        }
+
+        composable<AppRoutes.EmployeeHome> {
+            EmployeeHomeScreen(navController = navController)
         }
     }
 }

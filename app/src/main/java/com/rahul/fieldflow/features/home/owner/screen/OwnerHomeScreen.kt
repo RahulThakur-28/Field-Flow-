@@ -1,0 +1,179 @@
+package com.rahul.fieldflow.features.home.owner.screen
+
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.*
+import androidx.compose.material3.*
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
+import com.rahul.fieldflow.core.navigation.AppRoutes
+import com.rahul.fieldflow.features.home.components.*
+import com.rahul.fieldflow.features.home.navigation.HomeNavigation
+import com.rahul.fieldflow.features.home.owner.components.*
+import com.rahul.fieldflow.features.home.owner.state.OwnerHomeUiState
+import com.rahul.fieldflow.features.home.owner.viewmodel.OwnerHomeViewModel
+import com.rahul.fieldflow.ui.theme.BackgroundLight
+import com.rahul.fieldflow.ui.theme.FieldFlowTheme
+import com.rahul.fieldflow.ui.theme.SecondaryIndigo
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun OwnerHomeScreen(
+    navController: NavController,
+    viewModel: OwnerHomeViewModel = viewModel()
+) {
+    val uiState by viewModel.uiState.collectAsState()
+
+    PullToRefreshBox(
+        isRefreshing = uiState.isLoading,
+        onRefresh = { viewModel.refresh() }
+    ) {
+        OwnerHomeContent(
+            uiState = uiState,
+            navController = navController
+        )
+    }
+}
+
+@Composable
+fun OwnerHomeContent(
+    uiState: OwnerHomeUiState,
+    navController: NavController
+) {
+    Scaffold(
+        containerColor = BackgroundLight,
+        bottomBar = {
+            FieldFlowBottomNavigation(
+                items = HomeNavigation.ownerItems,
+                selectedRoute = AppRoutes.OwnerHome,
+                onItemClick = { route ->
+                    if (route != AppRoutes.OwnerHome) {
+                        navController.navigate(route)
+                    }
+                }
+            )
+        }
+    ) { paddingValues ->
+        LazyColumn(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(paddingValues)
+                .padding(horizontal = 20.dp)
+        ) {
+            item {
+                FieldFlowHeader(
+                    date = "Friday, Aug 22 • ${uiState.location}",
+                    userName = uiState.userName,
+                    subtitle = "Here's what's happening today.",
+                    initials = uiState.initials,
+                    notificationCount = uiState.notificationCount,
+                    onProfileClick = { navController.navigate(AppRoutes.Profile) },
+                    onNotificationClick = { /* Handle notifications */ }
+                )
+            }
+
+            item {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    uiState.stats.forEach { stat ->
+                        SummaryStatCard(stat = stat, modifier = Modifier.weight(1f))
+                    }
+                }
+            }
+
+            item {
+                SectionHeader(
+                    title = "🔴 Live Field Visits",
+                    actionText = "All Tasks",
+                    onActionClick = { navController.navigate(AppRoutes.Tasks) }
+                )
+            }
+
+            items(uiState.liveVisits) { visit ->
+                LiveVisitCard(visit = visit)
+                Spacer(modifier = Modifier.height(16.dp))
+            }
+
+            item {
+                SectionHeader(title = "Quick Actions")
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(16.dp)
+                ) {
+                    QuickActionCard(
+                        icon = Icons.Default.Add,
+                        title = "New Task",
+                        accentColor = Color(0xFF5267E8),
+                        onClick = { /* Navigate to Create Task */ }
+                    )
+                    QuickActionCard(
+                        icon = Icons.Default.MyLocation,
+                        title = "Track Live",
+                        accentColor = SecondaryIndigo,
+                        onClick = { /* Navigate to Tracking */ }
+                    )
+                    QuickActionCard(
+                        icon = Icons.Default.Assessment,
+                        title = "Reports",
+                        accentColor = Color(0xFFFF9800),
+                        onClick = { navController.navigate(AppRoutes.Reports) }
+                    )
+                }
+            }
+
+            item {
+                SectionHeader(
+                    title = "Team Status",
+                    actionText = "View Team",
+                    onActionClick = { navController.navigate(AppRoutes.Team) }
+                )
+            }
+
+            items(uiState.teamStatus) { member ->
+                TeamStatusCard(member = member)
+            }
+
+            item {
+                SectionHeader(title = "Today's Activity")
+                ActivityTimeline(activities = uiState.recentActivity)
+            }
+            
+            item {
+                Spacer(modifier = Modifier.height(32.dp))
+            }
+        }
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun OwnerHomeScreenPreview() {
+    FieldFlowTheme {
+        OwnerHomeContent(
+            uiState = OwnerHomeUiState(
+                userName = "Rahul",
+                location = "Mumbai",
+                initials = "RT",
+                notificationCount = 2,
+                stats = emptyList(),
+                liveVisits = emptyList(),
+                teamStatus = emptyList(),
+                recentActivity = emptyList()
+            ),
+            navController = rememberNavController()
+        )
+    }
+}

@@ -1,4 +1,4 @@
-package com.rahul.fieldflow.features.auth
+package com.rahul.fieldflow.features.auth.Registeration
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
