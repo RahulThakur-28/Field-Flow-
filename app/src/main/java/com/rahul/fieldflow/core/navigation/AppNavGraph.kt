@@ -4,6 +4,7 @@ import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import com.rahul.fieldflow.features.onboarding.OnboardingScreen
 import com.rahul.fieldflow.features.splash.SplashScreen
 
 @Composable
@@ -15,8 +16,18 @@ fun AppNavGraph(navController: NavHostController) {
         composable<AppRoutes.Splash> {
             SplashScreen(
                 onAnimationComplete = {
-                    navController.navigate(AppRoutes.Home) {
+                    navController.navigate(AppRoutes.Onboarding) {
                         popUpTo(AppRoutes.Splash) { inclusive = true }
+                    }
+                }
+            )
+        }
+        
+        composable<AppRoutes.Onboarding> {
+            OnboardingScreen(
+                onFinish = {
+                    navController.navigate(AppRoutes.Home) {
+                        popUpTo(AppRoutes.Onboarding) { inclusive = true }
                     }
                 }
             )
