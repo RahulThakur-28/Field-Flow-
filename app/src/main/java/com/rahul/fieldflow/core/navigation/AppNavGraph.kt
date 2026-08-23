@@ -13,6 +13,7 @@ import com.rahul.fieldflow.features.home.owner.screen.OwnerHomeScreen
 import com.rahul.fieldflow.features.home.employee.screen.EmployeeHomeScreen
 import com.rahul.fieldflow.domain.models.UserRole
 import com.rahul.fieldflow.features.tasks.navigation.taskNavigation
+import com.rahul.fieldflow.features.team.navigation.teamNavigation
 
 @Composable
 fun AppNavGraph(navController: NavHostController) {
@@ -132,5 +133,6 @@ fun AppNavGraph(navController: NavHostController) {
         }
 
         taskNavigation(navController)
+        teamNavigation(navController)
     }
 }

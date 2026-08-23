@@ -16,11 +16,12 @@ import com.rahul.fieldflow.ui.theme.PrimaryBlue
 @Composable
 fun ProfileAvatar(
     initials: String,
+    modifier: Modifier = Modifier,
     onClick: () -> Unit = {}
 ) {
     Surface(
         onClick = onClick,
-        modifier = Modifier.size(44.dp),
+        modifier = modifier.size(44.dp),
         shape = CircleShape,
         color = PrimaryBlue.copy(alpha = 0.1f)
     ) {

@@ -70,6 +70,9 @@ sealed class AppRoutes {
     data object Tasks : AppRoutes()
 
     @Serializable
+    data class EmployeeDetails(val employeeId: String) : AppRoutes()
+
+    @Serializable
     data object Team : AppRoutes()
 
     @Serializable
