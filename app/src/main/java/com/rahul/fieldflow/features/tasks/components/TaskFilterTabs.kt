@@ -12,10 +12,10 @@ import com.rahul.fieldflow.ui.theme.PrimaryBlue
 
 @Composable
 fun TaskFilterTabs(
+    tabs: List<String>,
     selectedTab: Int,
     onTabSelected: (Int) -> Unit
 ) {
-    val tabs = listOf("All", "Pending", "In Progress", "Completed")
     ScrollableTabRow(
         selectedTabIndex = selectedTab,
         edgePadding = 0.dp,

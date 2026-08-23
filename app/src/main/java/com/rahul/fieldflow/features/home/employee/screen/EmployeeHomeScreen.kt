@@ -103,7 +103,7 @@ fun EmployeeHomeContent(
                         SummaryStatCard(
                             stat = stat,
                             modifier = Modifier.weight(1f),
-                            onClick = { navController.navigate(AppRoutes.Tasks) }
+                            onClick = { navController.navigate(AppRoutes.EmployeeTasks) }
                         )
                     }
                 }
@@ -121,7 +121,7 @@ fun EmployeeHomeContent(
                     NextTaskCard(
                         task = task,
                         onClick = {
-                            navController.navigate(AppRoutes.Tasks)
+                            navController.navigate(AppRoutes.EmployeeTasks)
                         }
                     )
 
@@ -138,7 +138,7 @@ fun EmployeeHomeContent(
                 SectionHeader(
                     title = "Today's Schedule",
                     actionText = "All Tasks",
-                    onActionClick = { navController.navigate(AppRoutes.Tasks) }
+                    onActionClick = { navController.navigate(AppRoutes.EmployeeTasks) }
                 )
             }
 
@@ -149,7 +149,7 @@ fun EmployeeHomeContent(
                 ScheduleTaskCard(
                     task = task,
                     onClick = {
-                        navController.navigate(AppRoutes.Tasks)
+                        navController.navigate(AppRoutes.EmployeeTasks)
                     }
                 )
 
@@ -175,7 +175,7 @@ fun EmployeeHomeContent(
                     item = quickAccessItem,
                     onClick = {
                         when (quickAccessItem.title) {
-                            "My Tasks" -> navController.navigate(AppRoutes.Tasks)
+                            "My Tasks" -> navController.navigate(AppRoutes.EmployeeTasks)
                             "Reports" -> navController.navigate(AppRoutes.Reports)
                         }
                     }

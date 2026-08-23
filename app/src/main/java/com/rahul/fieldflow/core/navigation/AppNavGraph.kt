@@ -17,11 +17,11 @@ import com.rahul.fieldflow.features.tasks.navigation.taskNavigation
 @Composable
 fun AppNavGraph(navController: NavHostController) {
 
-    val simulatedRole = UserRole.OWNER
+    val simulatedRole = UserRole.EMPLOYEE
 
     NavHost(
         navController = navController,
-        startDestination =AppRoutes.OwnerHome
+        startDestination =AppRoutes.EmployeeHome
     ) {
         composable<AppRoutes.Splash> {
             SplashScreen(

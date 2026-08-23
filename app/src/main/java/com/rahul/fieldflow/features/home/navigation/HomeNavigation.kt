@@ -22,7 +22,7 @@ object HomeNavigation {
 
     val employeeItems = listOf(
         NavigationItemUiModel("Home", Icons.Default.Home, AppRoutes.EmployeeHome),
-        NavigationItemUiModel("Tasks", Icons.Default.Assignment, AppRoutes.Tasks),
+        NavigationItemUiModel("Tasks", Icons.Default.Assignment, AppRoutes.EmployeeTasks),
         NavigationItemUiModel("Reports", Icons.Default.Description, AppRoutes.Reports),
         NavigationItemUiModel("Profile", Icons.Default.Person, AppRoutes.Profile)
     )

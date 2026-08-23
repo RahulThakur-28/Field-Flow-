@@ -6,10 +6,12 @@ import androidx.navigation.compose.composable
 import androidx.navigation.navigation
 import androidx.navigation.toRoute
 import com.rahul.fieldflow.core.navigation.AppRoutes
+import com.rahul.fieldflow.features.tasks.employee.screen.*
 import com.rahul.fieldflow.features.tasks.owner.screen.*
 
 fun NavGraphBuilder.taskNavigation(navController: NavController) {
     navigation<AppRoutes.Tasks>(startDestination = AppRoutes.OwnerTasks) {
+        // Owner Routes
         composable<AppRoutes.OwnerTasks> {
             OwnerTasksScreen(
                 onTaskClick = { taskId ->
@@ -54,6 +56,23 @@ fun NavGraphBuilder.taskNavigation(navController: NavController) {
         composable<AppRoutes.LiveTracking> { backStackEntry ->
             val route = backStackEntry.toRoute<AppRoutes.LiveTracking>()
             OwnerLiveTrackingScreen(
+                taskId = route.taskId,
+                onBackClick = { navController.popBackStack() }
+            )
+        }
+
+        // Employee Routes
+        composable<AppRoutes.EmployeeTasks> {
+            EmployeeTasksScreen(
+                onTaskClick = { taskId ->
+                    navController.navigate(AppRoutes.EmployeeTaskDetails(taskId))
+                }
+            )
+        }
+
+        composable<AppRoutes.EmployeeTaskDetails> { backStackEntry ->
+            val route = backStackEntry.toRoute<AppRoutes.EmployeeTaskDetails>()
+            EmployeeTaskDetailsScreen(
                 taskId = route.taskId,
                 onBackClick = { navController.popBackStack() }
             )

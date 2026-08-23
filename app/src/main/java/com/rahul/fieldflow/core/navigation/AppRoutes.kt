@@ -49,10 +49,16 @@ sealed class AppRoutes {
     data object OwnerTasks : AppRoutes()
 
     @Serializable
+    data object EmployeeTasks : AppRoutes()
+
+    @Serializable
     data object CreateTask : AppRoutes()
 
     @Serializable
     data class TaskDetails(val taskId: String) : AppRoutes()
+
+    @Serializable
+    data class EmployeeTaskDetails(val taskId: String) : AppRoutes()
 
     @Serializable
     data class EditTask(val taskId: String) : AppRoutes()

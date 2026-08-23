@@ -66,6 +66,7 @@ fun OwnerTasksScreen(
             Spacer(modifier = Modifier.height(16.dp))
             
             TaskFilterTabs(
+                tabs = listOf("All", "Pending", "In Progress", "Completed"),
                 selectedTab = uiState.selectedTab,
                 onTabSelected = viewModel::onTabSelected
             )
