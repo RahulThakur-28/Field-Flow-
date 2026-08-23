@@ -1,11 +1,11 @@
-package com.rahul.fieldflow.features.reports.viewmodel
+package com.rahul.fieldflow.features.reports.owner.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.rahul.fieldflow.features.reports.model.ReportStatus
 import com.rahul.fieldflow.features.reports.model.mockReports
-import com.rahul.fieldflow.features.reports.state.ReportDetailsUiState
-import com.rahul.fieldflow.features.reports.state.ReportsUiState
+import com.rahul.fieldflow.features.reports.owner.state.OwnerReportDetailsUiState
+import com.rahul.fieldflow.features.reports.owner.state.OwnerReportsUiState
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -13,12 +13,12 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
-class ReportsViewModel : ViewModel() {
-    private val _uiState = MutableStateFlow(ReportsUiState())
-    val uiState: StateFlow<ReportsUiState> = _uiState.asStateFlow()
+class OwnerReportsViewModel : ViewModel() {
+    private val _uiState = MutableStateFlow(OwnerReportsUiState())
+    val uiState: StateFlow<OwnerReportsUiState> = _uiState.asStateFlow()
 
-    private val _detailsState = MutableStateFlow(ReportDetailsUiState())
-    val detailsState: StateFlow<ReportDetailsUiState> = _detailsState.asStateFlow()
+    private val _detailsState = MutableStateFlow(OwnerReportDetailsUiState())
+    val detailsState: StateFlow<OwnerReportDetailsUiState> = _detailsState.asStateFlow()
 
     init {
         loadReports()

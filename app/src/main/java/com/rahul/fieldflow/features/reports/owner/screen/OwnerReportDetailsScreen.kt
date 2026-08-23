@@ -1,4 +1,4 @@
-package com.rahul.fieldflow.features.reports.screen
+package com.rahul.fieldflow.features.reports.owner.screen
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -22,7 +22,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.rahul.fieldflow.features.profile.components.ProfileAvatar
 import com.rahul.fieldflow.features.reports.components.*
 import com.rahul.fieldflow.features.reports.model.ReportStatus
-import com.rahul.fieldflow.features.reports.viewmodel.ReportsViewModel
+import com.rahul.fieldflow.features.reports.owner.viewmodel.OwnerReportsViewModel
 import com.rahul.fieldflow.ui.theme.FieldFlowTheme
 import com.rahul.fieldflow.ui.theme.PrimaryBlue
 import com.rahul.fieldflow.ui.theme.TextDark
@@ -30,10 +30,10 @@ import com.rahul.fieldflow.ui.theme.TextSecondary
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ReportDetailsScreen(
+fun OwnerReportDetailsScreen(
     reportId: String,
     onBackClick: () -> Unit,
-    viewModel: ReportsViewModel = viewModel()
+    viewModel: OwnerReportsViewModel = viewModel()
 ) {
     val uiState by viewModel.detailsState.collectAsState()
 
@@ -188,8 +188,8 @@ fun ReportDetailsScreen(
 
 @Preview(showBackground = true)
 @Composable
-fun ReportDetailsScreenPreview() {
+fun OwnerReportDetailsScreenPreview() {
     FieldFlowTheme {
-        ReportDetailsScreen(reportId = "1", onBackClick = {})
+        OwnerReportDetailsScreen(reportId = "1", onBackClick = {})
     }
 }

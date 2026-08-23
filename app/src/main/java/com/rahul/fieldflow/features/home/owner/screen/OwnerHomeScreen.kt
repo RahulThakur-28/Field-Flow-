@@ -175,7 +175,7 @@ fun OwnerHomeContent(
                         icon = Icons.Default.Assessment,
                         title = "Reports",
                         accentColor = Color(0xFFFF9800),
-                        onClick = { navController.navigate(AppRoutes.Reports) }
+                        onClick = { navController.navigate(AppRoutes.OwnerReports) }
                     )
                 }
             }

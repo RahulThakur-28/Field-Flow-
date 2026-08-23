@@ -176,7 +176,7 @@ fun EmployeeHomeContent(
                     onClick = {
                         when (quickAccessItem.title) {
                             "My Tasks" -> navController.navigate(AppRoutes.EmployeeTasks)
-                            "Reports" -> navController.navigate(AppRoutes.Reports)
+                            "Reports" -> navController.navigate(AppRoutes.EmployeeReports)
                         }
                     }
                 )

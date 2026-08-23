@@ -1,8 +1,8 @@
-package com.rahul.fieldflow.features.reports.state
+package com.rahul.fieldflow.features.reports.owner.state
 
 import com.rahul.fieldflow.features.reports.model.Report
 
-data class ReportsUiState(
+data class OwnerReportsUiState(
     val reports: List<Report> = emptyList(),
     val filteredReports: List<Report> = emptyList(),
     val searchQuery: String = "",
@@ -11,7 +11,7 @@ data class ReportsUiState(
     val needsReviewCount: Int = 0
 )
 
-data class ReportDetailsUiState(
+data class OwnerReportDetailsUiState(
     val report: Report? = null,
     val isLoading: Boolean = false,
     val isReviewing: Boolean = false
