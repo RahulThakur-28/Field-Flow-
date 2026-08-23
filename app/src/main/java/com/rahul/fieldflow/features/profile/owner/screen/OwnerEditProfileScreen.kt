@@ -1,4 +1,4 @@
-package com.rahul.fieldflow.features.profile.screen
+package com.rahul.fieldflow.features.profile.owner.screen
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -20,7 +20,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
-import com.rahul.fieldflow.features.profile.viewmodel.OwnerProfileViewModel
+import com.rahul.fieldflow.features.profile.owner.viewmodel.OwnerProfileViewModel
 import com.rahul.fieldflow.ui.theme.FieldFlowTheme
 import com.rahul.fieldflow.ui.theme.PrimaryBlue
 

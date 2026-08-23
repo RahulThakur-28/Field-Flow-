@@ -19,7 +19,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.rahul.fieldflow.features.home.components.ProfileAvatar
+import com.rahul.fieldflow.features.profile.components.ProfileAvatar
 import com.rahul.fieldflow.features.reports.components.*
 import com.rahul.fieldflow.features.reports.model.ReportStatus
 import com.rahul.fieldflow.features.reports.viewmodel.ReportsViewModel

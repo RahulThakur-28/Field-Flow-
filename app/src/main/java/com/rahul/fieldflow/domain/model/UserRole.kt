@@ -1,4 +1,4 @@
-package com.rahul.fieldflow.domain.models
+package com.rahul.fieldflow.domain.model
 
 enum class UserRole {
     OWNER,

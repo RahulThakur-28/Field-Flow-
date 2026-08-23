@@ -16,7 +16,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.rahul.fieldflow.features.home.components.ProfileAvatar
+import com.rahul.fieldflow.features.profile.components.ProfileAvatar
 import com.rahul.fieldflow.features.team.model.EmployeeTeamUiModel
 import com.rahul.fieldflow.ui.theme.PrimaryBlue
 import com.rahul.fieldflow.ui.theme.TextDark

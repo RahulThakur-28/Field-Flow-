@@ -1,7 +1,7 @@
-package com.rahul.fieldflow.features.profile.viewmodel
+package com.rahul.fieldflow.features.profile.owner.viewmodel
 
 import androidx.lifecycle.ViewModel
-import com.rahul.fieldflow.features.profile.state.OwnerProfileUiState
+import com.rahul.fieldflow.features.profile.owner.state.OwnerProfileUiState
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow

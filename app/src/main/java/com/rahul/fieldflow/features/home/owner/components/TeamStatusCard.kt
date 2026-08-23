@@ -9,7 +9,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.rahul.fieldflow.features.home.components.ProfileAvatar
+import com.rahul.fieldflow.features.profile.components.ProfileAvatar
 import com.rahul.fieldflow.features.home.components.StatusBadge
 import com.rahul.fieldflow.features.home.model.TeamMemberUiModel
 import com.rahul.fieldflow.ui.theme.TextDark

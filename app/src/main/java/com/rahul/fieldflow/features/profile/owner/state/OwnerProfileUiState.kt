@@ -1,4 +1,4 @@
-package com.rahul.fieldflow.features.profile.state
+package com.rahul.fieldflow.features.profile.owner.state
 
 data class OwnerProfileUiState(
     val userName: String = "Rahul Verma",

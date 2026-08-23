@@ -107,7 +107,7 @@ fun OwnerHomeContent(
                         subtitle = "Here's what's happening today.",
                         initials = uiState.initials,
                         notificationCount = uiState.notificationCount,
-                        onProfileClick = { navController.navigate(AppRoutes.Profile) },
+                        onProfileClick = { navController.navigate(AppRoutes.OwnerProfile) },
                         onNotificationClick = { /* Handle notifications */ }
                     )
 

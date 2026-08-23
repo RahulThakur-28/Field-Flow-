@@ -86,7 +86,7 @@ fun EmployeeHomeContent(
                     subtitle = "Ready for today's work?",
                     initials = uiState.initials,
                     notificationCount = uiState.notificationCount,
-                    onProfileClick = { navController.navigate(AppRoutes.Profile) },
+                    onProfileClick = { navController.navigate(AppRoutes.EmployeeProfile) },
                     onNotificationClick = { /* Handle notifications */ }
                 )
             }

@@ -4,11 +4,28 @@ import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
 import com.rahul.fieldflow.core.navigation.AppRoutes
-import com.rahul.fieldflow.features.profile.screen.*
+import com.rahul.fieldflow.features.profile.owner.screen.*
+import com.rahul.fieldflow.features.profile.employee.screen.*
 
 fun NavGraphBuilder.profileNavigation(navController: NavController) {
-    composable<AppRoutes.Profile> {
+    composable<AppRoutes.OwnerProfile> {
         OwnerProfileScreen(navController = navController)
+    }
+
+    composable<AppRoutes.EmployeeProfile> {
+        EmployeeProfileScreen(navController = navController)
+    }
+
+    composable<AppRoutes.ChangePassword> {
+        ChangePasswordScreen(navController = navController)
+    }
+
+    composable<AppRoutes.NotificationSettings> {
+        NotificationSettingsScreen(navController = navController)
+    }
+
+    composable<AppRoutes.AppSettings> {
+        AppSettingsScreen(navController = navController)
     }
 
     composable<AppRoutes.OwnerEditProfile> {

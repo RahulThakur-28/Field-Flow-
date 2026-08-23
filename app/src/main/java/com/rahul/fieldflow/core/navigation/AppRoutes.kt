@@ -85,7 +85,19 @@ sealed class AppRoutes {
     data object Analytics : AppRoutes()
 
     @Serializable
-    data object Profile : AppRoutes()
+    data object OwnerProfile : AppRoutes()
+
+    @Serializable
+    data object EmployeeProfile : AppRoutes()
+
+    @Serializable
+    data object ChangePassword : AppRoutes()
+
+    @Serializable
+    data object NotificationSettings : AppRoutes()
+
+    @Serializable
+    data object AppSettings : AppRoutes()
 
     @Serializable
     data object OwnerEditProfile : AppRoutes()

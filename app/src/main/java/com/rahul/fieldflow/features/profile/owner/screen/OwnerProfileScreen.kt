@@ -1,4 +1,4 @@
-package com.rahul.fieldflow.features.profile.screen
+package com.rahul.fieldflow.features.profile.owner.screen
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -21,10 +21,12 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.rahul.fieldflow.core.navigation.AppRoutes
-import com.rahul.fieldflow.features.home.components.ProfileAvatar
+import com.rahul.fieldflow.features.profile.components.ProfileAvatar
+import com.rahul.fieldflow.features.profile.components.ProfileContactItem
 import com.rahul.fieldflow.features.profile.components.ProfileSettingItem
 import com.rahul.fieldflow.features.profile.components.ProfileStatCard
-import com.rahul.fieldflow.features.profile.viewmodel.OwnerProfileViewModel
+import com.rahul.fieldflow.features.profile.components.ProfileVerticalDivider
+import com.rahul.fieldflow.features.profile.owner.viewmodel.OwnerProfileViewModel
 import com.rahul.fieldflow.ui.theme.FieldFlowTheme
 import com.rahul.fieldflow.ui.theme.PrimaryBlue
 import com.rahul.fieldflow.ui.theme.TextDark
@@ -140,9 +142,9 @@ fun OwnerProfileScreen(
                             horizontalArrangement = Arrangement.SpaceEvenly
                         ) {
                             ProfileStatCard(value = "${uiState.totalTasks}", label = "Total Tasks")
-                            VerticalDivider()
+                            ProfileVerticalDivider()
                             ProfileStatCard(value = "${uiState.teamSize}", label = "Team Size")
-                            VerticalDivider()
+                            ProfileVerticalDivider()
                             ProfileStatCard(value = "${uiState.efficiency}%", label = "Efficiency")
                         }
                     }
@@ -208,40 +210,6 @@ fun OwnerProfileScreen(
             }
         }
     }
-}
-
-@Composable
-fun ProfileContactItem(
-    icon: androidx.compose.ui.graphics.vector.ImageVector,
-    label: String,
-    value: String
-) {
-    Row(verticalAlignment = Alignment.CenterVertically) {
-        Surface(
-            modifier = Modifier.size(36.dp),
-            shape = CircleShape,
-            color = PrimaryBlue.copy(alpha = 0.1f)
-        ) {
-            Box(contentAlignment = Alignment.Center) {
-                Icon(icon, contentDescription = null, tint = PrimaryBlue, modifier = Modifier.size(18.dp))
-            }
-        }
-        Spacer(modifier = Modifier.width(16.dp))
-        Column {
-            Text(text = label, style = MaterialTheme.typography.labelSmall, color = TextSecondary)
-            Text(text = value, style = MaterialTheme.typography.bodyMedium, color = TextDark, fontWeight = FontWeight.Medium)
-        }
-    }
-}
-
-@Composable
-fun VerticalDivider() {
-    Box(
-        modifier = Modifier
-            .width(1.dp)
-            .height(40.dp)
-            .background(Color.LightGray.copy(alpha = 0.3f))
-    )
 }
 
 @Preview(showBackground = true)

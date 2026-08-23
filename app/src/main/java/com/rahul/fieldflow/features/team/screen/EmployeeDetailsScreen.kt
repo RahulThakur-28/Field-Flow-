@@ -20,7 +20,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.rahul.fieldflow.features.home.components.ProfileAvatar
+import com.rahul.fieldflow.features.profile.components.ProfileAvatar
 import com.rahul.fieldflow.features.tasks.components.TaskCard
 import com.rahul.fieldflow.features.tasks.components.TaskProgressTimeline
 import com.rahul.fieldflow.features.team.components.EmployeeActivityItem
