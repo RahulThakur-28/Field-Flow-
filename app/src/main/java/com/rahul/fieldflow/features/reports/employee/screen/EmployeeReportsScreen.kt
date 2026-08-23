@@ -56,16 +56,7 @@ fun EmployeeReportsScreen(
         bottomBar = {
             FieldFlowBottomNavigation(
                 items = BottomNavigationConfig.employeeItems,
-                selectedRoute = AppRoutes.EmployeeReports,
-                onItemClick = { route ->
-                    if (route != AppRoutes.EmployeeReports) {
-                        navController.navigate(route) {
-                            popUpTo(AppRoutes.EmployeeHome) { saveState = true }
-                            launchSingleTop = true
-                            restoreState = true
-                        }
-                    }
-                }
+                navController = navController
             )
         },
         containerColor = BackgroundLight

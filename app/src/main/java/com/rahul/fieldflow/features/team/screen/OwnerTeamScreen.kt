@@ -63,16 +63,7 @@ fun OwnerTeamScreen(
         bottomBar = {
             FieldFlowBottomNavigation(
                 items = BottomNavigationConfig.ownerItems,
-                selectedRoute = AppRoutes.Team,
-                onItemClick = { route ->
-                    if (route != AppRoutes.Team) {
-                        navController.navigate(route) {
-                            popUpTo(AppRoutes.OwnerHome) { saveState = true }
-                            launchSingleTop = true
-                            restoreState = true
-                        }
-                    }
-                }
+                navController = navController
             )
         }
     ) { padding ->

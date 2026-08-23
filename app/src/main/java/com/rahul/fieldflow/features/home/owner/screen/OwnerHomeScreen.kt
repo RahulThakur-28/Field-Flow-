@@ -60,16 +60,7 @@ fun OwnerHomeContent(
         bottomBar = {
             FieldFlowBottomNavigation(
                 items = BottomNavigationConfig.ownerItems,
-                selectedRoute = AppRoutes.OwnerHome,
-                onItemClick = { route ->
-                    if (route != AppRoutes.OwnerHome) {
-                        navController.navigate(route) {
-                            popUpTo(AppRoutes.OwnerHome) { saveState = true }
-                            launchSingleTop = true
-                            restoreState = true
-                        }
-                    }
-                }
+                navController = navController
             )
         },
         floatingActionButton = {

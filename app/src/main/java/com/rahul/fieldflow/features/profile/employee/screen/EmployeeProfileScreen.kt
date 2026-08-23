@@ -79,16 +79,7 @@ fun EmployeeProfileScreen(
         bottomBar = {
             FieldFlowBottomNavigation(
                 items = BottomNavigationConfig.employeeItems,
-                selectedRoute = AppRoutes.EmployeeProfile,
-                onItemClick = { route ->
-                    if (route != AppRoutes.EmployeeProfile) {
-                        navController.navigate(route) {
-                            popUpTo(AppRoutes.EmployeeHome) { saveState = true }
-                            launchSingleTop = true
-                            restoreState = true
-                        }
-                    }
-                }
+                navController = navController
             )
         },
         containerColor = BackgroundLight

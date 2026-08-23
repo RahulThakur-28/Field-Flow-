@@ -57,16 +57,7 @@ fun OwnerReportsScreen(
         bottomBar = {
             FieldFlowBottomNavigation(
                 items = BottomNavigationConfig.ownerItems,
-                selectedRoute = AppRoutes.OwnerReports,
-                onItemClick = { route ->
-                    if (route != AppRoutes.OwnerReports) {
-                        navController.navigate(route) {
-                            popUpTo(AppRoutes.OwnerHome) { saveState = true }
-                            launchSingleTop = true
-                            restoreState = true
-                        }
-                    }
-                }
+                navController = navController
             )
         }
     ) { padding ->

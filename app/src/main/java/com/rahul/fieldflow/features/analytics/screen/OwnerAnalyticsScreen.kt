@@ -51,16 +51,7 @@ fun OwnerAnalyticsScreen(
         bottomBar = {
             FieldFlowBottomNavigation(
                 items = BottomNavigationConfig.ownerItems,
-                selectedRoute = AppRoutes.Analytics,
-                onItemClick = { route ->
-                    if (route != AppRoutes.Analytics) {
-                        navController.navigate(route) {
-                            popUpTo(AppRoutes.OwnerHome) { saveState = true }
-                            launchSingleTop = true
-                            restoreState = true
-                        }
-                    }
-                }
+                navController = navController
             )
         },
         containerColor = BackgroundLight

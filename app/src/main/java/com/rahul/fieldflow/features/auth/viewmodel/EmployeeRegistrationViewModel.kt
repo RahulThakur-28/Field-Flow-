@@ -1,0 +1,78 @@
+package com.rahul.fieldflow.features.auth.viewmodel
+
+import android.util.Patterns
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.rahul.fieldflow.features.auth.state.EmployeeRegistrationUiState
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
+
+class EmployeeRegistrationViewModel : ViewModel() {
+
+    private val _uiState = MutableStateFlow(EmployeeRegistrationUiState())
+    val uiState: StateFlow<EmployeeRegistrationUiState> = _uiState.asStateFlow()
+
+    fun onFullNameChange(value: String) {
+        _uiState.update { it.copy(fullName = value, fullNameError = null) }
+    }
+
+    fun onEmailChange(value: String) {
+        _uiState.update { it.copy(email = value, emailError = null) }
+    }
+
+    fun onPhoneChange(value: String) {
+        _uiState.update { it.copy(phone = value) }
+    }
+
+    fun onPasswordChange(value: String) {
+        _uiState.update { it.copy(password = value, passwordError = null) }
+    }
+
+    fun onConfirmPasswordChange(value: String) {
+        _uiState.update { it.copy(confirmPassword = value, confirmPasswordError = null) }
+    }
+
+    fun register() {
+        val state = _uiState.value
+        var hasError = false
+
+        if (state.fullName.isBlank()) {
+            _uiState.update { it.copy(fullNameError = "Full name is required") }
+            hasError = true
+        }
+
+        if (state.email.isBlank()) {
+            _uiState.update { it.copy(emailError = "Email is required") }
+            hasError = true
+        } else if (!Patterns.EMAIL_ADDRESS.matcher(state.email).matches()) {
+            _uiState.update { it.copy(emailError = "Invalid email format") }
+            hasError = true
+        }
+
+        if (state.password.length < 6) {
+            _uiState.update { it.copy(passwordError = "Password must be at least 6 characters") }
+            hasError = true
+        }
+
+        if (state.confirmPassword != state.password) {
+            _uiState.update { it.copy(confirmPasswordError = "Passwords do not match") }
+            hasError = true
+        }
+
+        if (!hasError) {
+            viewModelScope.launch {
+                _uiState.update { it.copy(isLoading = true, error = null) }
+                delay(1500)
+                _uiState.update { it.copy(isLoading = false, registrationSuccess = true) }
+            }
+        }
+    }
+    
+    fun resetSuccess() {
+        _uiState.update { it.copy(registrationSuccess = false) }
+    }
+}

@@ -1,0 +1,17 @@
+package com.rahul.fieldflow.features.auth.state
+
+data class EmployeeRegistrationUiState(
+    val fullName: String = "",
+    val fullNameError: String? = null,
+    val email: String = "",
+    val emailError: String? = null,
+    val phone: String = "",
+    val password: String = "",
+    val passwordError: String? = null,
+    val confirmPassword: String = "",
+    val confirmPasswordError: String? = null,
+    val isLoading: Boolean = false,
+    val registrationSuccess: Boolean = false,
+    val error: String? = null,
+    val companyName: String = "ABC Services" // Mock company name
+)

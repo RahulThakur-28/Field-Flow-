@@ -1,4 +1,4 @@
-package com.rahul.fieldflow.features.auth.Registeration
+package com.rahul.fieldflow.features.auth.employee.screen
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -16,27 +16,28 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.rahul.fieldflow.core.common.components.AppTextField
 import com.rahul.fieldflow.core.common.components.HeaderSection
 import com.rahul.fieldflow.core.common.components.PasswordTextField
 import com.rahul.fieldflow.core.common.components.PrimaryButton
+import com.rahul.fieldflow.features.auth.viewmodel.EmployeeRegistrationViewModel
 import com.rahul.fieldflow.ui.theme.*
 
 @Composable
 fun EmployeeRegistrationScreen(
     onBack: () -> Unit,
-    onSuccess: () -> Unit
+    onSuccess: () -> Unit,
+    viewModel: EmployeeRegistrationViewModel = viewModel()
 ) {
-    var fullName by remember { mutableStateOf("") }
-    var email by remember { mutableStateOf("") }
-    var phone by remember { mutableStateOf("") }
-    var password by remember { mutableStateOf("") }
-    var confirmPassword by remember { mutableStateOf("") }
+    val uiState by viewModel.uiState.collectAsState()
 
-    var emailError by remember { mutableStateOf<String?>(null) }
-    var passwordError by remember { mutableStateOf<String?>(null) }
-    var confirmPasswordError by remember { mutableStateOf<String?>(null) }
-    var fullNameError by remember { mutableStateOf<String?>(null) }
+    LaunchedEffect(uiState.registrationSuccess) {
+        if (uiState.registrationSuccess) {
+            onSuccess()
+            viewModel.resetSuccess()
+        }
+    }
 
     val scrollState = rememberScrollState()
 
@@ -54,7 +55,7 @@ fun EmployeeRegistrationScreen(
             
             HeaderSection(
                 title = "Complete your profile",
-                subtitle = "You're joining ABC Services",
+                subtitle = "You're joining ${uiState.companyName}",
                 onBack = onBack
             )
             
@@ -72,7 +73,7 @@ fun EmployeeRegistrationScreen(
                     Icon(Icons.Default.CheckCircle, contentDescription = null, tint = Color(0xFF4CAF50))
                     Spacer(modifier = Modifier.width(12.dp))
                     Column {
-                        Text(text = "ABC Services", fontWeight = FontWeight.Bold, color = TextDark)
+                        Text(text = uiState.companyName, fontWeight = FontWeight.Bold, color = TextDark)
                         Text(text = "Your account will be linked to this company.", fontSize = 12.sp, color = TextSecondary)
                     }
                 }
@@ -81,37 +82,31 @@ fun EmployeeRegistrationScreen(
             Spacer(modifier = Modifier.height(32.dp))
             
             AppTextField(
-                value = fullName,
-                onValueChange = { 
-                    fullName = it
-                    fullNameError = null
-                },
+                value = uiState.fullName,
+                onValueChange = viewModel::onFullNameChange,
                 label = "Full Name *",
                 placeholder = "John Doe",
                 leadingIcon = Icons.Default.Person,
-                errorText = fullNameError
+                errorText = uiState.fullNameError
             )
             
             Spacer(modifier = Modifier.height(16.dp))
             
             AppTextField(
-                value = email,
-                onValueChange = { 
-                    email = it
-                    emailError = null
-                },
+                value = uiState.email,
+                onValueChange = viewModel::onEmailChange,
                 label = "Work Email *",
                 placeholder = "john@company.com",
                 leadingIcon = Icons.Default.Email,
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
-                errorText = emailError
+                errorText = uiState.emailError
             )
             
             Spacer(modifier = Modifier.height(16.dp))
             
             AppTextField(
-                value = phone,
-                onValueChange = { phone = it },
+                value = uiState.phone,
+                onValueChange = viewModel::onPhoneChange,
                 label = "Phone Number",
                 placeholder = "+1 234 567 890",
                 leadingIcon = Icons.Default.Phone,
@@ -121,46 +116,31 @@ fun EmployeeRegistrationScreen(
             Spacer(modifier = Modifier.height(16.dp))
             
             PasswordTextField(
-                value = password,
-                onValueChange = { 
-                    password = it
-                    passwordError = null
-                },
+                value = uiState.password,
+                onValueChange = viewModel::onPasswordChange,
                 label = "Password *",
                 placeholder = "Create a password",
                 leadingIcon = Icons.Default.Lock,
-                errorText = passwordError
+                errorText = uiState.passwordError
             )
             
             Spacer(modifier = Modifier.height(16.dp))
             
             PasswordTextField(
-                value = confirmPassword,
-                onValueChange = { 
-                    confirmPassword = it
-                    confirmPasswordError = null
-                },
+                value = uiState.confirmPassword,
+                onValueChange = viewModel::onConfirmPasswordChange,
                 label = "Confirm Password *",
                 placeholder = "Repeat your password",
                 leadingIcon = Icons.Default.Lock,
-                errorText = confirmPasswordError
+                errorText = uiState.confirmPasswordError
             )
             
             Spacer(modifier = Modifier.height(48.dp))
             
             PrimaryButton(
                 text = "Create Employee Account",
-                onClick = {
-                    if (fullName.isBlank()) fullNameError = "Full name is required"
-                    if (email.isBlank()) emailError = "Email is required"
-                    if (password.length < 6) passwordError = "Password must be at least 6 characters"
-                    if (confirmPassword != password) confirmPasswordError = "Passwords do not match"
-                    
-                    if (fullNameError == null && emailError == null && 
-                        passwordError == null && confirmPasswordError == null) {
-                        onSuccess()
-                    }
-                },
+                onClick = viewModel::register,
+                isLoading = uiState.isLoading,
                 modifier = Modifier.padding(bottom = 48.dp)
             )
         }

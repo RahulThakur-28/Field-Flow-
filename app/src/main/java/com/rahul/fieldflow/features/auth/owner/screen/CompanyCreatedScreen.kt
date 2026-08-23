@@ -1,4 +1,4 @@
-package com.rahul.fieldflow.features.auth
+package com.rahul.fieldflow.features.auth.owner.screen
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -41,7 +41,7 @@ fun CompanyCreatedScreen(
             Spacer(modifier = Modifier.height(16.dp))
             
             Text(
-                text = "Your FieldFlow company has been created successfully.",
+                text = "Your Company in Field Flow  has been created successfully.",
                 style = MaterialTheme.typography.bodyLarge,
                 color = TextSecondary,
                 textAlign = TextAlign.Center

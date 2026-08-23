@@ -51,16 +51,7 @@ fun OwnerTasksScreen(
         bottomBar = {
             FieldFlowBottomNavigation(
                 items = BottomNavigationConfig.ownerItems,
-                selectedRoute = AppRoutes.OwnerTasks,
-                onItemClick = { route ->
-                    if (route != AppRoutes.OwnerTasks) {
-                        navController.navigate(route) {
-                            popUpTo(AppRoutes.OwnerHome) { saveState = true }
-                            launchSingleTop = true
-                            restoreState = true
-                        }
-                    }
-                }
+                navController = navController
             )
         },
         floatingActionButton = {

@@ -58,12 +58,7 @@ fun EmployeeHomeContent(
         bottomBar = {
             FieldFlowBottomNavigation(
                 items = BottomNavigationConfig.employeeItems,
-                selectedRoute = AppRoutes.EmployeeHome,
-                onItemClick = { route ->
-                    if (route != AppRoutes.EmployeeHome) {
-                        navController.navigate(route)
-                    }
-                }
+                navController = navController
             )
         }
     ) { innerPadding ->

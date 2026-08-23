@@ -45,16 +45,7 @@ fun EmployeeTasksScreen(
         bottomBar = {
             FieldFlowBottomNavigation(
                 items = BottomNavigationConfig.employeeItems,
-                selectedRoute = AppRoutes.EmployeeTasks,
-                onItemClick = { route ->
-                    if (route != AppRoutes.EmployeeTasks) {
-                        navController.navigate(route) {
-                            popUpTo(AppRoutes.EmployeeHome) { saveState = true }
-                            launchSingleTop = true
-                            restoreState = true
-                        }
-                    }
-                }
+                navController = navController
             )
         }
     ) { padding ->

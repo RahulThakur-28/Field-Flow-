@@ -1,6 +1,5 @@
-package com.rahul.fieldflow.features.auth
+package com.rahul.fieldflow.features.auth.employee.screen
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -16,23 +15,27 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.rahul.fieldflow.core.common.components.AppTextField
 import com.rahul.fieldflow.core.common.components.HeaderSection
 import com.rahul.fieldflow.core.common.components.PrimaryButton
+import com.rahul.fieldflow.features.auth.viewmodel.EmployeeJoinViewModel
 import com.rahul.fieldflow.ui.theme.*
 
 @Composable
 fun CompanyFoundScreen(
     onBack: () -> Unit,
-    onSendRequest: () -> Unit
+    onSendRequest: () -> Unit,
+    viewModel: EmployeeJoinViewModel = viewModel()
 ) {
-    var fullName by remember { mutableStateOf("") }
-    var email by remember { mutableStateOf("") }
-    var phone by remember { mutableStateOf("") }
-    
-    var fullNameError by remember { mutableStateOf<String?>(null) }
-    var emailError by remember { mutableStateOf<String?>(null) }
+    val uiState by viewModel.uiState.collectAsState()
+
+    LaunchedEffect(uiState.requestSent) {
+        if (uiState.requestSent) {
+            onSendRequest()
+            viewModel.resetState()
+        }
+    }
 
     val scrollState = rememberScrollState()
 
@@ -80,13 +83,13 @@ fun CompanyFoundScreen(
                     
                     Column {
                         Text(
-                            text = "ABC Services",
+                            text = uiState.foundCompanyName,
                             style = MaterialTheme.typography.titleLarge,
                             color = TextDark,
                             fontWeight = FontWeight.Bold
                         )
                         Text(
-                            text = "Company ID: 58321476",
+                            text = "Company ID: ${uiState.foundCompanyId}",
                             style = MaterialTheme.typography.bodyMedium,
                             color = TextSecondary
                         )
@@ -106,37 +109,31 @@ fun CompanyFoundScreen(
             Spacer(modifier = Modifier.height(16.dp))
             
             AppTextField(
-                value = fullName,
-                onValueChange = { 
-                    fullName = it
-                    fullNameError = null
-                },
+                value = uiState.fullName,
+                onValueChange = viewModel::onFullNameChange,
                 label = "Full Name *",
                 placeholder = "Jane Doe",
                 leadingIcon = Icons.Default.Person,
-                errorText = fullNameError
+                errorText = uiState.fullNameError
             )
             
             Spacer(modifier = Modifier.height(16.dp))
             
             AppTextField(
-                value = email,
-                onValueChange = { 
-                    email = it
-                    emailError = null
-                },
+                value = uiState.email,
+                onValueChange = viewModel::onEmailChange,
                 label = "Work Email *",
                 placeholder = "jane@company.com",
                 leadingIcon = Icons.Default.Email,
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
-                errorText = emailError
+                errorText = uiState.emailError
             )
             
             Spacer(modifier = Modifier.height(16.dp))
             
             AppTextField(
-                value = phone,
-                onValueChange = { phone = it },
+                value = uiState.phone,
+                onValueChange = viewModel::onPhoneChange,
                 label = "Phone Number",
                 placeholder = "+1 234 567 890",
                 leadingIcon = Icons.Default.Phone,
@@ -147,14 +144,8 @@ fun CompanyFoundScreen(
             
             PrimaryButton(
                 text = "Send Join Request",
-                onClick = {
-                    if (fullName.isBlank()) fullNameError = "Full name is required"
-                    if (email.isBlank()) emailError = "Email is required"
-                    
-                    if (fullNameError == null && emailError == null) {
-                        onSendRequest()
-                    }
-                },
+                onClick = viewModel::sendJoinRequest,
+                isLoading = uiState.isSubmitting,
                 modifier = Modifier.padding(bottom = 32.dp)
             )
         }

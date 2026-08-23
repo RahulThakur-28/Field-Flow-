@@ -1,4 +1,4 @@
-package com.rahul.fieldflow.features.auth.Login
+package com.rahul.fieldflow.features.auth.common.screen
 
 import android.util.Patterns
 import androidx.compose.foundation.Image
@@ -18,22 +18,28 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.rahul.fieldflow.R
 import com.rahul.fieldflow.core.common.components.AppTextField
 import com.rahul.fieldflow.core.common.components.PasswordTextField
 import com.rahul.fieldflow.core.common.components.PrimaryButton
+import com.rahul.fieldflow.features.auth.viewmodel.LoginViewModel
 import com.rahul.fieldflow.ui.theme.*
 
 @Composable
 fun LoginScreen(
     onNavigateToRegister: () -> Unit,
-    onLoginSuccess: () -> Unit
+    onLoginSuccess: () -> Unit,
+    viewModel: LoginViewModel = viewModel()
 ) {
-    var email by remember { mutableStateOf("") }
-    var password by remember { mutableStateOf("") }
-    var emailError by remember { mutableStateOf<String?>(null) }
-    var passwordError by remember { mutableStateOf<String?>(null) }
-    var isLoading by remember { mutableStateOf(false) }
+    val uiState by viewModel.uiState.collectAsState()
+
+    LaunchedEffect(uiState.loginSuccess) {
+        if (uiState.loginSuccess) {
+            onLoginSuccess()
+            viewModel.resetSuccess()
+        }
+    }
 
     val scrollState = rememberScrollState()
 
@@ -74,30 +80,24 @@ fun LoginScreen(
             Spacer(modifier = Modifier.height(48.dp))
             
             AppTextField(
-                value = email,
-                onValueChange = { 
-                    email = it
-                    emailError = null 
-                },
+                value = uiState.email,
+                onValueChange = viewModel::onEmailChange,
                 label = "Work Email",
                 placeholder = "you@company.com",
                 leadingIcon = Icons.Default.Email,
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
-                errorText = emailError
+                errorText = uiState.emailError
             )
             
             Spacer(modifier = Modifier.height(20.dp))
             
             PasswordTextField(
-                value = password,
-                onValueChange = { 
-                    password = it
-                    passwordError = null
-                },
+                value = uiState.password,
+                onValueChange = viewModel::onPasswordChange,
                 label = "Password",
                 placeholder = "Enter your password",
                 leadingIcon = Icons.Default.Lock,
-                errorText = passwordError
+                errorText = uiState.passwordError
             )
             
             Box(
@@ -117,24 +117,8 @@ fun LoginScreen(
             
             PrimaryButton(
                 text = "Log In",
-                onClick = {
-                    if (email.isBlank()) {
-                        emailError = "Email is required"
-                    } else if (!Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
-                        emailError = "Invalid email format"
-                    }
-                    
-                    if (password.isBlank()) {
-                        passwordError = "Password is required"
-                    }
-                    
-                    if (emailError == null && passwordError == null) {
-                        isLoading = true
-                        // Simulated login
-                        onLoginSuccess()
-                    }
-                },
-                isLoading = isLoading
+                onClick = viewModel::login,
+                isLoading = uiState.isLoading
             )
             
             Spacer(modifier = Modifier.weight(1f))

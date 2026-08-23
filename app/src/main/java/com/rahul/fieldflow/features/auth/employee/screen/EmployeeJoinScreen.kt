@@ -1,4 +1,4 @@
-package com.rahul.fieldflow.features.auth
+package com.rahul.fieldflow.features.auth.employee.screen
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.KeyboardOptions
@@ -10,12 +10,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.rahul.fieldflow.core.common.components.AppTextField
 import com.rahul.fieldflow.core.common.components.HeaderSection
 import com.rahul.fieldflow.core.common.components.PrimaryButton
+import com.rahul.fieldflow.features.auth.viewmodel.EmployeeJoinViewModel
 import com.rahul.fieldflow.ui.theme.BackgroundLight
 import com.rahul.fieldflow.ui.theme.PrimaryBlue
 import com.rahul.fieldflow.ui.theme.TextSecondary
@@ -24,10 +25,19 @@ import com.rahul.fieldflow.ui.theme.TextSecondary
 fun EmployeeJoinScreen(
     onBack: () -> Unit,
     onCompanyFound: () -> Unit,
-    onNavigateToInvitation: () -> Unit
+    onNavigateToInvitation: () -> Unit,
+    viewModel: EmployeeJoinViewModel = viewModel()
 ) {
-    var companyId by remember { mutableStateOf("") }
-    var companyIdError by remember { mutableStateOf<String?>(null) }
+    val uiState by viewModel.uiState.collectAsState()
+
+    LaunchedEffect(uiState.companyFound) {
+        if (uiState.companyFound) {
+            onCompanyFound()
+            // Reset search state so if they come back it's fresh, 
+            // but keep companyId if that's desired behavior. 
+            // For now, simple transition.
+        }
+    }
 
     Surface(
         modifier = Modifier.fillMaxSize(),
@@ -49,31 +59,21 @@ fun EmployeeJoinScreen(
             Spacer(modifier = Modifier.height(48.dp))
             
             AppTextField(
-                value = companyId,
-                onValueChange = { 
-                    if (it.length <= 8) {
-                        companyId = it
-                        companyIdError = null
-                    }
-                },
+                value = uiState.companyId,
+                onValueChange = viewModel::onCompanyIdChange,
                 label = "Company ID",
                 placeholder = "0 0 0 0 0 0 0 0",
                 leadingIcon = Icons.Default.Business,
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                errorText = companyIdError
+                errorText = uiState.companyIdError
             )
             
             Spacer(modifier = Modifier.height(32.dp))
             
             PrimaryButton(
                 text = "Find Company",
-                onClick = {
-                    if (companyId.length == 8) {
-                        onCompanyFound()
-                    } else {
-                        companyIdError = "Please enter exactly 8 digits"
-                    }
-                }
+                onClick = viewModel::findCompany,
+                isLoading = uiState.isSearching
             )
             
             Spacer(modifier = Modifier.height(24.dp))

@@ -1,4 +1,4 @@
-package com.rahul.fieldflow.features.auth
+package com.rahul.fieldflow.features.auth.common.screen
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.*
