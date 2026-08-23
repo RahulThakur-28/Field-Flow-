@@ -76,6 +76,9 @@ sealed class AppRoutes {
     data object Team : AppRoutes()
 
     @Serializable
+    data class ReportDetails(val reportId: String) : AppRoutes()
+
+    @Serializable
     data object Reports : AppRoutes()
 
     @Serializable

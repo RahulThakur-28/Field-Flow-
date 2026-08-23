@@ -14,15 +14,17 @@ import com.rahul.fieldflow.features.home.employee.screen.EmployeeHomeScreen
 import com.rahul.fieldflow.domain.models.UserRole
 import com.rahul.fieldflow.features.tasks.navigation.taskNavigation
 import com.rahul.fieldflow.features.team.navigation.teamNavigation
+import com.rahul.fieldflow.features.reports.navigation.reportsNavigation
+import com.rahul.fieldflow.features.analytics.navigation.analyticsNavigation
 
 @Composable
 fun AppNavGraph(navController: NavHostController) {
 
-    val simulatedRole = UserRole.EMPLOYEE
+    val simulatedRole = UserRole.OWNER
 
     NavHost(
         navController = navController,
-        startDestination =AppRoutes.EmployeeHome
+        startDestination =AppRoutes.OwnerHome
     ) {
         composable<AppRoutes.Splash> {
             SplashScreen(
@@ -134,5 +136,7 @@ fun AppNavGraph(navController: NavHostController) {
 
         taskNavigation(navController)
         teamNavigation(navController)
+        reportsNavigation(navController)
+        analyticsNavigation(navController)
     }
 }
