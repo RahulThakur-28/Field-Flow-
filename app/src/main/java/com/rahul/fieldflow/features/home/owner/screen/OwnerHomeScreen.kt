@@ -20,8 +20,9 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.rahul.fieldflow.core.navigation.AppRoutes
+import com.rahul.fieldflow.features.bottomnavigation.components.FieldFlowBottomNavigation
+import com.rahul.fieldflow.features.bottomnavigation.navigation.BottomNavigationConfig
 import com.rahul.fieldflow.features.home.components.*
-import com.rahul.fieldflow.features.home.navigation.HomeNavigation
 import com.rahul.fieldflow.features.home.owner.components.*
 import com.rahul.fieldflow.features.home.owner.state.OwnerHomeUiState
 import com.rahul.fieldflow.features.home.owner.viewmodel.OwnerHomeViewModel
@@ -58,11 +59,15 @@ fun OwnerHomeContent(
         containerColor = BackgroundLight,
         bottomBar = {
             FieldFlowBottomNavigation(
-                items = HomeNavigation.ownerItems,
+                items = BottomNavigationConfig.ownerItems,
                 selectedRoute = AppRoutes.OwnerHome,
                 onItemClick = { route ->
                     if (route != AppRoutes.OwnerHome) {
-                        navController.navigate(route)
+                        navController.navigate(route) {
+                            popUpTo(AppRoutes.OwnerHome) { saveState = true }
+                            launchSingleTop = true
+                            restoreState = true
+                        }
                     }
                 }
             )

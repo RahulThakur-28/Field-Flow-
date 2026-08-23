@@ -11,6 +11,7 @@ import com.rahul.fieldflow.features.team.screen.OwnerTeamScreen
 fun NavGraphBuilder.teamNavigation(navController: NavController) {
     composable<AppRoutes.Team> {
         OwnerTeamScreen(
+            navController = navController,
             onMemberClick = { employeeId: String ->
                 navController.navigate(AppRoutes.EmployeeDetails(employeeId))
             }

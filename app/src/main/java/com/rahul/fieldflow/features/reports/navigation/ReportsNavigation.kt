@@ -11,6 +11,7 @@ import com.rahul.fieldflow.features.reports.screen.ReportDetailsScreen
 fun NavGraphBuilder.reportsNavigation(navController: NavController) {
     composable<AppRoutes.Reports> {
         OwnerReportsScreen(
+            navController = navController,
             onReportClick = { reportId: String ->
                 navController.navigate(AppRoutes.ReportDetails(reportId))
             }

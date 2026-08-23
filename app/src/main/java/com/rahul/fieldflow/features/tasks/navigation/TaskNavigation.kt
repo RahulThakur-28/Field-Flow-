@@ -14,6 +14,7 @@ fun NavGraphBuilder.taskNavigation(navController: NavController) {
         // Owner Routes
         composable<AppRoutes.OwnerTasks> {
             OwnerTasksScreen(
+                navController = navController,
                 onTaskClick = { taskId ->
                     navController.navigate(AppRoutes.TaskDetails(taskId))
                 },
@@ -64,6 +65,7 @@ fun NavGraphBuilder.taskNavigation(navController: NavController) {
         // Employee Routes
         composable<AppRoutes.EmployeeTasks> {
             EmployeeTasksScreen(
+                navController = navController,
                 onTaskClick = { taskId ->
                     navController.navigate(AppRoutes.EmployeeTaskDetails(taskId))
                 }

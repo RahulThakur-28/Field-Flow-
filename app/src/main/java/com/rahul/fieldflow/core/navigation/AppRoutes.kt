@@ -86,4 +86,13 @@ sealed class AppRoutes {
 
     @Serializable
     data object Profile : AppRoutes()
+
+    @Serializable
+    data object OwnerEditProfile : AppRoutes()
+
+    @Serializable
+    data object OwnerNotificationPreferences : AppRoutes()
+
+    @Serializable
+    data object OwnerAccountSettings : AppRoutes()
 }

@@ -20,8 +20,8 @@ import com.rahul.fieldflow.core.navigation.AppRoutes
 import com.rahul.fieldflow.features.analytics.components.*
 import com.rahul.fieldflow.features.analytics.state.AnalyticsUiState
 import com.rahul.fieldflow.features.analytics.viewmodel.AnalyticsViewModel
-import com.rahul.fieldflow.features.home.components.FieldFlowBottomNavigation
-import com.rahul.fieldflow.features.home.navigation.HomeNavigation
+import com.rahul.fieldflow.features.bottomnavigation.components.FieldFlowBottomNavigation
+import com.rahul.fieldflow.features.bottomnavigation.navigation.BottomNavigationConfig
 import com.rahul.fieldflow.ui.theme.BackgroundLight
 import com.rahul.fieldflow.ui.theme.FieldFlowTheme
 import com.rahul.fieldflow.ui.theme.PrimaryBlue
@@ -50,7 +50,7 @@ fun OwnerAnalyticsScreen(
         },
         bottomBar = {
             FieldFlowBottomNavigation(
-                items = HomeNavigation.ownerItems,
+                items = BottomNavigationConfig.ownerItems,
                 selectedRoute = AppRoutes.Analytics,
                 onItemClick = { route ->
                     if (route != AppRoutes.Analytics) {

@@ -13,6 +13,11 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
+import com.rahul.fieldflow.core.navigation.AppRoutes
+import com.rahul.fieldflow.features.bottomnavigation.components.FieldFlowBottomNavigation
+import com.rahul.fieldflow.features.bottomnavigation.navigation.BottomNavigationConfig
 import com.rahul.fieldflow.features.tasks.components.TaskCard
 import com.rahul.fieldflow.features.tasks.components.TaskFilterTabs
 import com.rahul.fieldflow.features.tasks.employee.state.EmployeeTasksUiState
@@ -25,6 +30,7 @@ import com.rahul.fieldflow.ui.theme.TextSecondary
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun EmployeeTasksScreen(
+    navController: NavController,
     onTaskClick: (String) -> Unit,
     viewModel: EmployeeTasksViewModel = viewModel()
 ) {
@@ -34,6 +40,21 @@ fun EmployeeTasksScreen(
         topBar = {
             TopAppBar(
                 title = { Text("My Tasks", fontWeight = FontWeight.Bold) }
+            )
+        },
+        bottomBar = {
+            FieldFlowBottomNavigation(
+                items = BottomNavigationConfig.employeeItems,
+                selectedRoute = AppRoutes.EmployeeTasks,
+                onItemClick = { route ->
+                    if (route != AppRoutes.EmployeeTasks) {
+                        navController.navigate(route) {
+                            popUpTo(AppRoutes.EmployeeHome) { saveState = true }
+                            launchSingleTop = true
+                            restoreState = true
+                        }
+                    }
+                }
             )
         }
     ) { padding ->
@@ -120,6 +141,9 @@ private fun EmptyState(tabIndex: Int) {
 @Composable
 fun EmployeeTasksScreenPreview() {
     FieldFlowTheme {
-        EmployeeTasksScreen(onTaskClick = {})
+        EmployeeTasksScreen(
+            navController = rememberNavController(),
+            onTaskClick = {}
+        )
     }
 }

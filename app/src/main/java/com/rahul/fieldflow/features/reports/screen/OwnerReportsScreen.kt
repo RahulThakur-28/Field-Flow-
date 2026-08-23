@@ -15,6 +15,11 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
+import com.rahul.fieldflow.core.navigation.AppRoutes
+import com.rahul.fieldflow.features.bottomnavigation.components.FieldFlowBottomNavigation
+import com.rahul.fieldflow.features.bottomnavigation.navigation.BottomNavigationConfig
 import com.rahul.fieldflow.features.home.model.StatusBadgeType
 import com.rahul.fieldflow.features.home.model.SummaryStatUiModel
 import com.rahul.fieldflow.features.reports.components.ReportCard
@@ -29,6 +34,7 @@ import com.rahul.fieldflow.ui.theme.TextSecondary
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun OwnerReportsScreen(
+    navController: NavController,
     onReportClick: (String) -> Unit,
     viewModel: ReportsViewModel = viewModel()
 ) {
@@ -49,6 +55,21 @@ fun OwnerReportsScreen(
                 },
                 actions = {
                     PendingBadge(count = uiState.needsReviewCount)
+                }
+            )
+        },
+        bottomBar = {
+            FieldFlowBottomNavigation(
+                items = BottomNavigationConfig.ownerItems,
+                selectedRoute = AppRoutes.Reports,
+                onItemClick = { route ->
+                    if (route != AppRoutes.Reports) {
+                        navController.navigate(route) {
+                            popUpTo(AppRoutes.OwnerHome) { saveState = true }
+                            launchSingleTop = true
+                            restoreState = true
+                        }
+                    }
                 }
             )
         }
@@ -128,6 +149,9 @@ fun PendingBadge(count: Int) {
 @Composable
 fun OwnerReportsScreenPreview() {
     FieldFlowTheme {
-        OwnerReportsScreen(onReportClick = {})
+        OwnerReportsScreen(
+            navController = rememberNavController(),
+            onReportClick = {}
+        )
     }
 }

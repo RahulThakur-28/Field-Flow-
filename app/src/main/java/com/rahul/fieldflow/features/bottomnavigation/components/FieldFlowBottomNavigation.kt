@@ -1,4 +1,4 @@
-package com.rahul.fieldflow.features.home.components
+package com.rahul.fieldflow.features.bottomnavigation.components
 
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
@@ -8,7 +8,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import com.rahul.fieldflow.features.home.navigation.NavigationItemUiModel
+import com.rahul.fieldflow.features.bottomnavigation.model.NavigationItemUiModel
 import com.rahul.fieldflow.ui.theme.PrimaryBlue
 import com.rahul.fieldflow.ui.theme.TextSecondary
 

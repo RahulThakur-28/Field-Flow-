@@ -15,7 +15,8 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.rahul.fieldflow.core.navigation.AppRoutes
-import com.rahul.fieldflow.features.home.components.FieldFlowBottomNavigation
+import com.rahul.fieldflow.features.bottomnavigation.components.FieldFlowBottomNavigation
+import com.rahul.fieldflow.features.bottomnavigation.navigation.BottomNavigationConfig
 import com.rahul.fieldflow.features.home.components.FieldFlowHeader
 import com.rahul.fieldflow.features.home.components.SectionHeader
 import com.rahul.fieldflow.features.home.components.SummaryStatCard
@@ -25,7 +26,6 @@ import com.rahul.fieldflow.features.home.employee.components.ScheduleTaskCard
 import com.rahul.fieldflow.features.home.employee.state.EmployeeHomeUiState
 import com.rahul.fieldflow.features.home.employee.viewmodel.EmployeeHomeViewModel
 import com.rahul.fieldflow.features.home.model.dummyEmployeeHomeUiState
-import com.rahul.fieldflow.features.home.navigation.HomeNavigation
 import com.rahul.fieldflow.ui.theme.BackgroundLight
 import com.rahul.fieldflow.ui.theme.FieldFlowTheme
 
@@ -57,7 +57,7 @@ fun EmployeeHomeContent(
         containerColor = BackgroundLight,
         bottomBar = {
             FieldFlowBottomNavigation(
-                items = HomeNavigation.employeeItems,
+                items = BottomNavigationConfig.employeeItems,
                 selectedRoute = AppRoutes.EmployeeHome,
                 onItemClick = { route ->
                     if (route != AppRoutes.EmployeeHome) {

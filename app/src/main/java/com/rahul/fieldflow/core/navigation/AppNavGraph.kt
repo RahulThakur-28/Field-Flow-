@@ -16,6 +16,7 @@ import com.rahul.fieldflow.features.tasks.navigation.taskNavigation
 import com.rahul.fieldflow.features.team.navigation.teamNavigation
 import com.rahul.fieldflow.features.reports.navigation.reportsNavigation
 import com.rahul.fieldflow.features.analytics.navigation.analyticsNavigation
+import com.rahul.fieldflow.features.profile.navigation.profileNavigation
 
 @Composable
 fun AppNavGraph(navController: NavHostController) {
@@ -138,5 +139,6 @@ fun AppNavGraph(navController: NavHostController) {
         teamNavigation(navController)
         reportsNavigation(navController)
         analyticsNavigation(navController)
+        profileNavigation(navController)
     }
 }

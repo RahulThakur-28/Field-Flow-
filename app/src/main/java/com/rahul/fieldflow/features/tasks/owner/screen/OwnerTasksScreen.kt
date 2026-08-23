@@ -14,6 +14,11 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
+import com.rahul.fieldflow.core.navigation.AppRoutes
+import com.rahul.fieldflow.features.bottomnavigation.components.FieldFlowBottomNavigation
+import com.rahul.fieldflow.features.bottomnavigation.navigation.BottomNavigationConfig
 import com.rahul.fieldflow.features.tasks.components.TaskCard
 import com.rahul.fieldflow.features.tasks.components.TaskFilterTabs
 import com.rahul.fieldflow.features.tasks.components.TaskSearchBar
@@ -25,6 +30,7 @@ import com.rahul.fieldflow.ui.theme.PrimaryBlue
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun OwnerTasksScreen(
+    navController: NavController,
     onTaskClick: (String) -> Unit,
     onCreateTaskClick: () -> Unit,
     viewModel: OwnerTasksViewModel = viewModel()
@@ -40,6 +46,21 @@ fun OwnerTasksScreen(
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = MaterialTheme.colorScheme.background
                 )
+            )
+        },
+        bottomBar = {
+            FieldFlowBottomNavigation(
+                items = BottomNavigationConfig.ownerItems,
+                selectedRoute = AppRoutes.OwnerTasks,
+                onItemClick = { route ->
+                    if (route != AppRoutes.OwnerTasks) {
+                        navController.navigate(route) {
+                            popUpTo(AppRoutes.OwnerHome) { saveState = true }
+                            launchSingleTop = true
+                            restoreState = true
+                        }
+                    }
+                }
             )
         },
         floatingActionButton = {
@@ -98,6 +119,10 @@ fun OwnerTasksScreen(
 @Composable
 fun OwnerTasksScreenPreview() {
     FieldFlowTheme {
-        OwnerTasksScreen(onTaskClick = {}, onCreateTaskClick = {})
+        OwnerTasksScreen(
+            navController = rememberNavController(),
+            onTaskClick = {},
+            onCreateTaskClick = {}
+        )
     }
 }
