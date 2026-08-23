@@ -24,10 +24,12 @@ import com.rahul.fieldflow.ui.theme.TextSecondary
 @Composable
 fun SummaryStatCard(
     stat: SummaryStatUiModel,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    onClick: () -> Unit = {}
 ) {
     Card(
         modifier = modifier,
+        onClick = onClick,
         shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(
             containerColor = Color.White

@@ -26,7 +26,8 @@ class OwnerHomeViewModel : ViewModel() {
             stats = mockData.stats,
             liveVisits = mockData.liveVisits,
             teamStatus = mockData.teamStatus,
-            recentActivity = mockData.recentActivity
+            recentActivity = mockData.recentActivity,
+            currentStep = 2 // Default step for demo
         )
     )
     val uiState: StateFlow<OwnerHomeUiState> = _uiState.asStateFlow()
@@ -35,7 +36,13 @@ class OwnerHomeViewModel : ViewModel() {
         viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true) }
             delay(1500) // Simulate network delay
-            _uiState.update { it.copy(isLoading = false) }
+            // Optionally update mock data or steps on refresh
+            _uiState.update { 
+                it.copy(
+                    isLoading = false,
+                    currentStep = (it.currentStep + 1) % 5 // Cycle steps for demo
+                ) 
+            }
         }
     }
 }

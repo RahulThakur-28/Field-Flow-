@@ -19,11 +19,12 @@ import com.rahul.fieldflow.ui.theme.TextDark
 @Composable
 fun SectionHeader(
     title: String,
+    modifier: Modifier = Modifier,
     actionText: String? = null,
     onActionClick: () -> Unit = {}
 ) {
     Row(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
             .padding(vertical = 12.dp),
         horizontalArrangement = Arrangement.SpaceBetween,

@@ -102,7 +102,8 @@ fun EmployeeHomeContent(
                     uiState.stats.forEach { stat ->
                         SummaryStatCard(
                             stat = stat,
-                            modifier = Modifier.weight(1f)
+                            modifier = Modifier.weight(1f),
+                            onClick = { navController.navigate(AppRoutes.Tasks) }
                         )
                     }
                 }
@@ -120,7 +121,7 @@ fun EmployeeHomeContent(
                     NextTaskCard(
                         task = task,
                         onClick = {
-                            // TODO: Navigate to task details
+                            navController.navigate(AppRoutes.Tasks)
                         }
                     )
 
@@ -148,7 +149,7 @@ fun EmployeeHomeContent(
                 ScheduleTaskCard(
                     task = task,
                     onClick = {
-                        // TODO: Navigate to task details
+                        navController.navigate(AppRoutes.Tasks)
                     }
                 )
 
@@ -173,7 +174,10 @@ fun EmployeeHomeContent(
                 QuickAccessCard(
                     item = quickAccessItem,
                     onClick = {
-                        // TODO: Handle quick access action
+                        when (quickAccessItem.title) {
+                            "My Tasks" -> navController.navigate(AppRoutes.Tasks)
+                            "Reports" -> navController.navigate(AppRoutes.Reports)
+                        }
                     }
                 )
 

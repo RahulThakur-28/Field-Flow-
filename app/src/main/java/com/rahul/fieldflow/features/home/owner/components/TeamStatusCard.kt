@@ -1,5 +1,6 @@
 package com.rahul.fieldflow.features.home.owner.components
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -15,10 +16,15 @@ import com.rahul.fieldflow.ui.theme.TextDark
 import com.rahul.fieldflow.ui.theme.TextSecondary
 
 @Composable
-fun TeamStatusCard(member: TeamMemberUiModel) {
+fun TeamStatusCard(
+    member: TeamMemberUiModel,
+    modifier: Modifier = Modifier,
+    onClick: () -> Unit = {}
+) {
     Row(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
+            .clickable { onClick() }
             .padding(vertical = 12.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {

@@ -1,5 +1,6 @@
 package com.rahul.fieldflow.features.home.owner.components
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -21,9 +22,11 @@ import com.rahul.fieldflow.ui.theme.TextDark
 import com.rahul.fieldflow.ui.theme.TextSecondary
 
 @Composable
-fun LiveVisitCard(visit: FieldVisitUiModel, modifier: Modifier = Modifier) {
+fun LiveVisitCard(visit: FieldVisitUiModel, modifier: Modifier = Modifier, onClick: () -> Unit = {}) {
     Card(
-        modifier = modifier.fillMaxWidth(),
+        modifier = modifier
+            .fillMaxWidth()
+            .clickable { onClick() },
         shape = RoundedCornerShape(20.dp),
         colors = CardDefaults.cardColors(containerColor = Color.White),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)

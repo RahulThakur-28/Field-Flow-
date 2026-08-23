@@ -1,5 +1,6 @@
 package com.rahul.fieldflow.features.home.owner.screen
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -11,6 +12,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -25,6 +27,7 @@ import com.rahul.fieldflow.features.home.owner.state.OwnerHomeUiState
 import com.rahul.fieldflow.features.home.owner.viewmodel.OwnerHomeViewModel
 import com.rahul.fieldflow.ui.theme.BackgroundLight
 import com.rahul.fieldflow.ui.theme.FieldFlowTheme
+import com.rahul.fieldflow.ui.theme.PrimaryBlue
 import com.rahul.fieldflow.ui.theme.SecondaryIndigo
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -63,34 +66,62 @@ fun OwnerHomeContent(
                     }
                 }
             )
+        },
+        floatingActionButton = {
+            FloatingActionButton(
+                onClick = { navController.navigate(AppRoutes.Tasks) },
+                containerColor = PrimaryBlue,
+                contentColor = Color.White
+            ) {
+                Icon(Icons.Default.Add, contentDescription = "Create Task")
+            }
         }
     ) { paddingValues ->
         LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
-                .padding(horizontal = 20.dp)
         ) {
             item {
-                FieldFlowHeader(
-                    date = "Friday, Aug 22 • ${uiState.location}",
-                    userName = uiState.userName,
-                    subtitle = "Here's what's happening today.",
-                    initials = uiState.initials,
-                    notificationCount = uiState.notificationCount,
-                    onProfileClick = { navController.navigate(AppRoutes.Profile) },
-                    onNotificationClick = { /* Handle notifications */ }
-                )
-            }
-
-            item {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(12.dp)
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .background(
+                            brush = Brush.verticalGradient(
+                                colors = listOf(
+                                    PrimaryBlue.copy(alpha = 0.1f),
+                                    BackgroundLight
+                                )
+                            )
+                        )
+                        .padding(horizontal = 20.dp)
                 ) {
-                    uiState.stats.forEach { stat ->
-                        SummaryStatCard(stat = stat, modifier = Modifier.weight(1f))
+                    FieldFlowHeader(
+                        date = "Friday, Aug 22 • ${uiState.location}",
+                        userName = uiState.userName,
+                        subtitle = "Here's what's happening today.",
+                        initials = uiState.initials,
+                        notificationCount = uiState.notificationCount,
+                        onProfileClick = { navController.navigate(AppRoutes.Profile) },
+                        onNotificationClick = { /* Handle notifications */ }
+                    )
+
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(12.dp)
+                    ) {
+                        uiState.stats.forEach { stat ->
+                            SummaryStatCard(
+                                stat = stat, 
+                                modifier = Modifier.weight(1f),
+                                onClick = { navController.navigate(AppRoutes.Analytics) }
+                            )
+                        }
                     }
+
+                    WorkflowIndicator(currentStep = uiState.currentStep)
+                    
+                    Spacer(modifier = Modifier.height(8.dp))
                 }
             }
 
@@ -98,26 +129,36 @@ fun OwnerHomeContent(
                 SectionHeader(
                     title = "🔴 Live Field Visits",
                     actionText = "All Tasks",
+                    modifier = Modifier.padding(horizontal = 20.dp),
                     onActionClick = { navController.navigate(AppRoutes.Tasks) }
                 )
             }
 
             items(uiState.liveVisits) { visit ->
-                LiveVisitCard(visit = visit)
+                LiveVisitCard(
+                    visit = visit,
+                    modifier = Modifier.padding(horizontal = 20.dp),
+                    onClick = { navController.navigate(AppRoutes.Tasks) }
+                )
                 Spacer(modifier = Modifier.height(16.dp))
             }
 
             item {
-                SectionHeader(title = "Quick Actions")
+                SectionHeader(
+                    title = "Quick Actions",
+                    modifier = Modifier.padding(horizontal = 20.dp)
+                )
                 Row(
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 20.dp),
                     horizontalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
                     QuickActionCard(
                         icon = Icons.Default.Add,
                         title = "New Task",
                         accentColor = Color(0xFF5267E8),
-                        onClick = { /* Navigate to Create Task */ }
+                        onClick = { navController.navigate(AppRoutes.Tasks) }
                     )
                     QuickActionCard(
                         icon = Icons.Default.MyLocation,
@@ -138,17 +179,28 @@ fun OwnerHomeContent(
                 SectionHeader(
                     title = "Team Status",
                     actionText = "View Team",
+                    modifier = Modifier.padding(horizontal = 20.dp),
                     onActionClick = { navController.navigate(AppRoutes.Team) }
                 )
             }
 
             items(uiState.teamStatus) { member ->
-                TeamStatusCard(member = member)
+                TeamStatusCard(
+                    member = member,
+                    modifier = Modifier.padding(horizontal = 20.dp),
+                    onClick = { navController.navigate(AppRoutes.Team) }
+                )
             }
 
             item {
-                SectionHeader(title = "Today's Activity")
-                ActivityTimeline(activities = uiState.recentActivity)
+                SectionHeader(
+                    title = "Today's Activity",
+                    modifier = Modifier.padding(horizontal = 20.dp)
+                )
+                ActivityTimeline(
+                    activities = uiState.recentActivity,
+                    modifier = Modifier.padding(horizontal = 20.dp)
+                )
             }
             
             item {

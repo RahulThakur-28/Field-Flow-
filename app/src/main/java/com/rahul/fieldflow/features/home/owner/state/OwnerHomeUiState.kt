@@ -14,5 +14,6 @@ data class OwnerHomeUiState(
     val stats: List<SummaryStatUiModel> = emptyList(),
     val liveVisits: List<FieldVisitUiModel> = emptyList(),
     val teamStatus: List<TeamMemberUiModel> = emptyList(),
-    val recentActivity: List<ActivityItemUiModel> = emptyList()
+    val recentActivity: List<ActivityItemUiModel> = emptyList(),
+    val currentStep: Int = 0
 )

@@ -46,6 +46,21 @@ sealed class AppRoutes {
     data object EmployeeHome : AppRoutes()
 
     @Serializable
+    data object OwnerTasks : AppRoutes()
+
+    @Serializable
+    data object CreateTask : AppRoutes()
+
+    @Serializable
+    data class TaskDetails(val taskId: String) : AppRoutes()
+
+    @Serializable
+    data class EditTask(val taskId: String) : AppRoutes()
+
+    @Serializable
+    data class LiveTracking(val taskId: String) : AppRoutes()
+
+    @Serializable
     data object Tasks : AppRoutes()
 
     @Serializable

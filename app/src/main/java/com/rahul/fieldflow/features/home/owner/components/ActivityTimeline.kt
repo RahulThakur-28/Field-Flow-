@@ -17,8 +17,8 @@ import com.rahul.fieldflow.ui.theme.TextDark
 import com.rahul.fieldflow.ui.theme.TextSecondary
 
 @Composable
-fun ActivityTimeline(activities: List<ActivityItemUiModel>) {
-    Column {
+fun ActivityTimeline(activities: List<ActivityItemUiModel>, modifier: Modifier = Modifier) {
+    Column(modifier = modifier) {
         activities.forEachIndexed { index, activity ->
             Row(modifier = Modifier.height(IntrinsicSize.Min)) {
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
