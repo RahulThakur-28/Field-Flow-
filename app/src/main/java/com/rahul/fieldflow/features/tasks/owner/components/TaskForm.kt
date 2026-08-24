@@ -15,7 +15,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.rahul.fieldflow.features.tasks.model.Employee
 import com.rahul.fieldflow.features.tasks.model.TaskPriority
-import com.rahul.fieldflow.features.tasks.model.mockEmployees
 import com.rahul.fieldflow.ui.theme.PrimaryBlue
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -29,6 +28,7 @@ fun TaskForm(
     onLocationChange: (String) -> Unit,
     selectedEmployee: Employee?,
     onEmployeeSelected: (Employee) -> Unit,
+    employees: List<Employee>,
     priority: TaskPriority,
     onPriorityChange: (TaskPriority) -> Unit,
     date: String,
@@ -77,7 +77,8 @@ fun TaskForm(
 
         EmployeeSelector(
             selectedEmployee = selectedEmployee,
-            onEmployeeSelected = onEmployeeSelected
+            onEmployeeSelected = onEmployeeSelected,
+            employees = employees
         )
 
         Text("Priority", style = MaterialTheme.typography.labelMedium)
@@ -146,7 +147,8 @@ fun TaskForm(
 @Composable
 fun EmployeeSelector(
     selectedEmployee: Employee?,
-    onEmployeeSelected: (Employee) -> Unit
+    onEmployeeSelected: (Employee) -> Unit,
+    employees: List<Employee>
 ) {
     var expanded by remember { mutableStateOf(false) }
 
@@ -171,7 +173,7 @@ fun EmployeeSelector(
             expanded = expanded,
             onDismissRequest = { expanded = false }
         ) {
-            mockEmployees.forEach { employee ->
+            employees.forEach { employee ->
                 DropdownMenuItem(
                     text = {
                         Column {

@@ -14,7 +14,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.rahul.fieldflow.features.tasks.components.*
 import com.rahul.fieldflow.features.tasks.employee.components.TaskJourneyStatus
 import com.rahul.fieldflow.features.tasks.employee.viewmodel.EmployeeTaskDetailsViewModel
@@ -26,7 +26,7 @@ import java.time.format.DateTimeFormatter
 fun EmployeeTaskDetailsScreen(
     taskId: String,
     onBackClick: () -> Unit,
-    viewModel: EmployeeTaskDetailsViewModel = viewModel()
+    viewModel: EmployeeTaskDetailsViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
 

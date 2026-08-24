@@ -1,6 +1,6 @@
 package com.rahul.fieldflow.features.tasks.model
 
-import java.time.LocalDateTime
+import java.time.OffsetDateTime
 
 enum class TaskStatus(val label: String) {
     PENDING("Pending"),
@@ -26,7 +26,7 @@ data class ChecklistItem(
 data class TaskTimelineEvent(
     val id: String,
     val status: TaskStatus,
-    val timestamp: LocalDateTime,
+    val timestamp: OffsetDateTime,
     val description: String,
     val updatedBy: String
 )
@@ -35,7 +35,8 @@ data class Employee(
     val id: String,
     val name: String,
     val role: String,
-    val avatarUrl: String? = null
+    val avatarUrl: String? = null,
+    val employeeCode: String? = null
 )
 
 data class Task(
@@ -46,12 +47,12 @@ data class Task(
     val priority: TaskPriority,
     val assignedTo: Employee,
     val location: String,
-    val scheduledDate: LocalDateTime,
-    val deadline: LocalDateTime? = null,
+    val scheduledDate: OffsetDateTime,
+    val deadline: OffsetDateTime? = null,
     val checklist: List<ChecklistItem> = emptyList(),
     val timeline: List<TaskTimelineEvent> = emptyList(),
     val progress: Float = 0f,
-    val createdAt: LocalDateTime = LocalDateTime.now()
+    val createdAt: OffsetDateTime = OffsetDateTime.now()
 )
 
 val mockEmployees = listOf(
@@ -70,7 +71,7 @@ val mockTasks = listOf(
         priority = TaskPriority.HIGH,
         assignedTo = mockEmployees[0],
         location = "123 Business Park, New York",
-        scheduledDate = LocalDateTime.now().plusHours(2),
+        scheduledDate = OffsetDateTime.now().plusHours(2),
         checklist = listOf(
             ChecklistItem("c1", "Inspect Compressor", true),
             ChecklistItem("c2", "Check Refrigerant Levels", false),
@@ -86,7 +87,7 @@ val mockTasks = listOf(
         priority = TaskPriority.MEDIUM,
         assignedTo = mockEmployees[1],
         location = "456 Industrial Way, New Jersey",
-        scheduledDate = LocalDateTime.now().plusDays(1),
+        scheduledDate = OffsetDateTime.now().plusDays(1),
         progress = 0f
     ),
     Task(
@@ -97,7 +98,7 @@ val mockTasks = listOf(
         priority = TaskPriority.URGENT,
         assignedTo = mockEmployees[2],
         location = "789 Tech Drive, Brooklyn",
-        scheduledDate = LocalDateTime.now().minusHours(5),
+        scheduledDate = OffsetDateTime.now().minusHours(5),
         progress = 0f
     )
 )

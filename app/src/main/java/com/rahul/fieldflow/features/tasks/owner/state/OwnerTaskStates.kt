@@ -8,7 +8,8 @@ data class OwnerTasksUiState(
     val tasks: List<Task> = emptyList(),
     val isLoading: Boolean = false,
     val searchQuery: String = "",
-    val selectedTab: Int = 0
+    val selectedTab: Int = 0,
+    val error: String? = null
 )
 
 data class CreateTaskUiState(
@@ -16,10 +17,13 @@ data class CreateTaskUiState(
     val description: String = "",
     val location: String = "",
     val selectedEmployee: Employee? = null,
+    val employees: List<Employee> = emptyList(),
     val priority: TaskPriority = TaskPriority.MEDIUM,
     val date: String = "",
     val time: String = "",
-    val isSaving: Boolean = false
+    val isSaving: Boolean = false,
+    val isLoadingEmployees: Boolean = false,
+    val error: String? = null
 )
 
 data class OwnerTaskDetailsUiState(
@@ -33,9 +37,12 @@ data class EditTaskUiState(
     val description: String = "",
     val location: String = "",
     val selectedEmployee: Employee? = null,
+    val employees: List<Employee> = emptyList(),
     val priority: TaskPriority = TaskPriority.MEDIUM,
     val date: String = "",
     val time: String = "",
     val isSaving: Boolean = false,
-    val isLoading: Boolean = false
+    val isLoading: Boolean = false,
+    val isLoadingEmployees: Boolean = false,
+    val error: String? = null
 )

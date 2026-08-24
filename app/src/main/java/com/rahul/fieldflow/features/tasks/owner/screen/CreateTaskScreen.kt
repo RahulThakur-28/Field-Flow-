@@ -11,7 +11,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.rahul.fieldflow.features.tasks.owner.components.TaskForm
 import com.rahul.fieldflow.features.tasks.owner.viewmodel.CreateTaskViewModel
 import com.rahul.fieldflow.ui.theme.FieldFlowTheme
@@ -22,7 +22,7 @@ import com.rahul.fieldflow.ui.theme.PrimaryBlue
 fun CreateTaskScreen(
     onBackClick: () -> Unit,
     onTaskCreated: () -> Unit,
-    viewModel: CreateTaskViewModel = viewModel()
+    viewModel: CreateTaskViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
 
@@ -70,6 +70,7 @@ fun CreateTaskScreen(
             onLocationChange = viewModel::updateLocation,
             selectedEmployee = uiState.selectedEmployee,
             onEmployeeSelected = viewModel::updateEmployee,
+            employees = uiState.employees,
             priority = uiState.priority,
             onPriorityChange = viewModel::updatePriority,
             date = uiState.date,

@@ -14,7 +14,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.rahul.fieldflow.features.tasks.components.*
 import com.rahul.fieldflow.features.tasks.owner.viewmodel.OwnerTaskDetailsViewModel
 import com.rahul.fieldflow.ui.theme.FieldFlowTheme
@@ -27,7 +27,7 @@ fun OwnerTaskDetailsScreen(
     onBackClick: () -> Unit,
     onEditClick: (String) -> Unit,
     onTrackClick: (String) -> Unit,
-    viewModel: OwnerTaskDetailsViewModel = viewModel()
+    viewModel: OwnerTaskDetailsViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
 
