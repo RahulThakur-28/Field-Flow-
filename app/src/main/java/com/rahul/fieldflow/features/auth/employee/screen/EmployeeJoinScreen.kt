@@ -12,6 +12,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.rahul.fieldflow.core.common.components.AppTextField
 import com.rahul.fieldflow.core.common.components.HeaderSection
@@ -26,15 +27,15 @@ fun EmployeeJoinScreen(
     onBack: () -> Unit,
     onCompanyFound: () -> Unit,
     onNavigateToInvitation: () -> Unit,
-    viewModel: EmployeeJoinViewModel = viewModel()
+    viewModel: EmployeeJoinViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
 
     LaunchedEffect(uiState.companyFound) {
         if (uiState.companyFound) {
             onCompanyFound()
-            // Reset search state so if they come back it's fresh, 
-            // but keep companyId if that's desired behavior. 
+            // Reset search state so if they come back it's fresh,
+            // but keep companyId if that's desired behavior.
             // For now, simple transition.
         }
     }

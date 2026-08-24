@@ -25,8 +25,11 @@ import com.rahul.fieldflow.R
 import com.rahul.fieldflow.ui.theme.FieldFlowTheme
 import kotlinx.coroutines.delay
 
+import android.util.Log
+
 @Composable
 fun SplashScreen(onAnimationComplete: () -> Unit = {}) {
+    Log.d("FIELD_FLOW_STARTUP", "SplashScreen composed")
     val alpha = remember { Animatable(0f) }
     val scale = remember { Animatable(0.8f) }
 
@@ -39,6 +42,7 @@ fun SplashScreen(onAnimationComplete: () -> Unit = {}) {
     )
 
     LaunchedEffect(Unit) {
+        Log.d("FIELD_FLOW_STARTUP", "SplashScreen animation started")
         alpha.animateTo(
             targetValue = 1f,
             animationSpec = tween(durationMillis = 800)
@@ -47,7 +51,9 @@ fun SplashScreen(onAnimationComplete: () -> Unit = {}) {
             targetValue = 1f,
             animationSpec = tween(durationMillis = 800)
         )
+        Log.d("FIELD_FLOW_STARTUP", "SplashScreen animation reaching final delay")
         delay(1200)
+        Log.d("FIELD_FLOW_STARTUP", "SplashScreen calling onAnimationComplete")
         onAnimationComplete()
     }
 

@@ -15,10 +15,12 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.rahul.fieldflow.core.navigation.AppRoutes
+import com.rahul.fieldflow.features.auth.viewmodel.AuthViewModel
 import com.rahul.fieldflow.features.bottomnavigation.components.FieldFlowBottomNavigation
 import com.rahul.fieldflow.features.bottomnavigation.navigation.BottomNavigationConfig
 import com.rahul.fieldflow.features.profile.components.*
@@ -29,7 +31,8 @@ import com.rahul.fieldflow.ui.theme.*
 @Composable
 fun EmployeeProfileScreen(
     navController: NavController,
-    viewModel: EmployeeProfileViewModel = viewModel()
+    viewModel: EmployeeProfileViewModel = viewModel(),
+    authViewModel: AuthViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
     var showSignOutDialog by remember { mutableStateOf(false) }
@@ -42,8 +45,10 @@ fun EmployeeProfileScreen(
             confirmButton = {
                 TextButton(onClick = {
                     showSignOutDialog = false
-                    navController.navigate(AppRoutes.Login) {
-                        popUpTo(0) { inclusive = true }
+                    authViewModel.logout {
+                        navController.navigate(AppRoutes.Login) {
+                            popUpTo(0) { inclusive = true }
+                        }
                     }
                 }) {
                     Text("Sign Out", color = Color.Red)

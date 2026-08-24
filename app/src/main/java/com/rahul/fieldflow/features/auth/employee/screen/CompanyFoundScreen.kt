@@ -15,6 +15,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.rahul.fieldflow.core.common.components.AppTextField
 import com.rahul.fieldflow.core.common.components.HeaderSection
@@ -26,7 +27,7 @@ import com.rahul.fieldflow.ui.theme.*
 fun CompanyFoundScreen(
     onBack: () -> Unit,
     onSendRequest: () -> Unit,
-    viewModel: EmployeeJoinViewModel = viewModel()
+    viewModel: EmployeeJoinViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
 
@@ -43,111 +44,157 @@ fun CompanyFoundScreen(
         modifier = Modifier.fillMaxSize(),
         color = BackgroundLight
     ) {
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(horizontal = 24.dp)
-                .verticalScroll(scrollState)
-        ) {
-            Spacer(modifier = Modifier.height(16.dp))
-            
-            HeaderSection(
-                title = "Company Found ✓",
-                subtitle = "You're requesting to join this company.",
-                onBack = onBack
-            )
-            
-            Spacer(modifier = Modifier.height(32.dp))
-            
-            Card(
-                modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(20.dp),
-                colors = CardDefaults.cardColors(containerColor = Color.White),
-                border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFFE1E5EE))
+        if (uiState.isLoadingProfile) {
+            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                CircularProgressIndicator(color = PrimaryBlue)
+            }
+        } else {
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(horizontal = 24.dp)
+                    .verticalScroll(scrollState)
             ) {
-                Row(
-                    modifier = Modifier.padding(20.dp),
-                    verticalAlignment = Alignment.CenterVertically
+                Spacer(modifier = Modifier.height(16.dp))
+                
+                HeaderSection(
+                    title = "Company Found ✓",
+                    subtitle = "You're requesting to join this company.",
+                    onBack = onBack
+                )
+                
+                Spacer(modifier = Modifier.height(32.dp))
+                
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(20.dp),
+                    colors = CardDefaults.cardColors(containerColor = Color.White),
+                    border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFFE1E5EE))
                 ) {
-                    Surface(
-                        modifier = Modifier.size(56.dp),
-                        shape = RoundedCornerShape(12.dp),
-                        color = BackgroundLight
+                    Row(
+                        modifier = Modifier.padding(20.dp),
+                        verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Box(contentAlignment = Alignment.Center) {
-                            Icon(Icons.Default.Business, contentDescription = null, tint = PrimaryBlue)
+                        Surface(
+                            modifier = Modifier.size(56.dp),
+                            shape = RoundedCornerShape(12.dp),
+                            color = BackgroundLight
+                        ) {
+                            Box(contentAlignment = Alignment.Center) {
+                                Icon(Icons.Default.Business, contentDescription = null, tint = PrimaryBlue)
+                            }
+                        }
+                        
+                        Spacer(modifier = Modifier.width(16.dp))
+                        
+                        Column {
+                            Text(
+                                text = uiState.foundCompanyName,
+                                style = MaterialTheme.typography.titleLarge,
+                                color = TextDark,
+                                fontWeight = FontWeight.Bold
+                            )
+                            Text(
+                                text = "Company ID: ${uiState.foundCompanyId}",
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = TextSecondary
+                            )
                         }
                     }
-                    
-                    Spacer(modifier = Modifier.width(16.dp))
-                    
-                    Column {
-                        Text(
-                            text = uiState.foundCompanyName,
-                            style = MaterialTheme.typography.titleLarge,
-                            color = TextDark,
-                            fontWeight = FontWeight.Bold
-                        )
-                        Text(
-                            text = "Company ID: ${uiState.foundCompanyId}",
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = TextSecondary
-                        )
-                    }
                 }
+                
+                Spacer(modifier = Modifier.height(32.dp))
+                
+                Text(
+                    text = "Verify your details:",
+                    style = MaterialTheme.typography.titleMedium,
+                    color = TextDark,
+                    fontWeight = FontWeight.Bold
+                )
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                ReadOnlyInfoField(
+                    label = "Full Name",
+                    value = uiState.fullName,
+                    icon = Icons.Default.Person
+                )
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                ReadOnlyInfoField(
+                    label = "Work Email",
+                    value = uiState.email,
+                    icon = Icons.Default.Email
+                )
+                
+                Spacer(modifier = Modifier.height(16.dp))
+                
+                ReadOnlyInfoField(
+                    label = "Phone Number",
+                    value = uiState.phone.ifBlank { "Not provided" },
+                    icon = Icons.Default.Phone
+                )
+                
+                if (uiState.error != null) {
+                    Spacer(modifier = Modifier.height(16.dp))
+                    Text(
+                        text = uiState.error!!,
+                        color = MaterialTheme.colorScheme.error,
+                        style = MaterialTheme.typography.bodySmall,
+                        modifier = Modifier.padding(horizontal = 8.dp)
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(48.dp))
+                
+                PrimaryButton(
+                    text = "Send Join Request",
+                    onClick = viewModel::sendJoinRequest,
+                    isLoading = uiState.isSubmitting,
+                    modifier = Modifier.padding(bottom = 32.dp)
+                )
             }
-            
-            Spacer(modifier = Modifier.height(32.dp))
-            
-            Text(
-                text = "Employee details:",
-                style = MaterialTheme.typography.titleMedium,
-                color = TextDark,
-                fontWeight = FontWeight.Bold
-            )
-            
-            Spacer(modifier = Modifier.height(16.dp))
-            
-            AppTextField(
-                value = uiState.fullName,
-                onValueChange = viewModel::onFullNameChange,
-                label = "Full Name *",
-                placeholder = "Jane Doe",
-                leadingIcon = Icons.Default.Person,
-                errorText = uiState.fullNameError
-            )
-            
-            Spacer(modifier = Modifier.height(16.dp))
-            
-            AppTextField(
-                value = uiState.email,
-                onValueChange = viewModel::onEmailChange,
-                label = "Work Email *",
-                placeholder = "jane@company.com",
-                leadingIcon = Icons.Default.Email,
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
-                errorText = uiState.emailError
-            )
-            
-            Spacer(modifier = Modifier.height(16.dp))
-            
-            AppTextField(
-                value = uiState.phone,
-                onValueChange = viewModel::onPhoneChange,
-                label = "Phone Number",
-                placeholder = "+1 234 567 890",
-                leadingIcon = Icons.Default.Phone,
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone)
-            )
-            
-            Spacer(modifier = Modifier.height(48.dp))
-            
-            PrimaryButton(
-                text = "Send Join Request",
-                onClick = viewModel::sendJoinRequest,
-                isLoading = uiState.isSubmitting,
-                modifier = Modifier.padding(bottom = 32.dp)
-            )
+        }
+    }
+}
+
+@Composable
+fun ReadOnlyInfoField(
+    label: String,
+    value: String,
+    icon: androidx.compose.ui.graphics.vector.ImageVector
+) {
+    Column {
+        Text(
+            text = label,
+            style = MaterialTheme.typography.labelMedium,
+            color = TextSecondary,
+            modifier = Modifier.padding(start = 4.dp, bottom = 4.dp)
+        )
+        OutlinedCard(
+            modifier = Modifier.fillMaxWidth(),
+            shape = RoundedCornerShape(12.dp),
+            colors = CardDefaults.outlinedCardColors(containerColor = Color(0xFFF8F9FA))
+        ) {
+            Row(
+                modifier = Modifier.padding(16.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Icon(
+                    imageVector = icon,
+                    contentDescription = null,
+                    tint = TextSecondary,
+                    modifier = Modifier.size(20.dp)
+                )
+                Spacer(modifier = Modifier.width(12.dp))
+                Text(
+                    text = value,
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = TextDark,
+                    fontWeight = FontWeight.Medium
+                )
+            }
         }
     }
 }

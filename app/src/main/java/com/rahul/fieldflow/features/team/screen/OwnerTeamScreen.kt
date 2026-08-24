@@ -31,12 +31,15 @@ import com.rahul.fieldflow.features.team.viewmodel.TeamViewModel
 import com.rahul.fieldflow.ui.theme.FieldFlowTheme
 import com.rahul.fieldflow.ui.theme.PrimaryBlue
 
+import androidx.hilt.navigation.compose.hiltViewModel
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun OwnerTeamScreen(
     navController: NavController,
     onMemberClick: (String) -> Unit,
-    viewModel: TeamViewModel = viewModel()
+    onNavigateToRequests: () -> Unit,
+    viewModel: TeamViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.teamUiState.collectAsState()
 
@@ -54,8 +57,8 @@ fun OwnerTeamScreen(
                     }
                 },
                 actions = {
-                    IconButton(onClick = { /* Add member */ }) {
-                        Icon(Icons.Default.Add, contentDescription = "Add Member")
+                    IconButton(onClick = onNavigateToRequests) {
+                        Icon(Icons.Default.Add, contentDescription = "Employee Requests")
                     }
                 }
             )
@@ -139,7 +142,8 @@ fun OwnerTeamScreenPreview() {
     FieldFlowTheme {
         OwnerTeamScreen(
             navController = rememberNavController(),
-            onMemberClick = {}
+            onMemberClick = {},
+            onNavigateToRequests = {}
         )
     }
 }

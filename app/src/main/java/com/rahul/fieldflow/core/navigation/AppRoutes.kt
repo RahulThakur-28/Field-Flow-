@@ -13,15 +13,6 @@ sealed class AppRoutes {
     data object Login : AppRoutes()
     
     @Serializable
-    data object RoleSelection : AppRoutes()
-    
-    @Serializable
-    data object OwnerRegistration : AppRoutes()
-    
-    @Serializable
-    data object CompanyCreated : AppRoutes()
-    
-    @Serializable
     data object EmployeeJoin : AppRoutes()
     
     @Serializable
@@ -29,9 +20,6 @@ sealed class AppRoutes {
     
     @Serializable
     data object JoinRequestSent : AppRoutes()
-    
-    @Serializable
-    data object EmployeeInvitation : AppRoutes()
     
     @Serializable
     data object EmployeeRegistration : AppRoutes()
@@ -74,6 +62,9 @@ sealed class AppRoutes {
 
     @Serializable
     data object Team : AppRoutes()
+
+    @Serializable
+    data object EmployeeRequests : AppRoutes()
 
     @Serializable
     data class OwnerReportDetails(val reportId: String) : AppRoutes()

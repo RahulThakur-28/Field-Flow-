@@ -16,6 +16,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.rahul.fieldflow.core.common.components.AppTextField
 import com.rahul.fieldflow.core.common.components.HeaderSection
@@ -28,7 +29,7 @@ import com.rahul.fieldflow.ui.theme.*
 fun EmployeeRegistrationScreen(
     onBack: () -> Unit,
     onSuccess: () -> Unit,
-    viewModel: EmployeeRegistrationViewModel = viewModel()
+    viewModel: EmployeeRegistrationViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
 
@@ -54,30 +55,10 @@ fun EmployeeRegistrationScreen(
             Spacer(modifier = Modifier.height(16.dp))
             
             HeaderSection(
-                title = "Complete your profile",
-                subtitle = "You're joining ${uiState.companyName}",
+                title = "Create Employee Account",
+                subtitle = "Join your company on FieldFlow",
                 onBack = onBack
             )
-            
-            Spacer(modifier = Modifier.height(32.dp))
-            
-            Surface(
-                modifier = Modifier.fillMaxWidth(),
-                color = Color(0xFFE8F5E9).copy(alpha = 0.5f),
-                shape = RoundedCornerShape(12.dp)
-            ) {
-                Row(
-                    modifier = Modifier.padding(16.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Icon(Icons.Default.CheckCircle, contentDescription = null, tint = Color(0xFF4CAF50))
-                    Spacer(modifier = Modifier.width(12.dp))
-                    Column {
-                        Text(text = uiState.companyName, fontWeight = FontWeight.Bold, color = TextDark)
-                        Text(text = "Your account will be linked to this company.", fontSize = 12.sp, color = TextSecondary)
-                    }
-                }
-            }
             
             Spacer(modifier = Modifier.height(32.dp))
             

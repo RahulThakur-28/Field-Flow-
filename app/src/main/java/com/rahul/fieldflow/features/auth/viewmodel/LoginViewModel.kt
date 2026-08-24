@@ -3,15 +3,20 @@ package com.rahul.fieldflow.features.auth.viewmodel
 import android.util.Patterns
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.rahul.fieldflow.domain.usecase.auth.LoginUseCase
 import com.rahul.fieldflow.features.auth.state.LoginUiState
-import kotlinx.coroutines.delay
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
-class LoginViewModel : ViewModel() {
+@HiltViewModel
+class LoginViewModel @Inject constructor(
+    private val loginUseCase: LoginUseCase
+) : ViewModel() {
 
     private val _uiState = MutableStateFlow(LoginUiState())
     val uiState: StateFlow<LoginUiState> = _uiState.asStateFlow()
@@ -46,9 +51,13 @@ class LoginViewModel : ViewModel() {
         if (!hasError) {
             viewModelScope.launch {
                 _uiState.update { it.copy(isLoading = true, error = null) }
-                // Simulated login delay
-                delay(1500)
-                _uiState.update { it.copy(isLoading = false, loginSuccess = true) }
+                loginUseCase(email, password)
+                    .onSuccess {
+                        _uiState.update { it.copy(isLoading = false, loginSuccess = true) }
+                    }
+                    .onFailure { error ->
+                        _uiState.update { it.copy(isLoading = false, error = error.message) }
+                    }
             }
         }
     }

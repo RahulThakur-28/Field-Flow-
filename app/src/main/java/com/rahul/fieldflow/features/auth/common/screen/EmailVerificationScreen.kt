@@ -13,15 +13,32 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.rahul.fieldflow.core.common.components.PrimaryButton
+import com.rahul.fieldflow.features.auth.viewmodel.AuthState
+import com.rahul.fieldflow.features.auth.viewmodel.AuthViewModel
 import com.rahul.fieldflow.ui.theme.*
 import kotlinx.coroutines.delay
 
 @Composable
 fun EmailVerificationScreen(
     onVerifySuccess: () -> Unit,
-    onChangeEmail: () -> Unit
+    onChangeEmail: () -> Unit,
+    viewModel: AuthViewModel = hiltViewModel()
 ) {
+    val authState by viewModel.authState.collectAsState()
+    val email = when (val state = authState) {
+        is AuthState.Authenticated -> state.user.email
+        is AuthState.EmailUnverified -> state.user.email
+        else -> "your email"
+    }
+
+    LaunchedEffect(authState) {
+        if (authState is AuthState.Authenticated || authState is AuthState.NoWorkspace) {
+            onVerifySuccess()
+        }
+    }
+
     var timer by remember { mutableStateOf(60) }
     var canResend by remember { mutableStateOf(false) }
 
@@ -79,7 +96,7 @@ fun EmailVerificationScreen(
             )
             
             Text(
-                text = "user@example.com",
+                text = email,
                 style = MaterialTheme.typography.bodyLarge,
                 color = TextDark,
                 fontWeight = FontWeight.Bold,
@@ -95,12 +112,12 @@ fun EmailVerificationScreen(
                 textAlign = TextAlign.Center,
                 lineHeight = 24.sp
             )
-            
+
             Spacer(modifier = Modifier.height(64.dp))
             
             PrimaryButton(
-                text = "Open Email",
-                onClick = { /* TODO: Open email app */ }
+                text = "Check Status",
+                onClick = { viewModel.refreshStatus() }
             )
             
             Spacer(modifier = Modifier.height(16.dp))
@@ -108,6 +125,7 @@ fun EmailVerificationScreen(
             OutlinedButton(
                 onClick = {
                     if (canResend) {
+                        viewModel.resendVerificationEmail(email)
                         timer = 60
                         canResend = false
                     }

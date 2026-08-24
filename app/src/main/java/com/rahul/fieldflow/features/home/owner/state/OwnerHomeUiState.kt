@@ -1,5 +1,6 @@
 package com.rahul.fieldflow.features.home.owner.state
 
+import com.rahul.fieldflow.domain.model.JoinRequest
 import com.rahul.fieldflow.features.home.model.ActivityItemUiModel
 import com.rahul.fieldflow.features.home.model.FieldVisitUiModel
 import com.rahul.fieldflow.features.home.model.SummaryStatUiModel
@@ -15,5 +16,7 @@ data class OwnerHomeUiState(
     val liveVisits: List<FieldVisitUiModel> = emptyList(),
     val teamStatus: List<TeamMemberUiModel> = emptyList(),
     val recentActivity: List<ActivityItemUiModel> = emptyList(),
-    val currentStep: Int = 0
+    val currentStep: Int = 0,
+    val pendingRequests: List<JoinRequest> = emptyList(),
+    val companyId: String? = null
 )

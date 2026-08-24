@@ -12,6 +12,5 @@ data class EmployeeRegistrationUiState(
     val confirmPasswordError: String? = null,
     val isLoading: Boolean = false,
     val registrationSuccess: Boolean = false,
-    val error: String? = null,
-    val companyName: String = "ABC Services" // Mock company name
+    val error: String? = null
 )

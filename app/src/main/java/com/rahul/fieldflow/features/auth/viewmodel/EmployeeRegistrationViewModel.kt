@@ -3,15 +3,21 @@ package com.rahul.fieldflow.features.auth.viewmodel
 import android.util.Patterns
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.rahul.fieldflow.domain.model.UserRole
+import com.rahul.fieldflow.domain.usecase.auth.RegisterUseCase
 import com.rahul.fieldflow.features.auth.state.EmployeeRegistrationUiState
-import kotlinx.coroutines.delay
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
-class EmployeeRegistrationViewModel : ViewModel() {
+@HiltViewModel
+class EmployeeRegistrationViewModel @Inject constructor(
+    private val registerUseCase: RegisterUseCase
+) : ViewModel() {
 
     private val _uiState = MutableStateFlow(EmployeeRegistrationUiState())
     val uiState: StateFlow<EmployeeRegistrationUiState> = _uiState.asStateFlow()
@@ -66,8 +72,17 @@ class EmployeeRegistrationViewModel : ViewModel() {
         if (!hasError) {
             viewModelScope.launch {
                 _uiState.update { it.copy(isLoading = true, error = null) }
-                delay(1500)
-                _uiState.update { it.copy(isLoading = false, registrationSuccess = true) }
+                registerUseCase(
+                    email = state.email,
+                    password = state.password,
+                    fullName = state.fullName,
+                    role = UserRole.EMPLOYEE,
+                    phone = state.phone
+                ).onSuccess {
+                    _uiState.update { it.copy(isLoading = false, registrationSuccess = true) }
+                }.onFailure { error ->
+                    _uiState.update { it.copy(isLoading = false, error = error.message) }
+                }
             }
         }
     }

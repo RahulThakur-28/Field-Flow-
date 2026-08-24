@@ -6,6 +6,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.toRoute
 import com.rahul.fieldflow.core.navigation.AppRoutes
 import com.rahul.fieldflow.features.team.screen.EmployeeDetailsScreen
+import com.rahul.fieldflow.features.team.screen.EmployeeRequestsScreen
 import com.rahul.fieldflow.features.team.screen.OwnerTeamScreen
 
 fun NavGraphBuilder.teamNavigation(navController: NavController) {
@@ -14,7 +15,16 @@ fun NavGraphBuilder.teamNavigation(navController: NavController) {
             navController = navController,
             onMemberClick = { employeeId: String ->
                 navController.navigate(AppRoutes.EmployeeDetails(employeeId))
+            },
+            onNavigateToRequests = {
+                navController.navigate(AppRoutes.EmployeeRequests)
             }
+        )
+    }
+
+    composable<AppRoutes.EmployeeRequests> {
+        EmployeeRequestsScreen(
+            onBack = { navController.popBackStack() }
         )
     }
 
