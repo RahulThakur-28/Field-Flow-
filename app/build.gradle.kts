@@ -49,6 +49,12 @@ android {
             "SUPABASE_PUBLISHABLE_KEY",
             "\"${localProperties.getProperty("SUPABASE_PUBLISHABLE_KEY", "")}\""
         )
+        buildConfigField(
+            "String",
+            "MAPTILER_API_KEY",
+            "\"${localProperties.getProperty("MAPTILER_API_KEY", "")}\""
+        )
+
     }
 
     buildTypes {
@@ -146,4 +152,8 @@ dependencies {
     ksp(libs.hilt.compiler)
 
 
+
+
+    implementation(libs.maplibre.android)
+    implementation(libs.gms.location)
 }

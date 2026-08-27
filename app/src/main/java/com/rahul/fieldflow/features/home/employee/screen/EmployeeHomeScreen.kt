@@ -1,5 +1,6 @@
 package com.rahul.fieldflow.features.home.employee.screen
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -9,6 +10,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -26,8 +29,7 @@ import com.rahul.fieldflow.features.home.employee.components.ScheduleTaskCard
 import com.rahul.fieldflow.features.home.employee.state.EmployeeHomeUiState
 import com.rahul.fieldflow.features.home.employee.viewmodel.EmployeeHomeViewModel
 import com.rahul.fieldflow.features.home.model.dummyEmployeeHomeUiState
-import com.rahul.fieldflow.ui.theme.BackgroundLight
-import com.rahul.fieldflow.ui.theme.FieldFlowTheme
+import com.rahul.fieldflow.ui.theme.*
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -54,7 +56,7 @@ fun EmployeeHomeContent(
     navController: NavController
 ) {
     Scaffold(
-        containerColor = BackgroundLight,
+        containerColor = Color(0xFFF8F9FB),
         bottomBar = {
             FieldFlowBottomNavigation(
                 items = BottomNavigationConfig.employeeItems,
@@ -66,73 +68,69 @@ fun EmployeeHomeContent(
         LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(innerPadding)
-                .padding(horizontal = 20.dp),
+                .padding(innerPadding),
             verticalArrangement = Arrangement.spacedBy(0.dp)
         ) {
-
-            /*
-             * Header
-             */
             item {
-                FieldFlowHeader(
-                    date = uiState.date,
-                    userName = uiState.userName,
-                    subtitle = "Ready for today's work?",
-                    initials = uiState.initials,
-                    notificationCount = uiState.notificationCount,
-                    onProfileClick = { navController.navigate(AppRoutes.EmployeeProfile) },
-                    onNotificationClick = { /* Handle notifications */ }
-                )
-            }
-
-            /*
-             * Today's Summary
-             */
-            item {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(12.dp)
-                ) {
-                    uiState.stats.forEach { stat ->
-                        SummaryStatCard(
-                            stat = stat,
-                            modifier = Modifier.weight(1f),
-                            onClick = { navController.navigate(AppRoutes.EmployeeTasks) }
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .background(
+                            brush = Brush.verticalGradient(
+                                colors = listOf(
+                                    PrimaryBlue.copy(alpha = 0.08f),
+                                    Color(0xFFF8F9FB)
+                                )
+                            )
                         )
-                    }
-                }
+                        .padding(horizontal = 20.dp)
+                ) {
+                    FieldFlowHeader(
+                        date = uiState.date,
+                        userName = uiState.userName,
+                        subtitle = "Ready for today's work?",
+                        initials = uiState.initials,
+                        notificationCount = uiState.notificationCount,
+                        onProfileClick = { navController.navigate(AppRoutes.EmployeeProfile) },
+                        onNotificationClick = { /* Handle notifications */ }
+                    )
 
-                Spacer(
-                    modifier = Modifier.height(24.dp)
-                )
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(10.dp)
+                    ) {
+                        uiState.stats.forEach { stat ->
+                            SummaryStatCard(
+                                stat = stat,
+                                modifier = Modifier.weight(1f),
+                                onClick = { navController.navigate(AppRoutes.EmployeeTasks) }
+                            )
+                        }
+                    }
+
+                    Spacer(modifier = Modifier.height(20.dp))
+                }
             }
 
-            /*
-             * Next Task
-             */
             item {
                 uiState.nextTask?.let { task ->
-                    NextTaskCard(
-                        task = task,
-                        onClick = {
-                            navController.navigate(AppRoutes.EmployeeTasks)
-                        }
-                    )
-
-                    Spacer(
-                        modifier = Modifier.height(24.dp)
-                    )
+                    Box(modifier = Modifier.padding(horizontal = 20.dp, vertical = 8.dp)) {
+                        NextTaskCard(
+                            task = task,
+                            onClick = {
+                                navController.navigate(AppRoutes.EmployeeTasks)
+                            }
+                        )
+                    }
+                    Spacer(modifier = Modifier.height(12.dp))
                 }
             }
 
-            /*
-             * Today's Schedule
-             */
             item {
                 SectionHeader(
                     title = "Today's Schedule",
                     actionText = "All Tasks",
+                    modifier = Modifier.padding(horizontal = 20.dp, vertical = 8.dp),
                     onActionClick = { navController.navigate(AppRoutes.EmployeeTasks) }
                 )
             }
@@ -140,54 +138,43 @@ fun EmployeeHomeContent(
             items(
                 items = uiState.schedule
             ) { task ->
-
-                ScheduleTaskCard(
-                    task = task,
-                    onClick = {
-                        navController.navigate(AppRoutes.EmployeeTasks)
-                    }
-                )
-
-                Spacer(
-                    modifier = Modifier.height(12.dp)
-                )
+                Box(modifier = Modifier.padding(horizontal = 20.dp)) {
+                    ScheduleTaskCard(
+                        task = task,
+                        onClick = {
+                            navController.navigate(AppRoutes.EmployeeTasks)
+                        }
+                    )
+                }
+                Spacer(modifier = Modifier.height(10.dp))
             }
 
-            /*
-             * Quick Access
-             */
             item {
                 SectionHeader(
-                    title = "Quick Access"
+                    title = "Quick Access",
+                    modifier = Modifier.padding(horizontal = 20.dp, vertical = 12.dp)
                 )
             }
 
             items(
                 items = uiState.quickAccess
             ) { quickAccessItem ->
-
-                QuickAccessCard(
-                    item = quickAccessItem,
-                    onClick = {
-                        when (quickAccessItem.title) {
-                            "My Tasks" -> navController.navigate(AppRoutes.EmployeeTasks)
-                            "Reports" -> navController.navigate(AppRoutes.EmployeeReports)
+                Box(modifier = Modifier.padding(horizontal = 20.dp)) {
+                    QuickAccessCard(
+                        item = quickAccessItem,
+                        onClick = {
+                            when (quickAccessItem.title) {
+                                "My Tasks" -> navController.navigate(AppRoutes.EmployeeTasks)
+                                "Reports" -> navController.navigate(AppRoutes.EmployeeReports)
+                            }
                         }
-                    }
-                )
-
-                Spacer(
-                    modifier = Modifier.height(12.dp)
-                )
+                    )
+                }
+                Spacer(modifier = Modifier.height(10.dp))
             }
 
-            /*
-             * Bottom spacing
-             */
             item {
-                Spacer(
-                    modifier = Modifier.height(32.dp)
-                )
+                Spacer(modifier = Modifier.height(32.dp))
             }
         }
     }

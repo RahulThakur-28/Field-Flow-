@@ -10,5 +10,9 @@ data class EmployeeTasksUiState(
 
 data class EmployeeTaskDetailsUiState(
     val task: Task? = null,
-    val isLoading: Boolean = false
+    val isLoading: Boolean = false,
+    val isInsideGeofence: Boolean = false,
+    val distanceToDestination: Float? = null,
+    val isTrackingActive: Boolean = false,
+    val error: String? = null
 )

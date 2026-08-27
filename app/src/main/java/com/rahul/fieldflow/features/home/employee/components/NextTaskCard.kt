@@ -4,7 +4,8 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ChevronRight
+import androidx.compose.material.icons.automirrored.filled.ArrowForward
+import androidx.compose.material.icons.filled.AccessTime
 import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
@@ -24,59 +25,95 @@ fun NextTaskCard(task: NextTaskUiModel, onClick: () -> Unit, modifier: Modifier 
     Card(
         onClick = onClick,
         modifier = modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(24.dp),
+        shape = RoundedCornerShape(20.dp),
         colors = CardDefaults.cardColors(containerColor = Color.White),
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
+        border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFFF0F2F5))
     ) {
-        Column(modifier = Modifier.padding(24.dp)) {
+        Column(modifier = Modifier.padding(20.dp)) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
+                verticalAlignment = Alignment.Top
             ) {
-                Column {
-                    Text(text = "Next Task", style = MaterialTheme.typography.labelMedium, color = TextSecondary)
-                    Text(text = task.scheduledTime, style = MaterialTheme.typography.titleLarge, color = TextDark, fontWeight = FontWeight.Bold)
+                Column(modifier = Modifier.weight(1f)) {
+                    Text(
+                        text = "Next Task", 
+                        style = MaterialTheme.typography.labelMedium, 
+                        color = PrimaryBlue,
+                        fontWeight = FontWeight.Bold
+                    )
+                    Spacer(modifier = Modifier.height(2.dp))
+                    Text(
+                        text = task.scheduledTime, 
+                        style = MaterialTheme.typography.headlineSmall, 
+                        color = TextDark, 
+                        fontWeight = FontWeight.ExtraBold
+                    )
                 }
                 StatusBadge(type = task.status)
             }
             
-            Spacer(modifier = Modifier.height(20.dp))
+            Spacer(modifier = Modifier.height(16.dp))
             
             Text(
                 text = task.title,
-                style = MaterialTheme.typography.headlineSmall,
+                style = MaterialTheme.typography.titleLarge,
                 color = TextDark,
-                fontWeight = FontWeight.Bold
+                fontWeight = FontWeight.Bold,
+                lineHeight = 28.sp
             )
             
-            Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(vertical = 4.dp)) {
-                Icon(Icons.Default.LocationOn, contentDescription = null, modifier = Modifier.size(16.dp), tint = TextSecondary)
-                Spacer(modifier = Modifier.width(4.dp))
-                Text(text = "${task.location} • ${task.distance}", fontSize = 14.sp, color = TextSecondary)
+            Spacer(modifier = Modifier.height(6.dp))
+            
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Icon(
+                    Icons.Default.LocationOn, 
+                    contentDescription = null, 
+                    modifier = Modifier.size(16.dp), 
+                    tint = TextSecondary
+                )
+                Spacer(modifier = Modifier.width(6.dp))
+                Text(
+                    text = task.location, 
+                    style = MaterialTheme.typography.bodyMedium, 
+                    color = TextSecondary
+                )
             }
             
             Spacer(modifier = Modifier.height(24.dp))
             
-            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                TaskInfoItem("Distance", task.distance)
-                TaskInfoItem("ETA", task.eta)
-                TaskInfoItem("Tasks", "${task.taskCount}")
+            Row(
+                modifier = Modifier.fillMaxWidth(), 
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Row(horizontalArrangement = Arrangement.spacedBy(24.dp)) {
+                    TaskInfoItem("Distance", task.distance)
+                    TaskInfoItem("ETA", task.eta)
+                    TaskInfoItem("Items", "${task.taskCount}")
+                }
                 
                 Surface(
                     modifier = Modifier
-                        .size(48.dp)
-                        .clip(CircleShape),
-                    color = PrimaryBlue
+                        .size(44.dp),
+                    shape = CircleShape,
+                    color = PrimaryBlue,
+                    shadowElevation = 4.dp
                 ) {
                     Box(contentAlignment = Alignment.Center) {
-                        Icon(Icons.Default.ChevronRight, contentDescription = "View", tint = Color.White)
+                        Icon(
+                            Icons.AutoMirrored.Filled.ArrowForward, 
+                            contentDescription = "Start", 
+                            tint = Color.White,
+                            modifier = Modifier.size(20.dp)
+                        )
                     }
                 }
             }
             
-            Spacer(modifier = Modifier.height(24.dp))
-            HorizontalDivider(color = GrayLight.copy(alpha = 0.5f))
+            Spacer(modifier = Modifier.height(20.dp))
+            HorizontalDivider(color = Color(0xFFF0F2F5))
             Spacer(modifier = Modifier.height(16.dp))
             
             Row(
@@ -84,8 +121,26 @@ fun NextTaskCard(task: NextTaskUiModel, onClick: () -> Unit, modifier: Modifier 
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Text(text = "Due by ${task.dueTime}", fontSize = 12.sp, color = TextSecondary)
-                Text(text = task.scheduleStatus, fontSize = 12.sp, color = Color(0xFF4CAF50), fontWeight = FontWeight.Bold)
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Icon(
+                        Icons.Default.AccessTime, 
+                        contentDescription = null, 
+                        modifier = Modifier.size(14.dp), 
+                        tint = TextSecondary
+                    )
+                    Spacer(modifier = Modifier.width(6.dp))
+                    Text(
+                        text = "Due by ${task.dueTime}", 
+                        style = MaterialTheme.typography.labelMedium, 
+                        color = TextSecondary
+                    )
+                }
+                Text(
+                    text = task.scheduleStatus, 
+                    style = MaterialTheme.typography.labelMedium, 
+                    color = Color(0xFF2E7D32), 
+                    fontWeight = FontWeight.Bold
+                )
             }
         }
     }

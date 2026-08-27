@@ -31,10 +31,7 @@ import com.rahul.fieldflow.features.home.components.*
 import com.rahul.fieldflow.features.home.owner.components.*
 import com.rahul.fieldflow.features.home.owner.state.OwnerHomeUiState
 import com.rahul.fieldflow.features.home.owner.viewmodel.OwnerHomeViewModel
-import com.rahul.fieldflow.ui.theme.BackgroundLight
-import com.rahul.fieldflow.ui.theme.FieldFlowTheme
-import com.rahul.fieldflow.ui.theme.PrimaryBlue
-import com.rahul.fieldflow.ui.theme.SecondaryIndigo
+import com.rahul.fieldflow.ui.theme.*
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -65,7 +62,7 @@ fun OwnerHomeContent(
     onReject: (String) -> Unit = {}
 ) {
     Scaffold(
-        containerColor = BackgroundLight,
+        containerColor = Color(0xFFF8F9FB), // Very light neutral background
         bottomBar = {
             FieldFlowBottomNavigation(
                 items = BottomNavigationConfig.ownerItems,
@@ -76,7 +73,9 @@ fun OwnerHomeContent(
             FloatingActionButton(
                 onClick = { navController.navigate(AppRoutes.Tasks) },
                 containerColor = PrimaryBlue,
-                contentColor = Color.White
+                contentColor = Color.White,
+                shape = RoundedCornerShape(16.dp),
+                elevation = FloatingActionButtonDefaults.elevation(defaultElevation = 4.dp)
             ) {
                 Icon(Icons.Default.Add, contentDescription = "Create Task")
             }
@@ -85,7 +84,8 @@ fun OwnerHomeContent(
         LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(paddingValues)
+                .padding(paddingValues),
+            contentPadding = PaddingValues(bottom = 24.dp)
         ) {
             item {
                 Column(
@@ -94,8 +94,8 @@ fun OwnerHomeContent(
                         .background(
                             brush = Brush.verticalGradient(
                                 colors = listOf(
-                                    PrimaryBlue.copy(alpha = 0.1f),
-                                    BackgroundLight
+                                    PrimaryBlue.copy(alpha = 0.08f),
+                                    Color(0xFFF8F9FB)
                                 )
                             )
                         )
@@ -104,7 +104,7 @@ fun OwnerHomeContent(
                     FieldFlowHeader(
                         date = "Friday, Aug 22 • ${uiState.location}",
                         userName = uiState.userName,
-                        subtitle = "Here's what's happening today.",
+                        subtitle = "Ready for today's operations?",
                         initials = uiState.initials,
                         notificationCount = uiState.notificationCount,
                         onProfileClick = { navController.navigate(AppRoutes.OwnerProfile) },
@@ -112,27 +112,46 @@ fun OwnerHomeContent(
                     )
 
                     uiState.companyId?.let { code ->
-                        Card(
-                            modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp),
-                            shape = RoundedCornerShape(12.dp),
-                            colors = CardDefaults.cardColors(containerColor = PrimaryBlue.copy(alpha = 0.05f))
+                        Surface(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(vertical = 12.dp),
+                            shape = RoundedCornerShape(16.dp),
+                            color = Color.White,
+                            border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFFE1E5EE))
                         ) {
                             Row(
-                                modifier = Modifier.padding(12.dp),
-                                verticalAlignment = Alignment.CenterVertically
+                                modifier = Modifier.padding(16.dp),
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.SpaceBetween
                             ) {
-                                Icon(Icons.Default.Business, contentDescription = null, tint = PrimaryBlue, modifier = Modifier.size(20.dp))
-                                Spacer(modifier = Modifier.width(8.dp))
-                                Text(text = "Company ID:", style = MaterialTheme.typography.labelMedium, color = PrimaryBlue)
-                                Spacer(modifier = Modifier.width(8.dp))
-                                Text(text = code, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold, color = PrimaryBlue, letterSpacing = 2.sp)
+                                Row(verticalAlignment = Alignment.CenterVertically) {
+                                    Surface(
+                                        modifier = Modifier.size(36.dp),
+                                        shape = RoundedCornerShape(8.dp),
+                                        color = PrimaryBlue.copy(alpha = 0.1f)
+                                    ) {
+                                        Box(contentAlignment = Alignment.Center) {
+                                            Icon(Icons.Default.Business, contentDescription = null, tint = PrimaryBlue, modifier = Modifier.size(18.dp))
+                                        }
+                                    }
+                                    Spacer(modifier = Modifier.width(12.dp))
+                                    Column {
+                                        Text(text = "Company ID", style = MaterialTheme.typography.labelSmall, color = TextSecondary)
+                                        Text(text = code, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold, color = TextDark, letterSpacing = 1.sp)
+                                    }
+                                }
+                                
+                                IconButton(onClick = { /* Copy */ }) {
+                                    Icon(Icons.Default.ContentCopy, contentDescription = "Copy", tint = PrimaryBlue, modifier = Modifier.size(20.dp))
+                                }
                             }
                         }
                     }
 
                     Row(
                         modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(12.dp)
+                        horizontalArrangement = Arrangement.spacedBy(10.dp)
                     ) {
                         uiState.stats.forEach { stat ->
                             SummaryStatCard(
@@ -143,9 +162,11 @@ fun OwnerHomeContent(
                         }
                     }
 
+                    Spacer(modifier = Modifier.height(20.dp))
+                    
                     WorkflowIndicator(currentStep = uiState.currentStep)
                     
-                    Spacer(modifier = Modifier.height(8.dp))
+                    Spacer(modifier = Modifier.height(12.dp))
                 }
             }
 
@@ -153,7 +174,7 @@ fun OwnerHomeContent(
                 item {
                     SectionHeader(
                         title = "Pending Join Requests",
-                        modifier = Modifier.padding(horizontal = 20.dp)
+                        modifier = Modifier.padding(horizontal = 20.dp, vertical = 8.dp)
                     )
                 }
                 items(uiState.pendingRequests) { request ->
@@ -170,7 +191,7 @@ fun OwnerHomeContent(
                 SectionHeader(
                     title = "🔴 Live Field Visits",
                     actionText = "All Tasks",
-                    modifier = Modifier.padding(horizontal = 20.dp),
+                    modifier = Modifier.padding(horizontal = 20.dp, vertical = 12.dp),
                     onActionClick = { navController.navigate(AppRoutes.Tasks) }
                 )
             }
@@ -258,23 +279,24 @@ fun JoinRequestCard(
     onReject: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    Card(
+    Surface(
         modifier = modifier.fillMaxWidth(),
         shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(containerColor = Color.White),
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+        color = Color.White,
+        border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFFF0F2F5))
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Surface(
-                    modifier = Modifier.size(40.dp),
-                    shape = RoundedCornerShape(10.dp),
-                    color = PrimaryBlue.copy(alpha = 0.1f)
+                    modifier = Modifier.size(44.dp),
+                    shape = RoundedCornerShape(12.dp),
+                    color = PrimaryBlue.copy(alpha = 0.08f)
                 ) {
                     Box(contentAlignment = Alignment.Center) {
                         Text(
                             text = request.employeeName?.take(1)?.uppercase() ?: "?",
                             color = PrimaryBlue,
+                            style = MaterialTheme.typography.titleMedium,
                             fontWeight = FontWeight.Bold
                         )
                     }
@@ -283,14 +305,14 @@ fun JoinRequestCard(
                 Column(modifier = Modifier.weight(1f)) {
                     Text(
                         text = request.employeeName ?: "Unknown Employee",
-                        style = MaterialTheme.typography.titleMedium,
+                        style = MaterialTheme.typography.bodyLarge,
                         fontWeight = FontWeight.Bold,
-                        color = Color(0xFF1A1C1E)
+                        color = TextDark
                     )
                     Text(
-                        text = "Requested to join",
-                        style = MaterialTheme.typography.bodySmall,
-                        color = Color(0xFF74777F)
+                        text = "Wants to join your workspace",
+                        style = MaterialTheme.typography.labelSmall,
+                        color = TextSecondary
                     )
                 }
             }
@@ -299,24 +321,24 @@ fun JoinRequestCard(
             
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
+                horizontalArrangement = Arrangement.spacedBy(10.dp)
             ) {
                 OutlinedButton(
                     onClick = onReject,
-                    modifier = Modifier.weight(1f),
-                    shape = RoundedCornerShape(8.dp),
-                    colors = ButtonDefaults.outlinedButtonColors(contentColor = Color.Red),
-                    border = androidx.compose.foundation.BorderStroke(1.dp, Color.Red.copy(alpha = 0.5f))
+                    modifier = Modifier.weight(1f).height(44.dp),
+                    shape = RoundedCornerShape(10.dp),
+                    colors = ButtonDefaults.outlinedButtonColors(contentColor = Color(0xFFE53935)),
+                    border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFFEF9A9A).copy(alpha = 0.5f))
                 ) {
-                    Text("Reject")
+                    Text("Decline", style = MaterialTheme.typography.labelLarge, fontWeight = FontWeight.SemiBold)
                 }
                 Button(
                     onClick = onApprove,
-                    modifier = Modifier.weight(1f),
-                    shape = RoundedCornerShape(8.dp),
-                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF4CAF50))
+                    modifier = Modifier.weight(1f).height(44.dp),
+                    shape = RoundedCornerShape(10.dp),
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF43A047))
                 ) {
-                    Text("Approve")
+                    Text("Approve", style = MaterialTheme.typography.labelLarge, fontWeight = FontWeight.SemiBold)
                 }
             }
         }

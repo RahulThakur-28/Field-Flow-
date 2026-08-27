@@ -1,6 +1,7 @@
 package com.rahul.fieldflow
 
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -13,9 +14,8 @@ import com.rahul.fieldflow.ui.theme.FieldFlowTheme
 import dagger.hilt.android.AndroidEntryPoint
 import io.github.jan.supabase.SupabaseClient
 import io.github.jan.supabase.auth.handleDeeplinks
+import org.maplibre.android.MapLibre
 import javax.inject.Inject
-
-import android.util.Log
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
@@ -25,20 +25,38 @@ class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        Log.d("FIELD_FLOW_STARTUP", "MainActivity onCreate started")
+
+        Log.d(
+            "FIELD_FLOW_STARTUP",
+            "MainActivity onCreate started"
+        )
+
+        // Initialize MapLibre BEFORE any MapView is created
+        MapLibre.getInstance(this)
+
         supabaseClient.handleDeeplinks(intent)
+
         enableEdgeToEdge()
+
         setContent {
             FieldFlowTheme {
                 val navController = rememberNavController()
-                AppNavGraph(navController = navController)
+
+                AppNavGraph(
+                    navController = navController
+                )
             }
         }
     }
 
     override fun onNewIntent(intent: android.content.Intent) {
         super.onNewIntent(intent)
-        Log.d("FIELD_FLOW_STARTUP", "MainActivity onNewIntent")
+
+        Log.d(
+            "FIELD_FLOW_STARTUP",
+            "MainActivity onNewIntent"
+        )
+
         supabaseClient.handleDeeplinks(intent)
     }
 }

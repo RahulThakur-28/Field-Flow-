@@ -1,6 +1,7 @@
 package com.rahul.fieldflow.features.tasks.owner.screen
 
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.*
@@ -11,7 +12,9 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.rahul.fieldflow.features.tasks.model.SelectedLocation
 import com.rahul.fieldflow.features.tasks.owner.components.TaskForm
 import com.rahul.fieldflow.features.tasks.owner.viewmodel.EditTaskViewModel
 import com.rahul.fieldflow.ui.theme.FieldFlowTheme
@@ -23,6 +26,8 @@ fun EditTaskScreen(
     taskId: String,
     onBackClick: () -> Unit,
     onTaskUpdated: () -> Unit,
+    onPickOnMap: (Double?, Double?, Int) -> Unit,
+    selectedLocation: SelectedLocation? = null,
     viewModel: EditTaskViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
@@ -31,7 +36,14 @@ fun EditTaskScreen(
         viewModel.loadTask(taskId)
     }
 
+    LaunchedEffect(selectedLocation) {
+        selectedLocation?.let {
+            viewModel.onLocationSelected(it)
+        }
+    }
+
     Scaffold(
+        containerColor = MaterialTheme.colorScheme.background,
         topBar = {
             TopAppBar(
                 title = { Text("Edit Task", fontWeight = FontWeight.Bold) },
@@ -39,28 +51,32 @@ fun EditTaskScreen(
                     IconButton(onClick = onBackClick) {
                         Icon(Icons.Default.ArrowBack, contentDescription = "Back")
                     }
-                }
+                },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = Color.White
+                )
             )
         },
         bottomBar = {
             Surface(
                 modifier = Modifier.fillMaxWidth(),
-                shadowElevation = 8.dp,
-                color = MaterialTheme.colorScheme.surface
+                shadowElevation = 16.dp,
+                color = Color.White
             ) {
                 Button(
                     onClick = { viewModel.saveTask(onTaskUpdated) },
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(16.dp)
-                        .height(50.dp),
+                        .height(54.dp),
                     colors = ButtonDefaults.buttonColors(containerColor = PrimaryBlue),
-                    enabled = !uiState.isSaving
+                    enabled = !uiState.isSaving,
+                    shape = RoundedCornerShape(12.dp)
                 ) {
                     if (uiState.isSaving) {
-                        CircularProgressIndicator(color = Color.White, modifier = Modifier.size(24.dp))
+                        CircularProgressIndicator(color = Color.White, modifier = Modifier.size(24.dp), strokeWidth = 2.dp)
                     } else {
-                        Text("Save Changes", fontWeight = FontWeight.Bold)
+                        Text("Save Changes", fontWeight = FontWeight.Bold, fontSize = 16.sp)
                     }
                 }
             }
@@ -68,25 +84,43 @@ fun EditTaskScreen(
     ) { padding ->
         if (uiState.isLoading) {
             Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                CircularProgressIndicator()
+                CircularProgressIndicator(color = PrimaryBlue)
             }
         } else {
             TaskForm(
                 title = uiState.title,
                 onTitleChange = viewModel::updateTitle,
+                titleError = uiState.titleError,
                 description = uiState.description,
                 onDescriptionChange = viewModel::updateDescription,
+                descriptionError = uiState.descriptionError,
                 location = uiState.location,
                 onLocationChange = viewModel::updateLocation,
+                locationError = uiState.locationError,
                 selectedEmployee = uiState.selectedEmployee,
-                onEmployeeSelected = viewModel::updateEmployee,
                 employees = uiState.employees,
+                onEmployeeSelected = viewModel::updateEmployee,
+                employeeError = uiState.employeeError,
                 priority = uiState.priority,
                 onPriorityChange = viewModel::updatePriority,
                 date = uiState.date,
                 onDateChange = viewModel::updateDate,
-                time = uiState.time,
-                onTimeChange = viewModel::updateTime,
+                dateError = uiState.dateError,
+                startTime = uiState.startTime,
+                onStartTimeChange = viewModel::updateStartTime,
+                startTimeError = uiState.startTimeError,
+                deadline = uiState.deadline,
+                onDeadlineChange = viewModel::updateDeadline,
+                deadlineError = uiState.deadlineError,
+                instructions = uiState.instructions,
+                onInstructionsChange = viewModel::updateInstructions,
+                checklist = uiState.checklist,
+                onAddChecklistItem = viewModel::addChecklistItem,
+                onRemoveChecklistItem = viewModel::removeChecklistItem,
+                onPickOnMap = {
+                    onPickOnMap(uiState.latitude, uiState.longitude, uiState.radiusMeters)
+                },
+                generalError = uiState.error,
                 modifier = Modifier.padding(padding)
             )
         }
@@ -97,6 +131,6 @@ fun EditTaskScreen(
 @Composable
 fun EditTaskScreenPreview() {
     FieldFlowTheme {
-        EditTaskScreen(taskId = "1", onBackClick = {}, onTaskUpdated = {})
+        EditTaskScreen(taskId = "1", onBackClick = {}, onTaskUpdated = {}, onPickOnMap = { _, _, _ -> })
     }
 }

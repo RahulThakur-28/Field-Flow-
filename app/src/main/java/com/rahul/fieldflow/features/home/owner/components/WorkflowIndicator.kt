@@ -7,6 +7,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -29,7 +30,7 @@ fun WorkflowIndicator(
     Row(
         modifier = modifier
             .fillMaxWidth()
-            .padding(vertical = 16.dp, horizontal = 4.dp),
+            .padding(vertical = 12.dp, horizontal = 4.dp),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.Top
     ) {
@@ -38,18 +39,9 @@ fun WorkflowIndicator(
                 label = step,
                 isCompleted = index < currentStep,
                 isCurrent = index == currentStep,
-                isFuture = index > currentStep
+                isFuture = index > currentStep,
+                modifier = Modifier.weight(1f)
             )
-            
-            if (index < steps.size - 1) {
-                Box(
-                    modifier = Modifier
-                        .padding(top = 10.dp)
-                        .height(2.dp)
-                        .weight(1f)
-                        .background(if (index < currentStep) PrimaryBlue else Color(0xFFE0E0E0))
-                )
-            }
         }
     }
 }
@@ -59,19 +51,25 @@ private fun WorkflowStep(
     label: String,
     isCompleted: Boolean,
     isCurrent: Boolean,
-    isFuture: Boolean
+    isFuture: Boolean,
+    modifier: Modifier = Modifier
 ) {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = Modifier.width(IntrinsicSize.Min)
+        modifier = modifier
     ) {
         Box(
             modifier = Modifier
-                .size(20.dp)
+                .size(24.dp)
                 .clip(CircleShape)
-                .background(if (isCompleted || isCurrent) PrimaryBlue else Color.Transparent)
+                .background(
+                    if (isCompleted) Color(0xFF2E7D32) 
+                    else if (isCurrent) PrimaryBlue 
+                    else Color.White
+                )
                 .then(
-                    if (isFuture) Modifier.border(1.5.dp, Color(0xFFE0E0E0), CircleShape) else Modifier
+                    if (isFuture || isCurrent) Modifier.border(1.5.dp, if (isCurrent) PrimaryBlue else Color(0xFFE0E0E0), CircleShape) 
+                    else Modifier
                 ),
             contentAlignment = Alignment.Center
         ) {
@@ -80,27 +78,27 @@ private fun WorkflowStep(
                     imageVector = Icons.Default.Check,
                     contentDescription = null,
                     tint = Color.White,
-                    modifier = Modifier.size(12.dp)
+                    modifier = Modifier.size(14.dp)
                 )
             } else if (isCurrent) {
                 Box(
                     modifier = Modifier
-                        .size(6.dp)
+                        .size(8.dp)
                         .clip(CircleShape)
                         .background(Color.White)
                 )
             }
-            // Future steps are just an empty circle (the border)
         }
         
-        Spacer(modifier = Modifier.height(6.dp))
+        Spacer(modifier = Modifier.height(8.dp))
         
         Text(
             text = label,
-            fontSize = 10.sp,
+            style = MaterialTheme.typography.labelSmall,
             fontWeight = if (isCurrent) FontWeight.Bold else FontWeight.Medium,
-            color = if (isCurrent || isCompleted) PrimaryBlue else Color.Gray,
-            maxLines = 1
+            color = if (isCurrent) PrimaryBlue else if (isCompleted) Color(0xFF2E7D32) else Color.Gray,
+            maxLines = 1,
+            fontSize = 9.sp
         )
     }
 }

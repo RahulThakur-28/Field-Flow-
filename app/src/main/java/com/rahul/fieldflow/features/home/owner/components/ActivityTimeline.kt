@@ -21,26 +21,38 @@ fun ActivityTimeline(activities: List<ActivityItemUiModel>, modifier: Modifier =
     Column(modifier = modifier) {
         activities.forEachIndexed { index, activity ->
             Row(modifier = Modifier.height(IntrinsicSize.Min)) {
-                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    modifier = Modifier.padding(top = 4.dp)
+                ) {
                     Box(
                         modifier = Modifier
-                            .size(12.dp)
+                            .size(10.dp)
                             .clip(CircleShape)
-                            .background(PrimaryBlue)
+                            .background(PrimaryBlue.copy(alpha = 0.8f))
                     )
                     if (index < activities.size - 1) {
                         Box(
                             modifier = Modifier
-                                .width(2.dp)
+                                .width(1.dp)
                                 .fillMaxHeight()
-                                .background(GrayLight)
+                                .background(PrimaryBlue.copy(alpha = 0.15f))
                         )
                     }
                 }
                 Spacer(modifier = Modifier.width(16.dp))
-                Column(modifier = Modifier.padding(bottom = 24.dp)) {
-                    Text(text = activity.title, color = TextDark)
-                    Text(text = activity.time, fontSize = 12.sp, color = TextSecondary)
+                Column(modifier = Modifier.padding(bottom = 20.dp)) {
+                    Text(
+                        text = activity.title, 
+                        style = androidx.compose.material3.MaterialTheme.typography.bodyMedium,
+                        color = TextDark,
+                        fontWeight = androidx.compose.ui.text.font.FontWeight.Medium
+                    )
+                    Text(
+                        text = activity.time, 
+                        style = androidx.compose.material3.MaterialTheme.typography.labelSmall,
+                        color = TextSecondary
+                    )
                 }
             }
         }

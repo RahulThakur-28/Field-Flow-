@@ -65,5 +65,6 @@ data class ScheduleTaskUiModel(
 data class QuickAccessUiModel(
     val title: String,
     val subtitle: String,
-    val icon: ImageVector
+    val icon: ImageVector,
+    val color: androidx.compose.ui.graphics.Color = androidx.compose.ui.graphics.Color(0xFF2196F3)
 )

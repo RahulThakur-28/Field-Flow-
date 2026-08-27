@@ -31,6 +31,15 @@ data class TaskDto(
     @SerialName("location")
     val location: String? = null,
 
+    @SerialName("latitude")
+    val latitude: Double? = null,
+
+    @SerialName("longitude")
+    val longitude: Double? = null,
+
+    @SerialName("radius_meters")
+    val radiusMeters: Int? = null,
+
     @SerialName("due_date")
     val dueDate: String? = null,
 
@@ -69,6 +78,9 @@ data class TaskDto(
             createdBy = createdBy,
 
             location = location,
+            latitude = latitude,
+            longitude = longitude,
+            radiusMeters = radiusMeters ?: 50,
 
             dueDate = dueDate?.let {
                 OffsetDateTime.parse(it, formatter)

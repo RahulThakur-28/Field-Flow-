@@ -1,7 +1,6 @@
 package com.rahul.fieldflow.features.home.owner.components
 
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
@@ -16,14 +15,14 @@ import com.rahul.fieldflow.ui.theme.TextDark
 
 @Composable
 fun QuickActionCard(icon: ImageVector, title: String, accentColor: Color, onClick: () -> Unit) {
-    Card(
+    Surface(
         onClick = onClick,
         modifier = Modifier
-            .width(100.dp)
-            .height(110.dp),
-        shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(containerColor = Color.White),
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+            .width(104.dp)
+            .height(116.dp),
+        shape = RoundedCornerShape(20.dp),
+        color = Color.White,
+        border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFFF0F2F5))
     ) {
         Column(
             modifier = Modifier.fillMaxSize().padding(12.dp),
@@ -31,16 +30,27 @@ fun QuickActionCard(icon: ImageVector, title: String, accentColor: Color, onClic
             verticalArrangement = Arrangement.Center
         ) {
             Surface(
-                modifier = Modifier.size(40.dp),
-                shape = CircleShape,
-                color = accentColor.copy(alpha = 0.1f)
+                modifier = Modifier.size(44.dp),
+                shape = RoundedCornerShape(12.dp),
+                color = accentColor.copy(alpha = 0.08f)
             ) {
                 Box(contentAlignment = Alignment.Center) {
-                    Icon(icon, contentDescription = null, tint = accentColor)
+                    Icon(
+                        imageVector = icon, 
+                        contentDescription = null, 
+                        tint = accentColor,
+                        modifier = Modifier.size(24.dp)
+                    )
                 }
             }
             Spacer(modifier = Modifier.height(12.dp))
-            Text(text = title, fontSize = 12.sp, fontWeight = FontWeight.Bold, color = TextDark)
+            Text(
+                text = title, 
+                style = MaterialTheme.typography.labelMedium,
+                fontWeight = FontWeight.Bold, 
+                color = TextDark,
+                textAlign = androidx.compose.ui.text.style.TextAlign.Center
+            )
         }
     }
 }

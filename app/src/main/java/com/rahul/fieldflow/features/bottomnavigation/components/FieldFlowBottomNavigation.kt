@@ -1,9 +1,13 @@
 package com.rahul.fieldflow.features.bottomnavigation.components
 
+import androidx.compose.foundation.layout.size
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.navigation.NavDestination.Companion.hasRoute
@@ -24,7 +28,8 @@ fun FieldFlowBottomNavigation(
 
     NavigationBar(
         containerColor = Color.White,
-        tonalElevation = 8.dp
+        tonalElevation = 0.dp,
+        modifier = Modifier.shadow(16.dp)
     ) {
         items.forEach { item ->
             val isSelected = currentDestination?.hierarchy?.any { it.hasRoute(item.route::class) } == true
@@ -33,34 +38,33 @@ fun FieldFlowBottomNavigation(
                 selected = isSelected,
                 onClick = {
                     navController.navigate(item.route) {
-                        // Pop up to the start destination of the graph to
-                        // avoid building up a large stack of destinations
-                        // on the back stack as users select items
                         popUpTo(navController.graph.findStartDestination().id) {
                             saveState = true
                         }
-                        // Avoid multiple copies of the same destination when
-                        // reselecting the same item
                         launchSingleTop = true
-                        // Restore state when reselecting a previously selected item
                         restoreState = true
                     }
                 },
                 icon = {
                     Icon(
                         imageVector = item.icon,
-                        contentDescription = item.title
+                        contentDescription = item.title,
+                        modifier = Modifier.size(22.dp)
                     )
                 },
                 label = {
-                    Text(text = item.title)
+                    Text(
+                        text = item.title,
+                        style = MaterialTheme.typography.labelSmall,
+                        fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium
+                    )
                 },
                 colors = NavigationBarItemDefaults.colors(
                     selectedIconColor = PrimaryBlue,
                     selectedTextColor = PrimaryBlue,
-                    unselectedIconColor = TextSecondary,
-                    unselectedTextColor = TextSecondary,
-                    indicatorColor = PrimaryBlue.copy(alpha = 0.1f)
+                    unselectedIconColor = TextSecondary.copy(alpha = 0.6f),
+                    unselectedTextColor = TextSecondary.copy(alpha = 0.6f),
+                    indicatorColor = PrimaryBlue.copy(alpha = 0.08f)
                 )
             )
         }

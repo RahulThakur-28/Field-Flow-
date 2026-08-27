@@ -1,6 +1,5 @@
 package com.rahul.fieldflow.features.auth.common.screen
 
-import android.util.Patterns
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -19,7 +18,6 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.rahul.fieldflow.R
 import com.rahul.fieldflow.core.common.components.AppTextField
 import com.rahul.fieldflow.core.common.components.PasswordTextField
@@ -51,6 +49,7 @@ fun LoginScreen(
         Column(
             modifier = Modifier
                 .fillMaxSize()
+                .imePadding()
                 .padding(horizontal = 24.dp)
                 .verticalScroll(scrollState),
             horizontalAlignment = Alignment.CenterHorizontally
@@ -60,10 +59,10 @@ fun LoginScreen(
             Image(
                 painter = painterResource(id = R.drawable.fieldflow_logo),
                 contentDescription = "FieldFlow Logo",
-                modifier = Modifier.size(80.dp)
+                modifier = Modifier.size(72.dp)
             )
             
-            Spacer(modifier = Modifier.height(32.dp))
+            Spacer(modifier = Modifier.height(24.dp))
             
             Text(
                 text = "Welcome back 👋",
@@ -71,6 +70,8 @@ fun LoginScreen(
                 color = TextDark,
                 fontWeight = FontWeight.Bold
             )
+            
+            Spacer(modifier = Modifier.height(4.dp))
             
             Text(
                 text = "Sign in to your FieldFlow account",
@@ -87,7 +88,8 @@ fun LoginScreen(
                 placeholder = "you@company.com",
                 leadingIcon = Icons.Default.Email,
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
-                errorText = uiState.emailError
+                errorText = uiState.emailError,
+                modifier = Modifier.fillMaxWidth()
             )
             
             Spacer(modifier = Modifier.height(20.dp))
@@ -98,18 +100,23 @@ fun LoginScreen(
                 label = "Password",
                 placeholder = "Enter your password",
                 leadingIcon = Icons.Default.Lock,
-                errorText = uiState.passwordError
+                errorText = uiState.passwordError,
+                modifier = Modifier.fillMaxWidth()
             )
             
             Box(
                 modifier = Modifier.fillMaxWidth(),
                 contentAlignment = Alignment.CenterEnd
             ) {
-                TextButton(onClick = { /* TODO: Forgot Password */ }) {
+                TextButton(
+                    onClick = { /* TODO: Forgot Password */ },
+                    contentPadding = PaddingValues(horizontal = 4.dp)
+                ) {
                     Text(
                         text = "Forgot Password?",
+                        style = MaterialTheme.typography.bodyMedium,
                         color = PrimaryBlue,
-                        fontWeight = FontWeight.SemiBold
+                        fontWeight = FontWeight.Bold
                     )
                 }
             }
@@ -121,17 +128,35 @@ fun LoginScreen(
                 onClick = viewModel::login,
                 isLoading = uiState.isLoading
             )
+
+            if (uiState.error != null) {
+                Spacer(modifier = Modifier.height(16.dp))
+                Text(
+                    text = uiState.error!!,
+                    color = MaterialTheme.colorScheme.error,
+                    style = MaterialTheme.typography.bodySmall,
+                    modifier = Modifier.padding(horizontal = 8.dp)
+                )
+            }
             
-            Spacer(modifier = Modifier.weight(1f))
+            Spacer(modifier = Modifier.height(32.dp))
             
             Row(
-                modifier = Modifier.padding(vertical = 32.dp),
+                modifier = Modifier.padding(bottom = 32.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Text(text = "Don't have an account? ", color = TextSecondary)
-                TextButton(onClick = onNavigateToRegister) {
+                Text(
+                    text = "Don't have an account? ", 
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = TextSecondary
+                )
+                TextButton(
+                    onClick = onNavigateToRegister,
+                    contentPadding = PaddingValues(horizontal = 4.dp)
+                ) {
                     Text(
                         text = "Create Account",
+                        style = MaterialTheme.typography.bodyMedium,
                         color = PrimaryBlue,
                         fontWeight = FontWeight.Bold
                     )

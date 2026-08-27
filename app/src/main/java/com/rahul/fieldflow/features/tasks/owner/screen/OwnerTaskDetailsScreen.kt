@@ -97,7 +97,12 @@ fun OwnerTaskDetailsScreen(
                     shape = androidx.compose.foundation.shape.RoundedCornerShape(12.dp)
                 ) {
                     Column(modifier = Modifier.padding(16.dp)) {
-                        TaskLocationCard(task.location)
+                        TaskLocationCard(
+                            location = task.location ?: "No location",
+                            lat = task.latitude,
+                            lng = task.longitude,
+                            radius = task.radiusMeters
+                        )
                         TaskScheduleCard(
                             date = task.scheduledDate.format(DateTimeFormatter.ofPattern("MMM dd, yyyy")),
                             time = task.scheduledDate.format(DateTimeFormatter.ofPattern("HH:mm"))

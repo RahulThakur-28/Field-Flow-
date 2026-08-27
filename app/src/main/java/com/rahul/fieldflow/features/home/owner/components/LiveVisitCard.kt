@@ -2,6 +2,7 @@ package com.rahul.fieldflow.features.home.owner.components
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.LocationOn
@@ -27,67 +28,85 @@ fun LiveVisitCard(visit: FieldVisitUiModel, modifier: Modifier = Modifier, onCli
         modifier = modifier
             .fillMaxWidth()
             .clickable { onClick() },
-        shape = RoundedCornerShape(20.dp),
+        shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(containerColor = Color.White),
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
+        border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFFF0F2F5))
     ) {
-        Column(modifier = Modifier.padding(20.dp)) {
+        Column(modifier = Modifier.padding(16.dp)) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Text(
-                    text = visit.title,
-                    style = MaterialTheme.typography.titleMedium,
-                    color = TextDark,
-                    fontWeight = FontWeight.Bold
-                )
+                Column(modifier = Modifier.weight(1f)) {
+                    Text(
+                        text = visit.title,
+                        style = MaterialTheme.typography.titleMedium,
+                        color = TextDark,
+                        fontWeight = FontWeight.Bold
+                    )
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Icon(
+                            imageVector = Icons.Default.LocationOn,
+                            contentDescription = null,
+                            modifier = Modifier.size(12.dp),
+                            tint = TextSecondary
+                        )
+                        Spacer(modifier = Modifier.width(4.dp))
+                        Text(text = visit.location, fontSize = 11.sp, color = TextSecondary)
+                    }
+                }
                 StatusBadge(type = visit.status)
             }
             
             Spacer(modifier = Modifier.height(16.dp))
             
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                ProfileAvatar(initials = visit.employeeInitials)
-                Spacer(modifier = Modifier.width(12.dp))
-                Column {
-                    Text(text = visit.employeeName, fontWeight = FontWeight.Bold, color = TextDark)
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Icon(
-                            imageVector = Icons.Default.LocationOn,
-                            contentDescription = null,
-                            modifier = Modifier.size(14.dp),
-                            tint = TextSecondary
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                ProfileAvatar(
+                    initials = visit.employeeInitials,
+                    modifier = Modifier.size(32.dp)
+                )
+                Spacer(modifier = Modifier.width(10.dp))
+                Column(modifier = Modifier.weight(1f)) {
+                    Text(
+                        text = visit.employeeName, 
+                        style = MaterialTheme.typography.bodyMedium,
+                        fontWeight = FontWeight.SemiBold, 
+                        color = TextDark
+                    )
+                    Text(
+                        text = "Distance: ${visit.distance}", 
+                        style = MaterialTheme.typography.labelSmall, 
+                        color = TextSecondary
+                    )
+                }
+                
+                Column(horizontalAlignment = Alignment.End) {
+                    Text(
+                        text = "${visit.completedTasks}/${visit.totalTasks} Tasks",
+                        style = MaterialTheme.typography.labelSmall,
+                        fontWeight = FontWeight.Bold,
+                        color = PrimaryBlue
+                    )
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Box(modifier = Modifier.width(64.dp)) {
+                        LinearProgressIndicator(
+                            progress = { visit.completedTasks.toFloat() / visit.totalTasks },
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(4.dp)
+                                .clip(CircleShape),
+                            color = PrimaryBlue,
+                            trackColor = PrimaryBlue.copy(alpha = 0.1f)
                         )
-                        Spacer(modifier = Modifier.width(4.dp))
-                        Text(text = "${visit.location} • ${visit.distance}", fontSize = 12.sp, color = TextSecondary)
                     }
                 }
             }
-            
-            Spacer(modifier = Modifier.height(20.dp))
-            
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(text = "Tasks Progress", fontSize = 12.sp, color = TextSecondary)
-                Text(text = "${visit.completedTasks}/${visit.totalTasks}", fontSize = 12.sp, fontWeight = FontWeight.Bold, color = TextDark)
-            }
-            
-            Spacer(modifier = Modifier.height(8.dp))
-            
-            LinearProgressIndicator(
-                progress = { visit.completedTasks.toFloat() / visit.totalTasks },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(6.dp)
-                    .clip(RoundedCornerShape(3.dp)),
-                color = PrimaryBlue,
-                trackColor = PrimaryBlue.copy(alpha = 0.1f)
-            )
         }
     }
 }

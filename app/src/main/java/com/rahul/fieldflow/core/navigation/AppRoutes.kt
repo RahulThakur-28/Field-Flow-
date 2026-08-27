@@ -43,6 +43,13 @@ sealed class AppRoutes {
     data object CreateTask : AppRoutes()
 
     @Serializable
+    data class LocationPicker(
+        val initialLat: Double? = null,
+        val initialLng: Double? = null,
+        val initialRadius: Int = 100
+    ) : AppRoutes()
+
+    @Serializable
     data class TaskDetails(val taskId: String) : AppRoutes()
 
     @Serializable

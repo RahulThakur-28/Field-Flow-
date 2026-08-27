@@ -1,6 +1,6 @@
 package com.rahul.fieldflow.features.tasks.components
 
-import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.FilterList
@@ -8,9 +8,9 @@ import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import com.rahul.fieldflow.ui.theme.TextSecondary
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -19,19 +19,45 @@ fun TaskSearchBar(
     onQueryChange: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    TextField(
+    OutlinedTextField(
         value = query,
         onValueChange = onQueryChange,
         modifier = modifier
             .fillMaxWidth()
-            .clip(RoundedCornerShape(12.dp)),
-        placeholder = { Text("Search tasks...") },
-        leadingIcon = { Icon(Icons.Default.Search, contentDescription = null) },
-        trailingIcon = { Icon(Icons.Default.FilterList, contentDescription = null) },
-        colors = TextFieldDefaults.colors(
-            focusedIndicatorColor = Color.Transparent,
-            unfocusedIndicatorColor = Color.Transparent,
-            disabledIndicatorColor = Color.Transparent
+            .height(56.dp),
+        placeholder = { 
+            Text(
+                "Search tasks, employees...", 
+                style = MaterialTheme.typography.bodyMedium,
+                color = TextSecondary.copy(alpha = 0.6f)
+            ) 
+        },
+        leadingIcon = { 
+            Icon(
+                Icons.Default.Search, 
+                contentDescription = null, 
+                tint = TextSecondary,
+                modifier = Modifier.size(22.dp)
+            ) 
+        },
+        trailingIcon = { 
+            IconButton(onClick = { /* TODO: Advanced Filter */ }) {
+                Icon(
+                    Icons.Default.FilterList, 
+                    contentDescription = "Filter", 
+                    tint = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier.size(22.dp)
+                )
+            }
+        },
+        shape = RoundedCornerShape(16.dp),
+        singleLine = true,
+        colors = OutlinedTextFieldDefaults.colors(
+            unfocusedContainerColor = Color.White,
+            focusedContainerColor = Color.White,
+            unfocusedBorderColor = Color(0xFFF0F2F5),
+            focusedBorderColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.5f),
+            cursorColor = MaterialTheme.colorScheme.primary
         )
     )
 }

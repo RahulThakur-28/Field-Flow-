@@ -7,7 +7,9 @@ import androidx.navigation.navigation
 import androidx.navigation.toRoute
 import com.rahul.fieldflow.core.navigation.AppRoutes
 import com.rahul.fieldflow.features.tasks.employee.screen.*
+import com.rahul.fieldflow.features.tasks.model.SelectedLocation
 import com.rahul.fieldflow.features.tasks.owner.screen.*
+import org.maplibre.android.geometry.LatLng
 
 fun NavGraphBuilder.taskNavigation(navController: NavController) {
     navigation<AppRoutes.Tasks>(startDestination = AppRoutes.OwnerTasks) {
@@ -24,10 +26,32 @@ fun NavGraphBuilder.taskNavigation(navController: NavController) {
             )
         }
 
-        composable<AppRoutes.CreateTask> {
+        composable<AppRoutes.CreateTask> { backStackEntry ->
+            val result = backStackEntry.savedStateHandle.get<SelectedLocation>("selected_location")
             CreateTaskScreen(
                 onBackClick = { navController.popBackStack() },
-                onTaskCreated = { navController.popBackStack() }
+                onTaskCreated = { navController.popBackStack() },
+                onPickOnMap = { lat, lng, radius ->
+                    navController.navigate(AppRoutes.LocationPicker(lat, lng, radius))
+                },
+                selectedLocation = result
+            )
+        }
+
+        composable<AppRoutes.LocationPicker> { backStackEntry ->
+            val route = backStackEntry.toRoute<AppRoutes.LocationPicker>()
+            val initialLatLng = if (route.initialLat != null && route.initialLng != null) {
+                LatLng(route.initialLat, route.initialLng)
+            } else null
+
+            LocationPickerScreen(
+                initialLocation = initialLatLng,
+                initialRadius = route.initialRadius,
+                onBackClick = { navController.popBackStack() },
+                onLocationConfirm = { location ->
+                    navController.previousBackStackEntry?.savedStateHandle?.set("selected_location", location)
+                    navController.popBackStack()
+                }
             )
         }
 
@@ -47,10 +71,15 @@ fun NavGraphBuilder.taskNavigation(navController: NavController) {
 
         composable<AppRoutes.EditTask> { backStackEntry ->
             val route = backStackEntry.toRoute<AppRoutes.EditTask>()
+            val result = backStackEntry.savedStateHandle.get<SelectedLocation>("selected_location")
             EditTaskScreen(
                 taskId = route.taskId,
                 onBackClick = { navController.popBackStack() },
-                onTaskUpdated = { navController.popBackStack() }
+                onTaskUpdated = { navController.popBackStack() },
+                onPickOnMap = { lat, lng, radius ->
+                    navController.navigate(AppRoutes.LocationPicker(lat, lng, radius))
+                },
+                selectedLocation = result
             )
         }
 

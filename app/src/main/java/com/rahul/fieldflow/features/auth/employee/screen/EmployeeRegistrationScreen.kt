@@ -2,7 +2,6 @@ package com.rahul.fieldflow.features.auth.employee.screen
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
@@ -17,7 +16,6 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.rahul.fieldflow.core.common.components.AppTextField
 import com.rahul.fieldflow.core.common.components.HeaderSection
 import com.rahul.fieldflow.core.common.components.PasswordTextField
@@ -49,6 +47,7 @@ fun EmployeeRegistrationScreen(
         Column(
             modifier = Modifier
                 .fillMaxSize()
+                .imePadding()
                 .padding(horizontal = 24.dp)
                 .verticalScroll(scrollState)
         ) {
@@ -66,12 +65,13 @@ fun EmployeeRegistrationScreen(
                 value = uiState.fullName,
                 onValueChange = viewModel::onFullNameChange,
                 label = "Full Name *",
-                placeholder = "John Doe",
+                placeholder = "e.g., John Doe",
                 leadingIcon = Icons.Default.Person,
-                errorText = uiState.fullNameError
+                errorText = uiState.fullNameError,
+                modifier = Modifier.fillMaxWidth()
             )
             
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(20.dp))
             
             AppTextField(
                 value = uiState.email,
@@ -80,32 +80,35 @@ fun EmployeeRegistrationScreen(
                 placeholder = "john@company.com",
                 leadingIcon = Icons.Default.Email,
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
-                errorText = uiState.emailError
+                errorText = uiState.emailError,
+                modifier = Modifier.fillMaxWidth()
             )
             
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(20.dp))
             
             AppTextField(
                 value = uiState.phone,
                 onValueChange = viewModel::onPhoneChange,
                 label = "Phone Number",
-                placeholder = "+1 234 567 890",
+                placeholder = "e.g., +1 234 567 890",
                 leadingIcon = Icons.Default.Phone,
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone)
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone),
+                modifier = Modifier.fillMaxWidth()
             )
             
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(20.dp))
             
             PasswordTextField(
                 value = uiState.password,
                 onValueChange = viewModel::onPasswordChange,
                 label = "Password *",
-                placeholder = "Create a password",
+                placeholder = "Create a strong password",
                 leadingIcon = Icons.Default.Lock,
-                errorText = uiState.passwordError
+                errorText = uiState.passwordError,
+                modifier = Modifier.fillMaxWidth()
             )
             
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(20.dp))
             
             PasswordTextField(
                 value = uiState.confirmPassword,
@@ -113,13 +116,24 @@ fun EmployeeRegistrationScreen(
                 label = "Confirm Password *",
                 placeholder = "Repeat your password",
                 leadingIcon = Icons.Default.Lock,
-                errorText = uiState.confirmPasswordError
+                errorText = uiState.confirmPasswordError,
+                modifier = Modifier.fillMaxWidth()
             )
             
+            if (uiState.error != null) {
+                Spacer(modifier = Modifier.height(16.dp))
+                Text(
+                    text = uiState.error!!,
+                    color = MaterialTheme.colorScheme.error,
+                    style = MaterialTheme.typography.bodySmall,
+                    modifier = Modifier.padding(horizontal = 8.dp)
+                )
+            }
+
             Spacer(modifier = Modifier.height(48.dp))
             
             PrimaryButton(
-                text = "Create Employee Account",
+                text = "Create Account",
                 onClick = viewModel::register,
                 isLoading = uiState.isLoading,
                 modifier = Modifier.padding(bottom = 48.dp)

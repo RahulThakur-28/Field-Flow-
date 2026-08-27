@@ -1,5 +1,6 @@
 package com.rahul.fieldflow.features.auth.common.screen
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
@@ -39,14 +40,16 @@ fun EmailVerificationScreen(
         }
     }
 
-    var timer by remember { mutableStateOf(60) }
+    var timer by remember { mutableIntStateOf(60) }
     var canResend by remember { mutableStateOf(false) }
 
-    LaunchedEffect(timer) {
-        if (timer > 0) {
-            delay(1000)
-            timer--
-        } else {
+    LaunchedEffect(canResend) {
+        if (!canResend) {
+            timer = 60
+            while (timer > 0) {
+                delay(1000)
+                timer--
+            }
             canResend = true
         }
     }
@@ -63,13 +66,13 @@ fun EmailVerificationScreen(
             verticalArrangement = Arrangement.Center
         ) {
             Surface(
-                modifier = Modifier.size(96.dp),
+                modifier = Modifier.size(100.dp),
                 shape = CircleShape,
                 color = PrimaryBlue.copy(alpha = 0.1f)
             ) {
                 Box(contentAlignment = Alignment.Center) {
                     Icon(
-                        Icons.Default.Email,
+                        imageVector = Icons.Default.Email,
                         contentDescription = null,
                         tint = PrimaryBlue,
                         modifier = Modifier.size(48.dp)
@@ -116,29 +119,32 @@ fun EmailVerificationScreen(
             Spacer(modifier = Modifier.height(64.dp))
             
             PrimaryButton(
-                text = "Check Status",
-                onClick = { viewModel.refreshStatus() }
+                text = "Check Verification Status",
+                onClick = { viewModel.refreshStatus() },
+                isLoading = authState is AuthState.Checking
             )
             
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(24.dp))
             
-            OutlinedButton(
-                onClick = {
-                    if (canResend) {
+            if (canResend) {
+                TextButton(
+                    onClick = {
                         viewModel.resendVerificationEmail(email)
-                        timer = 60
                         canResend = false
                     }
-                },
-                modifier = Modifier.fillMaxWidth().height(56.dp),
-                shape = androidx.compose.foundation.shape.RoundedCornerShape(16.dp),
-                enabled = canResend,
-                border = androidx.compose.foundation.BorderStroke(1.dp, if (canResend) PrimaryBlue else GrayLight)
-            ) {
+                ) {
+                    Text(
+                        text = "Resend Email",
+                        color = PrimaryBlue,
+                        style = MaterialTheme.typography.bodyLarge,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
+            } else {
                 Text(
-                    text = if (canResend) "Resend Email" else "Resend in ${timer}s",
-                    color = if (canResend) PrimaryBlue else TextSecondary,
-                    fontWeight = FontWeight.Bold
+                    text = "Resend available in ${timer}s",
+                    color = TextSecondary,
+                    style = MaterialTheme.typography.bodyMedium
                 )
             }
             
@@ -148,16 +154,9 @@ fun EmailVerificationScreen(
                 Text(
                     text = "Wrong email? Change email",
                     color = PrimaryBlue,
+                    style = MaterialTheme.typography.bodyMedium,
                     fontWeight = FontWeight.Bold
                 )
-            }
-            
-            // For demo purposes
-            TextButton(
-                onClick = onVerifySuccess,
-                modifier = Modifier.padding(top = 16.dp)
-            ) {
-                Text(text = "(Demo: Skip to Home)", color = TextSecondary.copy(alpha = 0.5f))
             }
         }
     }
