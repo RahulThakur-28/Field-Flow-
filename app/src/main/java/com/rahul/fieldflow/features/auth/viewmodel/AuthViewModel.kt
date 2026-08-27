@@ -136,7 +136,7 @@ class AuthViewModel @Inject constructor(
                 } else {
                     // If we have a userId but user emission is still null, it might mean profile load failed
                     // Give it a bit of time for observeCurrentUser to pick up the profile
-                    delay(2000) 
+                    delay(2000)
                     isSessionCheckComplete = true
                     
                     if (_authState.value is AuthState.Checking) {

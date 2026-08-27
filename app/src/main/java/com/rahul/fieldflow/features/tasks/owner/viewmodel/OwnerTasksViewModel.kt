@@ -6,6 +6,7 @@ import androidx.lifecycle.viewModelScope
 import com.rahul.fieldflow.domain.repository.TaskRepository
 import com.rahul.fieldflow.features.tasks.model.Employee
 import com.rahul.fieldflow.features.tasks.owner.state.OwnerTasksUiState
+import com.rahul.fieldflow.features.tasks.owner.state.TaskFilter
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -28,26 +29,11 @@ class OwnerTasksViewModel @Inject constructor(
     fun loadTasks() {
         viewModelScope.launch {
             Log.d("TASK_FETCH_DEBUG", "Loading owner tasks...")
-
             _uiState.update { it.copy(isLoading = true) }
 
             taskRepository.getOwnerTasks()
                 .onSuccess { tasks ->
-
-                    Log.d(
-                        "TASK_FETCH_DEBUG",
-                        "Fetched ${tasks.size} tasks"
-                    )
-
-                    tasks.forEach { task ->
-                        Log.d(
-                            "TASK_FETCH_DEBUG",
-                            "Task: id=${task.id}, title=${task.title}"
-                        )
-                    }
-
                     val uiTasks = tasks.map { it.toUiTask() }
-
                     _uiState.update {
                         it.copy(
                             tasks = uiTasks,
@@ -55,15 +41,9 @@ class OwnerTasksViewModel @Inject constructor(
                             error = null
                         )
                     }
+                    applyFilters()
                 }
                 .onFailure { error ->
-
-                    Log.e(
-                        "TASK_FETCH_DEBUG",
-                        "Failed to fetch owner tasks",
-                        error
-                    )
-
                     _uiState.update {
                         it.copy(
                             isLoading = false,
@@ -72,6 +52,38 @@ class OwnerTasksViewModel @Inject constructor(
                     }
                 }
         }
+    }
+
+    fun onSearchQueryChange(query: String) {
+        _uiState.update { it.copy(searchQuery = query) }
+        applyFilters()
+    }
+
+    fun onFilterSelected(filter: TaskFilter) {
+        _uiState.update { it.copy(selectedFilter = filter) }
+        applyFilters()
+    }
+
+    private fun applyFilters() {
+        val state = _uiState.value
+        val filtered = state.tasks.filter { task ->
+            val matchesSearch = task.title.contains(state.searchQuery, ignoreCase = true) ||
+                    task.assignedTo.name.contains(state.searchQuery, ignoreCase = true) ||
+                    task.location.contains(state.searchQuery, ignoreCase = true)
+
+            val matchesFilter = when (state.selectedFilter) {
+                TaskFilter.ALL -> true
+                TaskFilter.ACTIVE -> {
+                    task.status == com.rahul.fieldflow.features.tasks.model.TaskStatus.PENDING ||
+                            task.status == com.rahul.fieldflow.features.tasks.model.TaskStatus.IN_PROGRESS
+                }
+                TaskFilter.COMPLETED -> task.status == com.rahul.fieldflow.features.tasks.model.TaskStatus.COMPLETED
+                TaskFilter.OVERDUE -> task.status == com.rahul.fieldflow.features.tasks.model.TaskStatus.OVERDUE
+            }
+
+            matchesSearch && matchesFilter
+        }
+        _uiState.update { it.copy(filteredTasks = filtered) }
     }
 
     private fun com.rahul.fieldflow.domain.model.Task.toUiTask(): com.rahul.fieldflow.features.tasks.model.Task {
@@ -96,16 +108,11 @@ class OwnerTasksViewModel @Inject constructor(
             assignedTo = assignedEmployee?.let { 
                 Employee(it.id, it.fullName, "Employee", it.avatarUrl, it.employeeCode) 
             } ?: Employee("", "Unassigned", "Employee"),
-            location = location ?: "No location",
+            location = location ?: "Task location",
+            latitude = latitude,
+            longitude = longitude,
+            radiusMeters = radiusMeters,
             scheduledDate = dueDate ?: createdAt
         )
-    }
-
-    fun onSearchQueryChange(query: String) {
-        _uiState.update { it.copy(searchQuery = query) }
-    }
-
-    fun onTabSelected(index: Int) {
-        _uiState.update { it.copy(selectedTab = index) }
     }
 }

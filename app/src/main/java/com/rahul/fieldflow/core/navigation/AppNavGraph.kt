@@ -51,7 +51,7 @@ fun AppNavGraph(
             AuthState.NoWorkspace,
             AuthState.PendingApproval,
             AuthState.Rejected -> {
-                
+
                 val targetDestination: Any = when (currentAuthState) {
                     is AuthState.Authenticated -> {
                         when (currentAuthState.user.role) {
@@ -69,10 +69,10 @@ fun AppNavGraph(
                 val targetRouteName = targetDestination::class.qualifiedName ?: ""
                 Log.d("FIELD_FLOW_STARTUP", "Target route name: $targetRouteName")
 
-                // Only navigate if we are in an "auth" destination (Splash, Onboarding, Login etc.) 
+                // Only navigate if we are in an "auth" destination (Splash, Onboarding, Login etc.)
                 // OR if we are not already at the target destination
                 if (isAuthDestination(currentDestination) || (currentRoute != null && !currentRoute.contains(targetRouteName))) {
-                    
+
                     // Special case: if we are already at the correct sub-onboarding screen, don't re-navigate
                     if (currentRoute != null && currentRoute.contains(targetRouteName)) {
                          Log.d("FIELD_FLOW_STARTUP", "Already at target destination: $currentRoute")

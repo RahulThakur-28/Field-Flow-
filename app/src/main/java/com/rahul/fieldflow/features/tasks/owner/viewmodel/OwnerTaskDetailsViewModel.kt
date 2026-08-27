@@ -118,6 +118,9 @@ class OwnerTaskDetailsViewModel @Inject constructor(
                 "Employee"
             ),
             location = location ?: "No location",
+            latitude = latitude,
+            longitude = longitude,
+            radiusMeters = radiusMeters,
             scheduledDate = dueDate ?: createdAt
         )
     }

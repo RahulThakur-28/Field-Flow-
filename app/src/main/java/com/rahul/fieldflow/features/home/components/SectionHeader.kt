@@ -26,7 +26,7 @@ fun SectionHeader(
     Row(
         modifier = modifier
             .fillMaxWidth()
-            .padding(vertical = 12.dp),
+            .padding(vertical = 8.dp),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -34,17 +34,19 @@ fun SectionHeader(
             text = title,
             style = MaterialTheme.typography.titleMedium,
             color = TextDark,
-            fontWeight = FontWeight.Bold
+            fontWeight = FontWeight.ExtraBold,
+            letterSpacing = 0.5.sp
         )
 
         if (actionText != null) {
             TextButton(
-                onClick = onActionClick
+                onClick = onActionClick,
+                contentPadding = androidx.compose.foundation.layout.PaddingValues(horizontal = 8.dp, vertical = 4.dp)
             ) {
                 Text(
                     text = actionText,
                     color = PrimaryBlue,
-                    fontSize = 14.sp,
+                    style = MaterialTheme.typography.labelLarge,
                     fontWeight = FontWeight.Bold
                 )
             }

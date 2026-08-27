@@ -7,6 +7,7 @@ import com.rahul.fieldflow.domain.model.UserProfile
 import com.rahul.fieldflow.domain.usecase.tasks.CreateTaskUseCase
 import com.rahul.fieldflow.domain.usecase.workspace.GetWorkspaceEmployeesUseCase
 import com.rahul.fieldflow.features.tasks.model.Employee
+import com.rahul.fieldflow.features.tasks.model.SelectedLocation
 import com.rahul.fieldflow.features.tasks.model.TaskPriority
 import com.rahul.fieldflow.features.tasks.owner.state.CreateTaskUiState
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -19,8 +20,6 @@ import java.time.LocalDate
 import java.time.LocalTime
 import java.time.OffsetDateTime
 import java.time.ZoneId
-import java.time.format.DateTimeFormatter
-import java.util.Locale
 import javax.inject.Inject
 
 @HiltViewModel
@@ -42,175 +41,128 @@ class CreateTaskViewModel @Inject constructor(
             getWorkspaceEmployeesUseCase()
                 .onSuccess { profiles ->
                     Log.d("TASK_CREATE_DEBUG", "Found ${profiles.size} workspace employees")
-                    profiles.forEach { 
-                        Log.d("TASK_CREATE_DEBUG", "Employee: ${it.fullName}, ID: ${it.id}, Role: ${it.role}")
-                    }
                     val employees = profiles.map { it.toEmployee() }
                     _uiState.update { it.copy(employees = employees, isLoadingEmployees = false) }
                 }
                 .onFailure { error ->
                     Log.e("TASK_CREATE_DEBUG", "Failed to load employees", error)
-                    _uiState.update { it.copy(error = error.message, isLoadingEmployees = false) }
+                    _uiState.update { it.copy(generalError = error.message, isLoadingEmployees = false) }
                 }
         }
     }
 
-    fun updateTitle(title: String) = _uiState.update { it.copy(title = title) }
-    fun updateDescription(desc: String) = _uiState.update { it.copy(description = desc) }
-    fun updateLocation(loc: String) = _uiState.update { it.copy(location = loc) }
-    fun updateEmployee(emp: Employee) = _uiState.update { it.copy(selectedEmployee = emp) }
+    fun updateTitle(title: String) = _uiState.update { it.copy(title = title, titleError = null) }
+    fun updateDescription(desc: String) = _uiState.update { it.copy(description = desc, descriptionError = null) }
+    fun updateLocation(loc: String) = _uiState.update { it.copy(location = loc, locationError = null) }
+    fun updateEmployee(emp: Employee) = _uiState.update { it.copy(selectedEmployee = emp, employeeError = null) }
     fun updatePriority(prio: TaskPriority) = _uiState.update { it.copy(priority = prio) }
-    fun updateDate(date: String) = _uiState.update { it.copy(date = date) }
-    fun updateTime(time: String) = _uiState.update { it.copy(time = time) }
+    fun updateDate(date: LocalDate) = _uiState.update { it.copy(date = date, dateError = null) }
+    fun updateStartTime(time: LocalTime) = _uiState.update { it.copy(startTime = time, startTimeError = null) }
+    fun updateDeadline(time: LocalTime) = _uiState.update { it.copy(deadline = time, deadlineError = null) }
+    fun updateInstructions(instructions: String) = _uiState.update { it.copy(instructions = instructions) }
+    fun updateRadius(radius: Int) = _uiState.update { it.copy(radiusMeters = radius.coerceIn(50, 100)) }
+
+    fun onLocationSelected(selectedLocation: SelectedLocation) {
+        _uiState.update {
+            it.copy(
+                location = if (it.location.isNotBlank()) it.location else (selectedLocation.address ?: "Selected map location"),
+                latitude = selectedLocation.latitude,
+                longitude = selectedLocation.longitude,
+                radiusMeters = selectedLocation.radiusMeters.coerceIn(50, 100),
+                locationError = null
+            )
+        }
+    }
+
+    fun addChecklistItem(item: String) {
+        if (item.isNotBlank() && !_uiState.value.checklist.contains(item.trim())) {
+            _uiState.update { it.copy(checklist = it.checklist + item.trim()) }
+        }
+    }
+
+    fun removeChecklistItem(item: String) {
+        _uiState.update { it.copy(checklist = it.checklist - item) }
+    }
 
     fun createTask(onSuccess: () -> Unit) {
+        if (!validateForm()) return
+
         val state = _uiState.value
-        if (state.title.isBlank()) {
-            _uiState.update { it.copy(error = "Title is required") }
-            return
-        }
-        if (state.selectedEmployee == null) {
-            _uiState.update { it.copy(error = "Please select an employee") }
-            return
-        }
-
-        val dueDate = parseDateTime(state.date, state.time)
-        if (dueDate == null && (state.date.isNotBlank() || state.time.isNotBlank())) {
-            _uiState.update { it.copy(error = "Invalid date or time format. Please use DD/MM/YYYY and HH:mm") }
-            return
-        }
-
+        
         viewModelScope.launch {
-            _uiState.update { it.copy(isSaving = true, error = null) }
+            Log.d("TASK_LOCATION_DEBUG", "Before Create: location='${state.location}', lat=${state.latitude}, lng=${state.longitude}, radius=${state.radiusMeters}")
+            _uiState.update { it.copy(isSaving = true, generalError = null) }
+            
+            // Map deadline to due_date for existing RPC
+            val dueDateTime = state.date!!.atTime(state.deadline)
+                .atZone(ZoneId.systemDefault())
+                .toOffsetDateTime()
             
             createTaskUseCase(
-                title = state.title,
-                description = state.description,
+                title = state.title.trim(),
+                description = state.description.trim(),
                 priority = when(state.priority) {
                     TaskPriority.LOW -> com.rahul.fieldflow.domain.model.TaskPriority.LOW
                     TaskPriority.MEDIUM -> com.rahul.fieldflow.domain.model.TaskPriority.MEDIUM
                     TaskPriority.HIGH -> com.rahul.fieldflow.domain.model.TaskPriority.HIGH
                     TaskPriority.URGENT -> com.rahul.fieldflow.domain.model.TaskPriority.URGENT
                 },
-                location = state.location,
-                dueDate = dueDate,
-                employeeId = state.selectedEmployee.id
+                location = state.location.trim(),
+                dueDate = dueDateTime,
+                employeeId = state.selectedEmployee!!.id,
+                latitude = state.latitude,
+                longitude = state.longitude,
+                radiusMeters = state.radiusMeters
             ).onSuccess {
+                Log.d("TASK_LOCATION_DEBUG", "Task created successfully")
                 _uiState.update { it.copy(isSaving = false) }
                 onSuccess()
             }.onFailure { error ->
-                _uiState.update { it.copy(isSaving = false, error = error.message) }
+                Log.e("TASK_LOCATION_DEBUG", "Task creation failed", error)
+                _uiState.update { it.copy(isSaving = false, generalError = error.message) }
             }
         }
     }
 
-    private fun parseDateTime(date: String, time: String): OffsetDateTime? {
-        val trimmedDate = date.trim()
-        val trimmedTime = time.trim()
+    private fun validateForm(): Boolean {
+        val state = _uiState.value
+        var isValid = true
 
-        if (trimmedDate.isBlank() || trimmedTime.isBlank()) {
-            return null
+        val titleError = if (state.title.trim().isBlank()) "Title is required" else null
+        val descriptionError = if (state.description.trim().isBlank()) "Description is required" else null
+        val employeeError = if (state.selectedEmployee == null) "Please select an employee" else null
+        val locationError = if (state.location.trim().isBlank()) {
+             "Destination name is required"
+        } else if (state.latitude == null || state.longitude == null) {
+            "Please select location on map"
+        } else null
+        
+        val dateError = if (state.date == null) "Date is required" else null
+        val startTimeError = if (state.startTime == null) "Start time is required" else null
+        val deadlineError = if (state.deadline == null) {
+            "Deadline is required"
+        } else if (state.startTime != null && state.deadline.isBefore(state.startTime)) {
+            "Deadline must be after start time"
+        } else null
+
+        if (titleError != null || descriptionError != null || employeeError != null || 
+            locationError != null || dateError != null || startTimeError != null || deadlineError != null) {
+            isValid = false
         }
 
-        return try {
-            Log.d(
-                "TASK_CREATE_DEBUG",
-                "Parsing date: '$trimmedDate', time: '$trimmedTime'"
+        _uiState.update {
+            it.copy(
+                titleError = titleError,
+                descriptionError = descriptionError,
+                employeeError = employeeError,
+                locationError = locationError,
+                dateError = dateError,
+                startTimeError = startTimeError,
+                deadlineError = deadlineError
             )
-
-            /*
-             * Supported date formats:
-             * 12/26/2004 -> MM/dd/yyyy
-             * 26/12/2004 -> dd/MM/yyyy
-             * 2026-08-24 -> yyyy-MM-dd
-             */
-            val dateFormatters = listOf(
-                DateTimeFormatter.ofPattern("MM/dd/yyyy", Locale.US),
-                DateTimeFormatter.ofPattern("M/d/yyyy", Locale.US),
-                DateTimeFormatter.ofPattern("dd/MM/yyyy", Locale.US),
-                DateTimeFormatter.ofPattern("d/M/yyyy", Locale.US),
-                DateTimeFormatter.ISO_LOCAL_DATE
-            )
-
-            var datePart: LocalDate? = null
-
-            for (formatter in dateFormatters) {
-                try {
-                    datePart = LocalDate.parse(trimmedDate, formatter)
-                    break
-                } catch (_: Exception) {
-                    // Try next format
-                }
-            }
-
-            if (datePart == null) {
-                throw Exception("Could not parse date: $trimmedDate")
-            }
-
-            // Prevent obviously corrupted dates
-            if (datePart.year < 2020 || datePart.year > 2100) {
-                throw Exception(
-                    "Invalid year: ${datePart.year}"
-                )
-            }
-
-            /*
-             * Supported time formats:
-             * 12:34
-             * 3:00
-             * 03:00 PM
-             * 3:00 PM
-             */
-            val timeFormatters = listOf(
-                DateTimeFormatter.ofPattern("HH:mm", Locale.US),
-                DateTimeFormatter.ofPattern("H:mm", Locale.US),
-                DateTimeFormatter.ofPattern("hh:mm a", Locale.US),
-                DateTimeFormatter.ofPattern("h:mm a", Locale.US)
-            )
-
-            var timePart: LocalTime? = null
-
-            for (formatter in timeFormatters) {
-                try {
-                    timePart = LocalTime.parse(
-                        trimmedTime.uppercase(Locale.US),
-                        formatter
-                    )
-                    break
-                } catch (_: Exception) {
-                    // Try next format
-                }
-            }
-
-            if (timePart == null) {
-                throw Exception("Could not parse time: $trimmedTime")
-            }
-
-            val localDateTime = java.time.LocalDateTime.of(
-                datePart,
-                timePart
-            )
-
-            val result = localDateTime
-                .atZone(ZoneId.systemDefault())
-                .toOffsetDateTime()
-
-            Log.d(
-                "TASK_CREATE_DEBUG",
-                "Parsed successfully: $result"
-            )
-
-            result
-
-        } catch (e: Exception) {
-            Log.e(
-                "CreateTaskViewModel",
-                "Failed to parse date/time: $trimmedDate $trimmedTime",
-                e
-            )
-
-            null
         }
+
+        return isValid
     }
 
     private fun UserProfile.toEmployee(): Employee {
@@ -218,7 +170,8 @@ class CreateTaskViewModel @Inject constructor(
             id = id,
             name = fullName,
             role = "Employee",
-            avatarUrl = avatarUrl
+            avatarUrl = avatarUrl,
+            employeeCode = employeeCode
         )
     }
 }

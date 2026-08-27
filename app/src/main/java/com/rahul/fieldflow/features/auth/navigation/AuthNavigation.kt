@@ -61,7 +61,7 @@ fun NavGraphBuilder.authNavigation(navController: NavController) {
     composable<AppRoutes.JoinRequestSent> {
         JoinRequestSentScreen(
             onBackToLogin = { 
-                navController.navigate(AppRoutes.Login) { 
+                navController.navigate(AppRoutes.Login) {
                     popUpTo(0) { inclusive = true } 
                 } 
             }

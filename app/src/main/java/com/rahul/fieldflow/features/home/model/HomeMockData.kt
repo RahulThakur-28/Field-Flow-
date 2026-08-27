@@ -76,7 +76,7 @@ fun dummyEmployeeHomeUiState() = EmployeeHomeUiState(
         ScheduleTaskUiModel("Document Collection", "09:00 AM", "HDFC Bank Branch", StatusBadgeType.DONE)
     ),
     quickAccess = listOf(
-        QuickAccessUiModel("My Tasks", "1 pending", Icons.Default.Assignment),
-        QuickAccessUiModel("Reports", "2 submitted", Icons.Default.Description)
+        QuickAccessUiModel("My Tasks", "1 pending", Icons.Default.Assignment, androidx.compose.ui.graphics.Color(0xFF2196F3)),
+        QuickAccessUiModel("Reports", "2 submitted", Icons.Default.Description, androidx.compose.ui.graphics.Color(0xFFFF9800))
     )
 )

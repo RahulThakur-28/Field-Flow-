@@ -1,6 +1,16 @@
 package com.rahul.fieldflow.features.tasks.model
 
 import java.time.OffsetDateTime
+import kotlinx.serialization.Serializable
+import java.io.Serializable as JavaSerializable
+
+@Serializable
+data class SelectedLocation(
+    val latitude: Double,
+    val longitude: Double,
+    val address: String? = null,
+    val radiusMeters: Int = 100
+) : JavaSerializable
 
 enum class TaskStatus(val label: String) {
     PENDING("Pending"),
@@ -47,6 +57,9 @@ data class Task(
     val priority: TaskPriority,
     val assignedTo: Employee,
     val location: String,
+    val latitude: Double? = null,
+    val longitude: Double? = null,
+    val radiusMeters: Int = 100,
     val scheduledDate: OffsetDateTime,
     val deadline: OffsetDateTime? = null,
     val checklist: List<ChecklistItem> = emptyList(),

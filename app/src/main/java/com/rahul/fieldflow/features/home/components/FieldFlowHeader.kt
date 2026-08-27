@@ -26,56 +26,59 @@ fun FieldFlowHeader(
     Row(
         modifier = modifier
             .fillMaxWidth()
-            .padding(vertical = 16.dp),
+            .padding(vertical = 12.dp),
         horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.Top
+        verticalAlignment = Alignment.CenterVertically
     ) {
         Column(
             modifier = Modifier.weight(1f)
         ) {
             Text(
                 text = date,
-                style = MaterialTheme.typography.bodySmall,
+                style = MaterialTheme.typography.labelMedium,
                 color = TextSecondary
             )
 
-            Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.height(2.dp))
 
-            Text(
-                text = "Good morning,",
-                style = MaterialTheme.typography.headlineSmall,
-                color = TextDark
-            )
-
-            Text(
-                text = "$userName 👋",
-                style = MaterialTheme.typography.headlineSmall,
-                color = TextDark,
-                fontWeight = FontWeight.Bold
-            )
-
-            Spacer(modifier = Modifier.height(8.dp))
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text(
+                    text = "Hello, ",
+                    style = MaterialTheme.typography.titleLarge,
+                    color = TextDark.copy(alpha = 0.7f)
+                )
+                Text(
+                    text = userName,
+                    style = MaterialTheme.typography.titleLarge,
+                    color = TextDark,
+                    fontWeight = FontWeight.Bold
+                )
+                Text(
+                    text = " 👋",
+                    style = MaterialTheme.typography.titleLarge
+                )
+            }
 
             Text(
                 text = subtitle,
-                style = MaterialTheme.typography.bodyMedium,
+                style = MaterialTheme.typography.bodySmall,
                 color = TextSecondary
             )
         }
 
         Row(
-            verticalAlignment = Alignment.CenterVertically
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             NotificationButton(
                 notificationCount = notificationCount,
                 onClick = onNotificationClick
             )
 
-            Spacer(modifier = Modifier.width(12.dp))
-
             ProfileAvatar(
                 initials = initials,
-                onClick = onProfileClick
+                onClick = onProfileClick,
+                modifier = Modifier.size(40.dp)
             )
         }
     }
