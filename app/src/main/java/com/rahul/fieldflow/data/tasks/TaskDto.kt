@@ -1,5 +1,6 @@
 package com.rahul.fieldflow.data.tasks
 
+import android.util.Log
 import com.rahul.fieldflow.domain.model.Task
 import com.rahul.fieldflow.domain.model.TaskPriority
 import com.rahul.fieldflow.domain.model.TaskStatus
@@ -14,19 +15,19 @@ data class TaskDto(
     val id: String? = null,
 
     @SerialName("title")
-    val title: String,
+    val title: String? = null,
 
     @SerialName("description")
     val description: String? = null,
 
     @SerialName("status")
-    val status: String,
+    val status: String? = null,
 
     @SerialName("priority")
-    val priority: String,
+    val priority: String? = null,
 
     @SerialName("created_by")
-    val createdBy: String,
+    val createdBy: String? = null,
 
     @SerialName("location")
     val location: String? = null,
@@ -56,55 +57,93 @@ data class TaskDto(
     val updatedAt: String? = null,
 
     @SerialName("task_assignments")
-    val assignments: List<TaskAssignmentDto> = emptyList()
+    val assignments: List<TaskAssignmentDto> = emptyList(),
+
+    @SerialName("task_checklist_items")
+    val checklistItems: List<TaskChecklistItemDto> = emptyList()
 ) {
 
     fun toDomain(): Task {
         val formatter = DateTimeFormatter.ISO_OFFSET_DATE_TIME
 
-        return Task(
-            id = id.orEmpty(),
-            title = title,
-            description = description,
+        return try {
+            Task(
+                id = id.orEmpty(),
+                title = title ?: "Untitled Task",
+                description = description,
 
-            status = TaskStatus.valueOf(
-                status.uppercase()
-            ),
+                status = try {
+                    TaskStatus.valueOf(status?.uppercase() ?: "PENDING")
+                } catch (e: Exception) {
+                    TaskStatus.PENDING
+                },
 
-            priority = TaskPriority.valueOf(
-                priority.uppercase()
-            ),
+                priority = try {
+                    TaskPriority.valueOf(priority?.uppercase() ?: "MEDIUM")
+                } catch (e: Exception) {
+                    TaskPriority.MEDIUM
+                },
 
-            createdBy = createdBy,
+                createdBy = createdBy.orEmpty(),
 
-            location = location,
-            latitude = latitude,
-            longitude = longitude,
-            radiusMeters = radiusMeters ?: 50,
+                location = location,
+                latitude = latitude,
+                longitude = longitude,
+                radiusMeters = radiusMeters ?: 50,
 
-            dueDate = dueDate?.let {
-                OffsetDateTime.parse(it, formatter)
-            },
+                dueDate = dueDate?.let {
+                    runCatching { OffsetDateTime.parse(it, formatter) }.getOrNull()
+                },
 
-            completedAt = completedAt?.let {
-                OffsetDateTime.parse(it, formatter)
-            },
+                completedAt = completedAt?.let {
+                    runCatching { OffsetDateTime.parse(it, formatter) }.getOrNull()
+                },
 
-            isDeleted = isDeleted,
+                isDeleted = isDeleted,
 
-            createdAt = createdAt?.let {
-                OffsetDateTime.parse(it, formatter)
-            } ?: OffsetDateTime.now(),
+                createdAt = createdAt?.let {
+                    runCatching { OffsetDateTime.parse(it, formatter) }.getOrNull()
+                } ?: OffsetDateTime.now(),
 
-            updatedAt = updatedAt?.let {
-                OffsetDateTime.parse(it, formatter)
-            } ?: OffsetDateTime.now(),
+                updatedAt = updatedAt?.let {
+                    runCatching { OffsetDateTime.parse(it, formatter) }.getOrNull()
+                } ?: OffsetDateTime.now(),
 
-            assignedEmployee =
+                assignedEmployee =
                 assignments
                     .firstOrNull()
                     ?.employeeProfile
-                    ?.toDomain()
-        )
+                    ?.toDomain(),
+
+                checklist = checklistItems
+                    .sortedBy { it.position }
+                    .map { it.toDomain() }
+            ).also { 
+                Log.d("OWNER_CHECKLIST_TRACE", "TaskDto.toDomain: domain checklist count=${it.checklist.size}")
+                it.checklist.forEach { item ->
+                    Log.d("OWNER_CHECKLIST_TRACE", "Domain Checklist Item: id=${item.id}, itemText=${item.itemText}, isCompleted=${item.isCompleted}, position=${item.position}")
+                }
+            }
+        } catch (e: Exception) {
+            Log.e("OWNER_CHECKLIST_TRACE", "Error mapping TaskDto to Domain: class=${e.javaClass.simpleName}, message=${e.message}", e)
+            // Return a fallback task instead of throwing, to keep the list working
+            Task(
+                id = id.orEmpty(),
+                title = "Error loading task",
+                description = e.message,
+                status = TaskStatus.PENDING,
+                priority = TaskPriority.LOW,
+                createdBy = "",
+                location = null,
+                latitude = null,
+                longitude = null,
+                radiusMeters = 50,
+                dueDate = null,
+                completedAt = null,
+                isDeleted = false,
+                createdAt = OffsetDateTime.now(),
+                updatedAt = OffsetDateTime.now()
+            )
+        }
     }
 }

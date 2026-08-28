@@ -112,7 +112,8 @@ class CreateTaskViewModel @Inject constructor(
                 employeeId = state.selectedEmployee!!.id,
                 latitude = state.latitude,
                 longitude = state.longitude,
-                radiusMeters = state.radiusMeters
+                radiusMeters = state.radiusMeters,
+                checklistItems = state.checklist
             ).onSuccess {
                 Log.d("TASK_LOCATION_DEBUG", "Task created successfully")
                 _uiState.update { it.copy(isSaving = false) }

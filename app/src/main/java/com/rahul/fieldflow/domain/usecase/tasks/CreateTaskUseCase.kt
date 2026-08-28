@@ -17,7 +17,8 @@ class CreateTaskUseCase @Inject constructor(
         employeeId: String,
         latitude: Double? = null,
         longitude: Double? = null,
-        radiusMeters: Int? = 100
+        radiusMeters: Int? = 100,
+        checklistItems: List<String> = emptyList()
     ): Result<Unit> {
         if (title.isBlank()) {
             return Result.failure(Exception("Title cannot be empty"))
@@ -31,7 +32,8 @@ class CreateTaskUseCase @Inject constructor(
             employeeId = employeeId,
             latitude = latitude,
             longitude = longitude,
-            radiusMeters = radiusMeters
+            radiusMeters = radiusMeters,
+            checklistItems = checklistItems
         )
     }
 }

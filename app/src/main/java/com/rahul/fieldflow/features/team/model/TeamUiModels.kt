@@ -4,8 +4,6 @@ import com.rahul.fieldflow.features.tasks.model.Employee
 import com.rahul.fieldflow.features.tasks.model.Task
 import com.rahul.fieldflow.features.tasks.model.TaskStatus
 import com.rahul.fieldflow.features.tasks.model.mockEmployees
-import com.rahul.fieldflow.features.tasks.model.mockTasks
-import java.time.LocalDateTime
 
 data class EmployeePerformance(
     val completedTasks: Int,

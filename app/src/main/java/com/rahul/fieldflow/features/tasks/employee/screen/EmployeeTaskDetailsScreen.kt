@@ -127,8 +127,8 @@ fun EmployeeTaskDetailsScreen(
                 ) {
                     Column(modifier = Modifier.padding(16.dp)) {
                         TaskScheduleCard(
-                            date = task.scheduledDate.format(DateTimeFormatter.ofPattern("MMM dd, yyyy")),
-                            time = task.scheduledDate.format(DateTimeFormatter.ofPattern("HH:mm"))
+                            scheduledDate = task.scheduledDate.format(DateTimeFormatter.ofPattern("MMM dd, yyyy")),
+                            deadline = (task.deadline ?: task.scheduledDate).format(DateTimeFormatter.ofPattern("HH:mm"))
                         )
                     }
                 }

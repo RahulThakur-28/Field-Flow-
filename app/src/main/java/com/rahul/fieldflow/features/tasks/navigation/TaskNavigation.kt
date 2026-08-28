@@ -60,9 +60,6 @@ fun NavGraphBuilder.taskNavigation(navController: NavController) {
             OwnerTaskDetailsScreen(
                 taskId = route.taskId,
                 onBackClick = { navController.popBackStack() },
-                onEditClick = { taskId ->
-                    navController.navigate(AppRoutes.EditTask(taskId))
-                },
                 onTrackClick = { taskId ->
                     navController.navigate(AppRoutes.LiveTracking(taskId))
                 }

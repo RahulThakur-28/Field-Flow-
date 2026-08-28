@@ -18,7 +18,8 @@ data class Task(
     val isDeleted: Boolean,
     val createdAt: OffsetDateTime,
     val updatedAt: OffsetDateTime,
-    val assignedEmployee: UserProfile? = null
+    val assignedEmployee: UserProfile? = null,
+    val checklist: List<TaskChecklistItem> = emptyList()
 )
 
 enum class TaskStatus {

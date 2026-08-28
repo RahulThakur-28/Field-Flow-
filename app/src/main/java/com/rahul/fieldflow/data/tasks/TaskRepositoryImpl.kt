@@ -1,5 +1,6 @@
 package com.rahul.fieldflow.data.tasks
 
+import android.util.Log
 import com.rahul.fieldflow.data.auth.AuthDataSource
 import com.rahul.fieldflow.domain.model.Task
 import com.rahul.fieldflow.domain.model.TaskPriority
@@ -24,7 +25,8 @@ class TaskRepositoryImpl @Inject constructor(
         employeeId: String,
         latitude: Double?,
         longitude: Double?,
-        radiusMeters: Int?
+        radiusMeters: Int?,
+        checklistItems: List<String>
     ): Result<Unit> {
         return runCatching {
             val ownerId = authDataSource.getCurrentUserId()
@@ -43,7 +45,8 @@ class TaskRepositoryImpl @Inject constructor(
                 employeeId = employeeId,
                 latitude = latitude,
                 longitude = longitude,
-                radiusMeters = radiusMeters
+                radiusMeters = radiusMeters,
+                checklistItems = checklistItems
             )
         }
     }
@@ -52,10 +55,15 @@ class TaskRepositoryImpl @Inject constructor(
         return runCatching {
             val ownerId = authDataSource.getCurrentUserId()
                 ?: throw Exception("Not authenticated")
+            
+            Log.d("OWNER_TASK_TRACE", "getOwnerTasks: authenticatedUserId = $ownerId")
 
-            taskDataSource
-                .getTasksCreatedBy(ownerId)
-                .map { it.toDomain() }
+            val taskDtos = taskDataSource.getTasksCreatedBy(ownerId)
+            Log.d("OWNER_TASK_TRACE", "getOwnerTasks: decoded TaskDto count = ${taskDtos.size}")
+            
+            taskDtos.map { it.toDomain() }
+        }.onFailure { error ->
+            Log.e("OWNER_TASK_TRACE", "getOwnerTasks: failure = ${error.message}")
         }
     }
 
