@@ -23,7 +23,7 @@ class OwnerTaskDetailsViewModel @Inject constructor(
 
     fun loadTask(taskId: String) {
         viewModelScope.launch {
-            Log.d("TASK_DETAILS_DEBUG", "Loading task: $taskId")
+            Log.d("OWNER_CHECKLIST_TRACE", "loadTask: taskId=$taskId")
 
             _uiState.update {
                 it.copy(
@@ -33,29 +33,24 @@ class OwnerTaskDetailsViewModel @Inject constructor(
 
             taskRepository.getTaskById(taskId)
                 .onSuccess { task ->
-                    Log.d(
-                        "TASK_DETAILS_DEBUG",
-                        "Task loaded: id=${task.id}, title=${task.title}"
-                    )
+                    Log.d("OWNER_CHECKLIST_TRACE", "loadTask: Domain Task returned. checklist size=${task.checklist.size}")
 
-                    Log.d(
-                        "TASK_DETAILS_DEBUG",
-                        "Assigned employee=${task.assignedEmployee?.fullName}"
-                    )
+                    val uiTask = task.toUiTask()
+                    Log.d("OWNER_CHECKLIST_TRACE", "loadTask: mapped to UI Task. checklist count=${uiTask.checklist.size}")
+                    
+                    val completedCount = uiTask.checklist.count { it.isChecked }
+                    val totalCount = uiTask.checklist.size
+                    Log.d("OWNER_CHECKLIST_TRACE", "loadTask: completedCount=$completedCount, totalCount=$totalCount")
 
                     _uiState.update {
                         it.copy(
-                            task = task.toUiTask(),
+                            task = uiTask,
                             isLoading = false
                         )
                     }
                 }
                 .onFailure { error ->
-                    Log.e(
-                        "TASK_DETAILS_DEBUG",
-                        "Failed to load task: $taskId",
-                        error
-                    )
+                    Log.e("OWNER_CHECKLIST_TRACE", "loadTask: failure class=${error.javaClass.simpleName}, message=${error.message}")
 
                     _uiState.update {
                         it.copy(
@@ -121,7 +116,15 @@ class OwnerTaskDetailsViewModel @Inject constructor(
             latitude = latitude,
             longitude = longitude,
             radiusMeters = radiusMeters,
-            scheduledDate = dueDate ?: createdAt
+            scheduledDate = dueDate ?: createdAt,
+            deadline = dueDate,
+            checklist = checklist.map { 
+                com.rahul.fieldflow.features.tasks.model.ChecklistItem(
+                    id = it.id,
+                    title = it.itemText,
+                    isChecked = it.isCompleted
+                )
+            }
         )
     }
 }

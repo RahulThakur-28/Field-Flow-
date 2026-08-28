@@ -14,7 +14,8 @@ interface TaskRepository {
         employeeId: String,
         latitude: Double? = null,
         longitude: Double? = null,
-        radiusMeters: Int? = 100
+        radiusMeters: Int? = 100,
+        checklistItems: List<String> = emptyList()
     ): Result<Unit>
 
     suspend fun getOwnerTasks(): Result<List<Task>>

@@ -109,8 +109,6 @@ fun PremiumTaskCard(
                     DeadlineLabel(task.deadline ?: task.scheduledDate)
                 }
                 
-                // Checklist progress hidden as persistence is missing
-                /*
                 if (task.checklist.isNotEmpty()) {
                     val completed = task.checklist.count { it.isChecked }
                     Text(
@@ -120,7 +118,6 @@ fun PremiumTaskCard(
                         fontWeight = FontWeight.Bold
                     )
                 }
-                */
             }
         }
     }

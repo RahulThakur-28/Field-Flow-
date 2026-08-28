@@ -3,21 +3,20 @@ package com.rahul.fieldflow.features.tasks.owner.viewmodel
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.rahul.fieldflow.domain.repository.AuthRepository
 import com.rahul.fieldflow.domain.repository.TaskRepository
 import com.rahul.fieldflow.features.tasks.model.Employee
 import com.rahul.fieldflow.features.tasks.owner.state.OwnerTasksUiState
 import com.rahul.fieldflow.features.tasks.owner.state.TaskFilter
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class OwnerTasksViewModel @Inject constructor(
-    private val taskRepository: TaskRepository
+    private val taskRepository: TaskRepository,
+    private val authRepository: AuthRepository
 ) : ViewModel() {
     private val _uiState = MutableStateFlow(OwnerTasksUiState())
     val uiState: StateFlow<OwnerTasksUiState> = _uiState.asStateFlow()
@@ -28,12 +27,18 @@ class OwnerTasksViewModel @Inject constructor(
 
     fun loadTasks() {
         viewModelScope.launch {
-            Log.d("TASK_FETCH_DEBUG", "Loading owner tasks...")
+            Log.d("OWNER_TASK_TRACE", "loadTasks: started")
             _uiState.update { it.copy(isLoading = true) }
+
+            val currentUser = authRepository.currentUser.first()
+            Log.d("OWNER_TASK_TRACE", "loadTasks: authenticatedUserId = ${currentUser?.id}")
+            Log.d("OWNER_TASK_TRACE", "loadTasks: owner workspaceId = ${currentUser?.workspaceId}")
 
             taskRepository.getOwnerTasks()
                 .onSuccess { tasks ->
+                    Log.d("OWNER_TASK_TRACE", "loadTasks: Domain Task count = ${tasks.size}")
                     val uiTasks = tasks.map { it.toUiTask() }
+                    Log.d("OWNER_TASK_TRACE", "loadTasks: Owner UI task count = ${uiTasks.size}")
                     _uiState.update {
                         it.copy(
                             tasks = uiTasks,
@@ -44,6 +49,7 @@ class OwnerTasksViewModel @Inject constructor(
                     applyFilters()
                 }
                 .onFailure { error ->
+                    Log.e("OWNER_TASK_TRACE", "loadTasks: exception = ${error.javaClass.simpleName}, message = ${error.message}")
                     _uiState.update {
                         it.copy(
                             isLoading = false,
@@ -55,11 +61,13 @@ class OwnerTasksViewModel @Inject constructor(
     }
 
     fun onSearchQueryChange(query: String) {
+        Log.d("OWNER_TASK_TRACE", "onSearchQueryChange: query = $query")
         _uiState.update { it.copy(searchQuery = query) }
         applyFilters()
     }
 
     fun onFilterSelected(filter: TaskFilter) {
+        Log.d("OWNER_TASK_TRACE", "onFilterSelected: selected filter = $filter")
         _uiState.update { it.copy(selectedFilter = filter) }
         applyFilters()
     }
@@ -83,6 +91,7 @@ class OwnerTasksViewModel @Inject constructor(
 
             matchesSearch && matchesFilter
         }
+        Log.d("OWNER_TASK_TRACE", "applyFilters: filtered task count = ${filtered.size}")
         _uiState.update { it.copy(filteredTasks = filtered) }
     }
 

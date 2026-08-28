@@ -1,5 +1,6 @@
 package com.rahul.fieldflow.features.tasks.owner.screen
 
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -106,11 +107,19 @@ fun OwnerTasksScreen(
                 Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                     CircularProgressIndicator(color = PrimaryBlue)
                 }
+            } else if (uiState.error != null) {
+                Log.e("OWNER_TASK_TRACE", "Screen showing error: ${uiState.error}")
+                ErrorTasksState(
+                    error = uiState.error!!,
+                    onRetry = viewModel::loadTasks
+                )
             } else if (uiState.filteredTasks.isEmpty()) {
+                Log.d("OWNER_TASK_TRACE", "Screen showing empty state. allTasksCount = ${uiState.tasks.size}")
                 EmptyTasksState(
                     isSearch = uiState.searchQuery.isNotBlank()
                 )
             } else {
+                Log.d("OWNER_TASK_TRACE", "Screen showing ${uiState.filteredTasks.size} tasks")
                 LazyColumn(
                     modifier = Modifier.fillMaxSize(),
                     contentPadding = PaddingValues(bottom = 24.dp),
@@ -124,6 +133,36 @@ fun OwnerTasksScreen(
                     }
                 }
             }
+        }
+    }
+}
+
+@Composable
+fun ErrorTasksState(error: String, onRetry: () -> Unit) {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(bottom = 100.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
+    ) {
+        Text(
+            text = "Unable to load tasks",
+            style = MaterialTheme.typography.titleLarge,
+            fontWeight = FontWeight.Bold,
+            color = TextDark
+        )
+        Spacer(modifier = Modifier.height(8.dp))
+        Text(
+            text = error,
+            style = MaterialTheme.typography.bodyMedium,
+            color = TextSecondary,
+            textAlign = androidx.compose.ui.text.style.TextAlign.Center,
+            modifier = Modifier.padding(horizontal = 32.dp)
+        )
+        Spacer(modifier = Modifier.height(24.dp))
+        Button(onClick = onRetry) {
+            Text("Retry")
         }
     }
 }

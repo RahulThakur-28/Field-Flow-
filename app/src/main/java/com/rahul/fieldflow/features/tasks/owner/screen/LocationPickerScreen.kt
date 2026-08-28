@@ -4,7 +4,6 @@ import android.Manifest
 import android.annotation.SuppressLint
 import android.content.Context
 import android.content.pm.PackageManager
-import android.location.LocationManager
 import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -14,10 +13,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.Check
-import androidx.compose.material.icons.filled.LocationOn
-import androidx.compose.material.icons.filled.MoreVert
-import androidx.compose.material.icons.filled.MyLocation
+import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -61,35 +57,52 @@ fun LocationPickerScreen(
     val lifecycleOwner = LocalLifecycleOwner.current
     val scope = rememberCoroutineScope()
     val snackbarHostState = remember { SnackbarHostState() }
-    
+
     var selectedLatLng by remember { mutableStateOf(initialLocation ?: LatLng(19.0760, 72.8777)) }
     var radiusMeters by remember { mutableFloatStateOf(initialRadius.coerceIn(50, 100).toFloat()) }
     var isMapLoading by remember { mutableStateOf(true) }
+    var isLocating by remember { mutableStateOf(false) }
+    var pendingMyLocationRequest by remember { mutableStateOf(false) }
+
     var mapInstance: MapLibreMap? by remember { mutableStateOf(null) }
     var mapViewInstance: MapView? by remember { mutableStateOf(null) }
-    var isLocating by remember { mutableStateOf(false) }
 
     val fusedLocationClient = remember { LocationServices.getFusedLocationProviderClient(context) }
 
-    val requestLocationAction = {
-        isLocating = true
-        Log.d("LOCATION_GPS_DEBUG", "GPS request started")
-        fetchFreshLocation(context, fusedLocationClient, 
-            onSuccess = { latLng ->
-                isLocating = false
-                Log.d("LOCATION_GPS_DEBUG", "Current location received: lat=${latLng.latitude}, lng=${latLng.longitude}")
-                selectedLatLng = latLng
-                mapInstance?.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 15.0))
-                Log.d("LOCATION_GPS_DEBUG", "Camera moved to current location")
-            },
-            onFailure = { error ->
-                isLocating = false
-                Log.e("LOCATION_GPS_DEBUG", "GPS failure: $error")
-                scope.launch {
-                    snackbarHostState.showSnackbar(error)
-                }
+    val moveToCurrentLocation = {
+        if (!isLocationEnabled(context)) {
+            scope.launch {
+                snackbarHostState.showSnackbar("Turn on location services to use your current location.")
             }
-        )
+        } else {
+            val hasPermission = ContextCompat.checkSelfPermission(
+                context, Manifest.permission.ACCESS_FINE_LOCATION
+            ) == PackageManager.PERMISSION_GRANTED || ContextCompat.checkSelfPermission(
+                context, Manifest.permission.ACCESS_COARSE_LOCATION
+            ) == PackageManager.PERMISSION_GRANTED
+
+            if (hasPermission) {
+                isLocating = true
+                Log.d("LOCATION_PICKER_DEBUG", "location request started")
+                getCurrentLocation(fusedLocationClient,
+                    onLocationReceived = { latLng ->
+                        isLocating = false
+                        selectedLatLng = latLng
+                        mapInstance?.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 15.0))
+                        Log.d("LOCATION_PICKER_DEBUG", "latitude=${latLng.latitude}, longitude=${latLng.longitude}, camera moved, marker updated")
+                    },
+                    onError = {
+                        isLocating = false
+                        scope.launch {
+                            snackbarHostState.showSnackbar("Unable to get your current location. Please try again.")
+                        }
+                    }
+                )
+            } else {
+                pendingMyLocationRequest = true
+                Log.d("LOCATION_PICKER_DEBUG", "permission not granted, requesting...")
+            }
+        }
     }
 
     val permissionLauncher = rememberLauncherForActivityResult(
@@ -97,30 +110,38 @@ fun LocationPickerScreen(
     ) { permissions ->
         val granted = permissions.getOrDefault(Manifest.permission.ACCESS_FINE_LOCATION, false) ||
                       permissions.getOrDefault(Manifest.permission.ACCESS_COARSE_LOCATION, false)
+        
+        Log.d("LOCATION_PICKER_DEBUG", "permission state: granted=$granted")
+        
         if (granted) {
-            Log.d("LOCATION_GPS_DEBUG", "Permission granted via launcher")
-            requestLocationAction()
+            if (pendingMyLocationRequest || initialLocation == null) {
+                pendingMyLocationRequest = false
+                isLocating = true
+                getCurrentLocation(fusedLocationClient,
+                    onLocationReceived = { latLng ->
+                        isLocating = false
+                        selectedLatLng = latLng
+                        mapInstance?.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 15.0))
+                        Log.d("LOCATION_PICKER_DEBUG", "Auto location move after permission: lat=${latLng.latitude}, lng=${latLng.longitude}")
+                    },
+                    onError = {
+                        isLocating = false
+                    }
+                )
+            }
         } else {
-            Log.d("LOCATION_GPS_DEBUG", "Permission denied via launcher")
-            scope.launch {
-                snackbarHostState.showSnackbar("Location permission is required to use your current location.")
+            if (pendingMyLocationRequest) {
+                pendingMyLocationRequest = false
+                scope.launch {
+                    snackbarHostState.showSnackbar("Location permission is required to use your current location.")
+                }
             }
         }
     }
 
-    val handleCurrentLocationClick = {
-        Log.d("LOCATION_GPS_DEBUG", "Current location button clicked")
-        val hasPermission = ContextCompat.checkSelfPermission(
-            context, Manifest.permission.ACCESS_FINE_LOCATION
-        ) == PackageManager.PERMISSION_GRANTED || ContextCompat.checkSelfPermission(
-            context, Manifest.permission.ACCESS_COARSE_LOCATION
-        ) == PackageManager.PERMISSION_GRANTED
-
-        if (hasPermission) {
-            Log.d("LOCATION_GPS_DEBUG", "Permission already granted")
-            requestLocationAction()
-        } else {
-            Log.d("LOCATION_GPS_DEBUG", "Requesting permission")
+    // Launch permission request if pending
+    LaunchedEffect(pendingMyLocationRequest) {
+        if (pendingMyLocationRequest) {
             permissionLauncher.launch(
                 arrayOf(Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION)
             )
@@ -136,12 +157,20 @@ fun LocationPickerScreen(
             ) == PackageManager.PERMISSION_GRANTED
 
             if (hasPermission) {
-                requestLocationAction()
+                getCurrentLocation(fusedLocationClient, { latLng ->
+                    selectedLatLng = latLng
+                    mapInstance?.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 15.0))
+                })
+            } else {
+                permissionLauncher.launch(
+                    arrayOf(Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION)
+                )
             }
         }
     }
 
     Scaffold(
+        snackbarHost = { SnackbarHost(snackbarHostState) },
         topBar = {
             TopAppBar(
                 title = { Text("Select Location", fontWeight = FontWeight.Bold) },
@@ -158,8 +187,7 @@ fun LocationPickerScreen(
                 colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.White),
                 modifier = Modifier.shadow(4.dp)
             )
-        },
-        snackbarHost = { SnackbarHost(snackbarHostState) }
+        }
     ) { padding ->
         Box(modifier = Modifier.fillMaxSize().padding(padding)) {
             AndroidView(
@@ -180,7 +208,9 @@ fun LocationPickerScreen(
                                     .build()
                             }
                             map.addOnCameraMoveListener {
-                                map.cameraPosition.target?.let { selectedLatLng = it }
+                                if (!isLocating) {
+                                    map.cameraPosition.target?.let { selectedLatLng = it }
+                                }
                             }
                         }
                     }
@@ -206,6 +236,35 @@ fun LocationPickerScreen(
 
             CenterMarker(modifier = Modifier.align(Alignment.Center))
 
+            // My Location FAB
+            FloatingActionButton(
+                onClick = {
+                    Log.d("LOCATION_PICKER_DEBUG", "button clicked")
+                    moveToCurrentLocation()
+                },
+                modifier = Modifier
+                    .align(Alignment.BottomEnd)
+                    .padding(end = 16.dp, bottom = 240.dp)
+                    .size(52.dp),
+                shape = CircleShape,
+                containerColor = Color.White,
+                contentColor = PrimaryBlue,
+                elevation = FloatingActionButtonDefaults.elevation(defaultElevation = 6.dp)
+            ) {
+                if (isLocating) {
+                    CircularProgressIndicator(
+                        modifier = Modifier.size(24.dp),
+                        strokeWidth = 2.dp,
+                        color = PrimaryBlue
+                    )
+                } else {
+                    Icon(
+                        imageVector = Icons.Default.MyLocation,
+                        contentDescription = "My location"
+                    )
+                }
+            }
+
             if (isMapLoading) {
                 Box(modifier = Modifier.fillMaxSize().background(Color.White.copy(alpha = 0.8f)), contentAlignment = Alignment.Center) {
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
@@ -216,43 +275,19 @@ fun LocationPickerScreen(
                 }
             }
 
-            FloatingActionButton(
-                onClick = { if (!isLocating) handleCurrentLocationClick() },
-                modifier = Modifier
-                    .align(Alignment.BottomEnd)
-                    .padding(bottom = 300.dp, end = 16.dp), // Positioned above the panel
-                containerColor = Color.White,
-                contentColor = PrimaryBlue,
-                shape = CircleShape,
-                elevation = FloatingActionButtonDefaults.elevation(defaultElevation = 6.dp)
-            ) {
-                if (isLocating) {
-                    CircularProgressIndicator(
-                        modifier = Modifier.size(24.dp),
-                        color = PrimaryBlue,
-                        strokeWidth = 2.dp
-                    )
-                } else {
-                    Icon(
-                        imageVector = Icons.Default.MyLocation,
-                        contentDescription = "Use current location"
-                    )
-                }
-            }
-
             BottomLocationPanel(
                 radiusMeters = radiusMeters,
                 onRadiusChange = { radiusMeters = it },
                 modifier = Modifier.align(Alignment.BottomCenter).padding(16.dp),
                 onConfirm = {
                     val finalRadius = radiusMeters.roundToInt().coerceIn(50, 100)
-                    Log.d("GEOFENCE_RADIUS_DEBUG", "radius=$finalRadius")
+                    Log.d("LOCATION_PICKER_DEBUG", "confirm coordinates: lat=${selectedLatLng.latitude}, lng=${selectedLatLng.longitude}, radius=$finalRadius")
                     onLocationConfirm(
                         SelectedLocation(
                             latitude = selectedLatLng.latitude,
                             longitude = selectedLatLng.longitude,
                             radiusMeters = finalRadius,
-                            address = null
+                            address = null // Do not put raw coordinates in the human-readable address field
                         )
                     )
                 }
@@ -261,44 +296,40 @@ fun LocationPickerScreen(
     }
 }
 
-@SuppressLint("MissingPermission")
-private fun fetchFreshLocation(
-    context: Context,
-    fusedLocationClient: com.google.android.gms.location.FusedLocationProviderClient,
-    onSuccess: (LatLng) -> Unit,
-    onFailure: (String) -> Unit
-) {
-    val locationManager = context.getSystemService(Context.LOCATION_SERVICE) as LocationManager
-    val isGpsEnabled = locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)
-    val isNetworkEnabled = locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)
-
-    if (!isGpsEnabled && !isNetworkEnabled) {
-        onFailure("Turn on location services to use your current location.")
-        return
-    }
-
-    fusedLocationClient.getCurrentLocation(Priority.PRIORITY_HIGH_ACCURACY, null)
-        .addOnSuccessListener { location ->
-            if (location != null) {
-                onSuccess(LatLng(location.latitude, location.longitude))
-            } else {
-                // Fallback to last known location if getCurrentLocation fails
-                fusedLocationClient.lastLocation.addOnSuccessListener { lastLoc ->
-                    if (lastLoc != null) {
-                         onSuccess(LatLng(lastLoc.latitude, lastLoc.longitude))
-                    } else {
-                         onFailure("Unable to determine your current location.")
-                    }
-                }.addOnFailureListener {
-                    onFailure("Unable to determine your current location.")
-                }
-            }
-        }
-        .addOnFailureListener {
-            onFailure("Unable to get your current location.")
-        }
+private fun isLocationEnabled(context: Context): Boolean {
+    val locationManager = context.getSystemService(Context.LOCATION_SERVICE) as android.location.LocationManager
+    return locationManager.isProviderEnabled(android.location.LocationManager.GPS_PROVIDER) ||
+           locationManager.isProviderEnabled(android.location.LocationManager.NETWORK_PROVIDER)
 }
 
+@SuppressLint("MissingPermission")
+private fun getCurrentLocation(
+    fusedLocationClient: com.google.android.gms.location.FusedLocationProviderClient,
+    onLocationReceived: (LatLng) -> Unit,
+    onError: () -> Unit = {}
+) {
+    fusedLocationClient.lastLocation.addOnSuccessListener { location ->
+        if (location != null) {
+            onLocationReceived(LatLng(location.latitude, location.longitude))
+        } else {
+            // Last location might be null, try requesting a fresh one
+            fusedLocationClient.getCurrentLocation(
+                Priority.PRIORITY_HIGH_ACCURACY,
+                null
+            ).addOnSuccessListener { freshLocation ->
+                if (freshLocation != null) {
+                    onLocationReceived(LatLng(freshLocation.latitude, freshLocation.longitude))
+                } else {
+                    onError()
+                }
+            }.addOnFailureListener {
+                onError()
+            }
+        }
+    }.addOnFailureListener {
+        onError()
+    }
+}
 
 @Composable
 private fun CenterMarker(modifier: Modifier = Modifier) {
