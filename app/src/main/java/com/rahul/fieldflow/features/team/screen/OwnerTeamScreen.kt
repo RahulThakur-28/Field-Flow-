@@ -7,6 +7,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.GroupAdd
 import androidx.compose.material3.*
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -16,6 +17,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
@@ -37,16 +39,22 @@ fun OwnerTeamScreen(
     val uiState by viewModel.teamUiState.collectAsState()
 
     Scaffold(
-        containerColor = Color(0xFFF8F9FB),
+        containerColor = MaterialTheme.colorScheme.background,
         topBar = {
             TopAppBar(
                 title = {
                     Column {
-                        Text("Your Team", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold, color = TextDark)
                         Text(
-                            "${uiState.teamMemberCount} total members",
+                            text = "Your Team", 
+                            style = MaterialTheme.typography.titleLarge, 
+                            fontWeight = FontWeight.Bold, 
+                            color = MaterialTheme.colorScheme.onBackground
+                        )
+                        Text(
+                            text = "${uiState.teamMemberCount} total members",
                             style = MaterialTheme.typography.labelSmall,
-                            color = TextSecondary
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            letterSpacing = 0.5.sp
                         )
                     }
                 },
@@ -54,20 +62,33 @@ fun OwnerTeamScreen(
                     Surface(
                         onClick = onNavigateToRequests,
                         shape = RoundedCornerShape(12.dp),
-                        color = PrimaryBlue.copy(alpha = 0.08f),
-                        modifier = Modifier.padding(end = 8.dp)
+                        color = MaterialTheme.colorScheme.primary.copy(alpha = 0.1f),
+                        modifier = Modifier.padding(end = 12.dp)
                     ) {
                         Row(
-                            modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp),
+                            modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp),
                             verticalAlignment = Alignment.CenterVertically
                         ) {
-                            Icon(Icons.Default.GroupAdd, contentDescription = null, tint = PrimaryBlue, modifier = Modifier.size(18.dp))
+                            Icon(
+                                imageVector = Icons.Default.GroupAdd, 
+                                contentDescription = null, 
+                                tint = MaterialTheme.colorScheme.primary, 
+                                modifier = Modifier.size(18.dp)
+                            )
                             Spacer(modifier = Modifier.width(6.dp))
-                            Text("Requests", style = MaterialTheme.typography.labelMedium, fontWeight = FontWeight.Bold, color = PrimaryBlue)
+                            Text(
+                                text = "Requests", 
+                                style = MaterialTheme.typography.labelMedium, 
+                                fontWeight = FontWeight.Bold, 
+                                color = MaterialTheme.colorScheme.primary
+                            )
                         }
                     }
                 },
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = Color(0xFFF8F9FB))
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = Color.Transparent,
+                    titleContentColor = MaterialTheme.colorScheme.onBackground
+                )
             )
         },
         bottomBar = {
@@ -77,39 +98,52 @@ fun OwnerTeamScreen(
             )
         }
     ) { padding ->
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(padding)
+        PullToRefreshBox(
+            isRefreshing = uiState.isLoading,
+            onRefresh = viewModel::refreshTeam,
+            modifier = Modifier.padding(padding)
         ) {
-            Box(modifier = Modifier.padding(horizontal = 20.dp, vertical = 8.dp)) {
-                TaskSearchBar(
-                    query = uiState.searchQuery,
-                    onQueryChange = viewModel::onSearchQueryChange
-                )
-            }
-
-            Spacer(modifier = Modifier.height(12.dp))
-
-            if (uiState.isLoading) {
-                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                    CircularProgressIndicator(color = PrimaryBlue, strokeWidth = 3.dp)
+            Column(
+                modifier = Modifier.fillMaxSize()
+            ) {
+                Box(modifier = Modifier.padding(horizontal = 20.dp, vertical = 8.dp)) {
+                    TaskSearchBar(
+                        query = uiState.searchQuery,
+                        onQueryChange = viewModel::onSearchQueryChange
+                    )
                 }
-            } else if (uiState.filteredMembers.isEmpty()) {
-                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                    Text("No team members found", color = TextSecondary)
-                }
-            } else {
-                LazyColumn(
-                    modifier = Modifier.fillMaxSize(),
-                    contentPadding = PaddingValues(start = 20.dp, end = 20.dp, bottom = 24.dp),
-                    verticalArrangement = Arrangement.spacedBy(16.dp)
-                ) {
-                    items(uiState.filteredMembers) { member ->
-                        TeamMemberCard(
-                            member = member,
-                            onClick = { onMemberClick(member.profile.id) }
-                        )
+
+                Spacer(modifier = Modifier.height(12.dp))
+
+                if (uiState.filteredMembers.isEmpty() && !uiState.isLoading) {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(bottom = 100.dp), 
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                            Text("👥", fontSize = 48.sp)
+                            Spacer(modifier = Modifier.height(16.dp))
+                            Text(
+                                text = "No team members found", 
+                                style = MaterialTheme.typography.titleMedium,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
+                    }
+                } else {
+                    LazyColumn(
+                        modifier = Modifier.fillMaxSize(),
+                        contentPadding = PaddingValues(start = 20.dp, end = 20.dp, bottom = 40.dp),
+                        verticalArrangement = Arrangement.spacedBy(16.dp)
+                    ) {
+                        items(uiState.filteredMembers, key = { it.profile.id }) { member ->
+                            TeamMemberCard(
+                                member = member,
+                                onClick = { onMemberClick(member.profile.id) }
+                            )
+                        }
                     }
                 }
             }
