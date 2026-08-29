@@ -22,6 +22,8 @@ interface TaskRepository {
 
     suspend fun getEmployeeTasks(): Result<List<Task>>
 
+    suspend fun getTasksByEmployee(employeeId: String): Result<List<Task>>
+
     suspend fun getTaskById(taskId: String): Result<Task>
 
     suspend fun startTask(taskId: String): Result<Task>

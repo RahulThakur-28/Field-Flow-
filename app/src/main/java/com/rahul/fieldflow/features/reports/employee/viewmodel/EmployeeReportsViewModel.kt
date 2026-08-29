@@ -30,11 +30,17 @@ class EmployeeReportsViewModel @Inject constructor(
 
     fun loadReports() {
         viewModelScope.launch {
+            android.util.Log.d("REPORT_DEBUG", "MY_REPORTS_LOAD_START")
             _uiState.update { it.copy(isLoading = true, error = null) }
             
             getEmployeeReportsUseCase()
                 .onSuccess { contexts ->
-                    val reports = contexts.map { it.toUiModel() }
+                    android.util.Log.d("REPORT_DEBUG", "MY_REPORTS_SUPABASE_SUCCESS count=${contexts.size}")
+                    val reports = contexts.map { 
+                        android.util.Log.d("REPORT_DEBUG", "MY_REPORTS_MAPPING task_id=${it.task.id}")
+                        it.toUiModel() 
+                    }
+                    android.util.Log.d("REPORT_DEBUG", "MY_REPORTS_UI_STATE Success count=${reports.size}")
                     _uiState.update { 
                         it.copy(
                             reports = reports,
@@ -44,6 +50,7 @@ class EmployeeReportsViewModel @Inject constructor(
                     }
                 }
                 .onFailure { error ->
+                    android.util.Log.e("REPORT_DEBUG", "MY_REPORTS_LOAD_FAILED", error)
                     _uiState.update { 
                         it.copy(
                             isLoading = false, 

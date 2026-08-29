@@ -5,12 +5,12 @@ import com.rahul.fieldflow.domain.repository.AuthRepository
 import com.rahul.fieldflow.domain.repository.ReportRepository
 import javax.inject.Inject
 
-class GetEmployeeReportsUseCase @Inject constructor(
+class GetOwnerReportsUseCase @Inject constructor(
     private val reportRepository: ReportRepository,
     private val authRepository: AuthRepository
 ) {
     suspend operator fun invoke(): Result<List<TaskReportContext>> {
-        val userId = authRepository.getCurrentSession() ?: return Result.failure(Exception("No active session"))
-        return reportRepository.getEmployeeReports(userId)
+        val ownerId = authRepository.getCurrentSession() ?: return Result.failure(Exception("No active session"))
+        return reportRepository.getOwnerReports(ownerId)
     }
 }

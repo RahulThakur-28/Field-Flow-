@@ -1,13 +1,20 @@
 package com.rahul.fieldflow.features.team.screen
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.Notes
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Email
+import androidx.compose.material.icons.filled.LocationOn
+import androidx.compose.material.icons.filled.Mic
 import androidx.compose.material.icons.filled.Phone
+import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -15,22 +22,25 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
+import com.rahul.fieldflow.domain.model.Task
 import com.rahul.fieldflow.features.profile.components.ProfileAvatar
-import com.rahul.fieldflow.features.tasks.components.TaskCard
-import com.rahul.fieldflow.features.tasks.components.TaskProgressTimeline
-import com.rahul.fieldflow.features.team.components.EmployeeActivityItem
-import com.rahul.fieldflow.features.team.components.EmployeePerformanceCard
+import com.rahul.fieldflow.features.tasks.components.TaskStatusBadge
 import com.rahul.fieldflow.features.team.components.StatusIndicator
+import com.rahul.fieldflow.features.team.model.toUiStatus
 import com.rahul.fieldflow.features.team.viewmodel.TeamViewModel
+import com.rahul.fieldflow.core.utils.DateUtils
 import com.rahul.fieldflow.ui.theme.FieldFlowTheme
 import com.rahul.fieldflow.ui.theme.PrimaryBlue
 import com.rahul.fieldflow.ui.theme.TextDark
 import com.rahul.fieldflow.ui.theme.TextSecondary
+import java.time.format.DateTimeFormatter
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -38,7 +48,8 @@ fun EmployeeDetailsScreen(
     employeeId: String,
     onBackClick: () -> Unit,
     onTaskClick: (String) -> Unit,
-    viewModel: TeamViewModel = viewModel()
+    onViewReportClick: (String) -> Unit,
+    viewModel: TeamViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.employeeDetailsUiState.collectAsState()
 
@@ -47,14 +58,16 @@ fun EmployeeDetailsScreen(
     }
 
     Scaffold(
+        containerColor = Color(0xFFF8F9FB),
         topBar = {
             TopAppBar(
-                title = { Text("Employee Details", fontWeight = FontWeight.Bold) },
+                title = { Text(uiState.profile?.fullName ?: "Employee Details", fontWeight = FontWeight.Bold) },
                 navigationIcon = {
                     IconButton(onClick = onBackClick) {
                         Icon(Icons.Default.ArrowBack, contentDescription = "Back")
                     }
-                }
+                },
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = Color(0xFFF8F9FB))
             )
         }
     ) { padding ->
@@ -62,124 +75,280 @@ fun EmployeeDetailsScreen(
             Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                 CircularProgressIndicator(color = PrimaryBlue)
             }
-        } else if (uiState.member != null) {
-            val member = uiState.member!!
+        } else if (uiState.profile != null) {
+            val profile = uiState.profile!!
             Column(
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(padding)
-                    .padding(horizontal = 16.dp)
+                    .padding(horizontal = 20.dp)
                     .verticalScroll(rememberScrollState())
             ) {
                 // Profile Card
                 Card(
                     modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(16.dp),
+                    shape = RoundedCornerShape(20.dp),
                     colors = CardDefaults.cardColors(containerColor = Color.White),
-                    elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+                    elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
+                    border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFFF0F2F5))
                 ) {
-                    Column(modifier = Modifier.padding(16.dp)) {
+                    Column(modifier = Modifier.padding(20.dp)) {
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             ProfileAvatar(
-                                initials = member.employee.id.take(2),
-                                modifier = Modifier.size(64.dp)
+                                initials = profile.fullName.take(1) + (profile.fullName.split(" ").getOrNull(1)?.take(1) ?: ""),
+                                modifier = Modifier.size(72.dp)
                             )
-                            Spacer(modifier = Modifier.width(16.dp))
+                            Spacer(modifier = Modifier.width(20.dp))
                             Column(modifier = Modifier.weight(1f)) {
                                 Text(
-                                    text = member.employee.name,
-                                    style = MaterialTheme.typography.titleLarge,
-                                    fontWeight = FontWeight.Bold,
+                                    text = profile.fullName,
+                                    style = MaterialTheme.typography.headlineSmall,
+                                    fontWeight = FontWeight.ExtraBold,
                                     color = TextDark
                                 )
                                 Text(
-                                    text = member.employee.role,
+                                    text = profile.role.name.lowercase().replaceFirstChar { it.uppercase() } + " Employee",
                                     style = MaterialTheme.typography.bodyMedium,
                                     color = TextSecondary
                                 )
-                                Spacer(modifier = Modifier.height(4.dp))
-                                StatusIndicator(status = member.status)
+                                Spacer(modifier = Modifier.height(6.dp))
+                                StatusIndicator(status = if (uiState.currentTask != null) "Active" else "Idle")
                             }
                         }
 
+                        Spacer(modifier = Modifier.height(24.dp))
+                        HorizontalDivider(color = Color(0xFFF0F2F5))
+                        Spacer(modifier = Modifier.height(24.dp))
+
+                        ContactDetailItem(icon = Icons.Default.Email, value = profile.email)
+                        Spacer(modifier = Modifier.height(12.dp))
+                        ContactDetailItem(icon = Icons.Default.Phone, value = profile.phone ?: "No phone number")
+                        
                         Spacer(modifier = Modifier.height(16.dp))
-                        HorizontalDivider(color = Color.LightGray.copy(alpha = 0.5f))
-                        Spacer(modifier = Modifier.height(16.dp))
-
-                        ContactItem(icon = Icons.Default.Email, value = "rahul@fieldflow.in")
-                        Spacer(modifier = Modifier.height(8.dp))
-                        ContactItem(icon = Icons.Default.Phone, value = "+91 98765 43210")
-                    }
-                }
-
-                Spacer(modifier = Modifier.height(24.dp))
-
-                Text("Performance", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
-                Spacer(modifier = Modifier.height(12.dp))
-                EmployeePerformanceCard(performance = member.performance)
-
-                Spacer(modifier = Modifier.height(24.dp))
-
-                // Current Task
-                uiState.currentTask?.let { task ->
-                    Text("CURRENT TASK", style = MaterialTheme.typography.labelMedium, color = TextSecondary)
-                    Spacer(modifier = Modifier.height(12.dp))
-                    TaskCard(task = task, onClick = { onTaskClick(task.id) })
-                    
-                    Spacer(modifier = Modifier.height(16.dp))
-                    TextButton(
-                        onClick = { onTaskClick(task.id) },
-                        modifier = Modifier.align(Alignment.End)
-                    ) {
-                        Text("View Task Details →", color = PrimaryBlue)
-                    }
-                }
-
-                Spacer(modifier = Modifier.height(24.dp))
-
-                Text("Recent Activity", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
-                Spacer(modifier = Modifier.height(12.dp))
-                Column {
-                    uiState.recentActivity.forEachIndexed { index, activity ->
-                        EmployeeActivityItem(
-                            activity = activity,
-                            isLast = index == uiState.recentActivity.size - 1
+                        Text(
+                            text = DateUtils.formatMemberSince(profile.createdAt),
+                            style = MaterialTheme.typography.labelSmall,
+                            color = TextSecondary
                         )
                     }
                 }
 
-                Spacer(modifier = Modifier.height(24.dp))
+                Spacer(modifier = Modifier.height(32.dp))
 
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Text("Assigned Tasks", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
-                    TextButton(onClick = { /* View All */ }) {
-                        Text("View All", color = PrimaryBlue)
+                // Current Task
+                Text(
+                    text = "CURRENT TASK",
+                    style = MaterialTheme.typography.labelMedium,
+                    fontWeight = FontWeight.Bold,
+                    color = TextSecondary,
+                    letterSpacing = 1.sp
+                )
+                Spacer(modifier = Modifier.height(16.dp))
+                
+                if (uiState.currentTask != null) {
+                    val task = uiState.currentTask!!
+                    Card(
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(16.dp),
+                        colors = CardDefaults.cardColors(containerColor = Color.White),
+                        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
+                        border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFFF0F2F5))
+                    ) {
+                        Column(modifier = Modifier.padding(16.dp)) {
+                            Text(
+                                text = task.title,
+                                style = MaterialTheme.typography.titleMedium,
+                                fontWeight = FontWeight.Bold,
+                                color = TextDark
+                            )
+                            task.location?.let {
+                                Spacer(modifier = Modifier.height(4.dp))
+                                Text(text = it, style = MaterialTheme.typography.bodySmall, color = TextSecondary)
+                            }
+                            Spacer(modifier = Modifier.height(12.dp))
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                TaskStatusBadge(status = task.status.toUiStatus())
+                                Text(
+                                    text = "Assigned: ${task.createdAt.format(DateTimeFormatter.ofPattern("MMM dd, yyyy"))}",
+                                    style = MaterialTheme.typography.labelSmall,
+                                    color = TextSecondary
+                                )
+                            }
+                            
+                            Spacer(modifier = Modifier.height(16.dp))
+                            Button(
+                                onClick = { onTaskClick(task.id) },
+                                modifier = Modifier.fillMaxWidth(),
+                                shape = RoundedCornerShape(12.dp),
+                                colors = ButtonDefaults.buttonColors(containerColor = PrimaryBlue)
+                            ) {
+                                Text("View Task", fontWeight = FontWeight.Bold)
+                            }
+                        }
+                    }
+                } else {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 20.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text("No task currently assigned", color = TextSecondary, style = MaterialTheme.typography.bodyMedium)
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(32.dp))
+
+                // Past Tasks & Reports
+                Text(
+                    text = "PAST TASKS & REPORTS",
+                    style = MaterialTheme.typography.labelMedium,
+                    fontWeight = FontWeight.Bold,
+                    color = TextSecondary,
+                    letterSpacing = 1.sp
+                )
+                Spacer(modifier = Modifier.height(16.dp))
+                
+                if (uiState.pastTasks.isEmpty()) {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 20.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text("No past tasks found", color = TextSecondary, style = MaterialTheme.typography.bodyMedium)
+                    }
+                } else {
+                    Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                        uiState.pastTasks.forEach { task ->
+                            PastTaskCard(
+                                task = task,
+                                onViewReport = { onViewReportClick(task.id) }
+                            )
+                        }
                     }
                 }
                 
-                uiState.assignedTasks.forEach { task ->
-                    TaskCard(task = task, onClick = { onTaskClick(task.id) })
-                }
-                
-                Spacer(modifier = Modifier.height(32.dp))
+                Spacer(modifier = Modifier.height(40.dp))
             }
         }
     }
 }
 
 @Composable
-fun ContactItem(icon: androidx.compose.ui.graphics.vector.ImageVector, value: String) {
+fun PastTaskCard(task: Task, onViewReport: () -> Unit) {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(16.dp),
+        colors = CardDefaults.cardColors(containerColor = Color.White),
+        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
+        border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFFF0F2F5))
+    ) {
+        Column(modifier = Modifier.padding(16.dp)) {
+            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                Column(modifier = Modifier.weight(1f)) {
+                    Text(
+                        text = task.title,
+                        style = MaterialTheme.typography.bodyLarge,
+                        fontWeight = FontWeight.Bold,
+                        color = TextDark
+                    )
+                    Text(
+                        text = task.completedAt?.format(DateTimeFormatter.ofPattern("MMM dd, yyyy")) ?: "Completed",
+                        style = MaterialTheme.typography.labelSmall,
+                        color = TextSecondary
+                    )
+                    task.location?.let {
+                        Spacer(modifier = Modifier.height(4.dp))
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Icon(Icons.Default.LocationOn, contentDescription = null, modifier = Modifier.size(12.dp), tint = TextSecondary)
+                            Spacer(modifier = Modifier.width(4.dp))
+                            Text(text = it, style = MaterialTheme.typography.bodySmall, color = TextSecondary)
+                        }
+                    }
+                }
+            }
+            
+            Spacer(modifier = Modifier.height(12.dp))
+            
+            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                Surface(
+                    color = Color(0xFFE8F5E9),
+                    shape = RoundedCornerShape(6.dp)
+                ) {
+                    Text(
+                        text = "✓ Completed",
+                        color = Color(0xFF2E7D32),
+                        style = MaterialTheme.typography.labelSmall,
+                        modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
+                        fontWeight = FontWeight.Bold
+                    )
+                }
+                
+                if (task.hasReport) {
+                    Surface(
+                        color = Color(0xFFFFF3E0),
+                        shape = RoundedCornerShape(6.dp)
+                    ) {
+                        Row(
+                            modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text(
+                                text = "✨ AI Report",
+                                color = Color(0xFFEF6C00),
+                                style = MaterialTheme.typography.labelSmall,
+                                fontWeight = FontWeight.Bold
+                            )
+                        }
+                    }
+                }
+                
+                if (task.totalRecordingDurationSeconds > 0) {
+                    Icon(Icons.Default.Mic, contentDescription = null, modifier = Modifier.size(16.dp), tint = TextSecondary)
+                    Text(
+                        text = DateUtils.formatDuration(task.totalRecordingDurationSeconds),
+                        style = MaterialTheme.typography.labelSmall,
+                        color = TextSecondary
+                    )
+                }
+            }
+            
+            if (task.hasReport) {
+                Spacer(modifier = Modifier.height(16.dp))
+                TextButton(
+                    onClick = onViewReport,
+                    modifier = Modifier.align(Alignment.End),
+                    contentPadding = PaddingValues(0.dp)
+                ) {
+                    Text("View Report →", color = PrimaryBlue, fontWeight = FontWeight.Bold)
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun ContactDetailItem(icon: androidx.compose.ui.graphics.vector.ImageVector, value: String) {
     Row(verticalAlignment = Alignment.CenterVertically) {
-        Icon(
-            imageVector = icon,
-            contentDescription = null,
-            modifier = Modifier.size(18.dp),
-            tint = TextSecondary
-        )
+        Surface(
+            modifier = Modifier.size(32.dp),
+            shape = CircleShape,
+            color = Color(0xFFF8F9FB)
+        ) {
+            Box(contentAlignment = Alignment.Center) {
+                Icon(
+                    imageVector = icon,
+                    contentDescription = null,
+                    modifier = Modifier.size(16.dp),
+                    tint = TextSecondary
+                )
+            }
+        }
         Spacer(modifier = Modifier.width(12.dp))
         Text(text = value, style = MaterialTheme.typography.bodyMedium, color = TextDark)
     }
@@ -189,6 +358,6 @@ fun ContactItem(icon: androidx.compose.ui.graphics.vector.ImageVector, value: St
 @Composable
 fun EmployeeDetailsScreenPreview() {
     FieldFlowTheme {
-        EmployeeDetailsScreen(employeeId = "1", onBackClick = {}, onTaskClick = {})
+        EmployeeDetailsScreen(employeeId = "1", onBackClick = {}, onTaskClick = {}, onViewReportClick = {})
     }
 }

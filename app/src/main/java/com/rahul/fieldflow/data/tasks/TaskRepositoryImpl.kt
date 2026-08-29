@@ -56,14 +56,14 @@ class TaskRepositoryImpl @Inject constructor(
             val ownerId = authDataSource.getCurrentUserId()
                 ?: throw Exception("Not authenticated")
             
-            Log.d("OWNER_TASK_TRACE", "getOwnerTasks: authenticatedUserId = $ownerId")
+            Log.d("TEAM_DATA_DEBUG", "getOwnerTasks: ownerId = $ownerId")
 
             val taskDtos = taskDataSource.getTasksCreatedBy(ownerId)
-            Log.d("OWNER_TASK_TRACE", "getOwnerTasks: decoded TaskDto count = ${taskDtos.size}")
+            Log.d("TEAM_DATA_DEBUG", "getOwnerTasks: dto count = ${taskDtos.size}")
             
             taskDtos.map { it.toDomain() }
         }.onFailure { error ->
-            Log.e("OWNER_TASK_TRACE", "getOwnerTasks: failure = ${error.message}")
+            Log.e("TEAM_DATA_DEBUG", "getOwnerTasks: failure = ${error.message}")
         }
     }
 
@@ -80,6 +80,17 @@ class TaskRepositoryImpl @Inject constructor(
             taskDtos.map { it.toDomain() }
         }.onFailure { error ->
             Log.e("EMPLOYEE_TASK_TRACE", "getEmployeeTasks: failure = ${error.message}")
+        }
+    }
+
+    override suspend fun getTasksByEmployee(employeeId: String): Result<List<Task>> {
+        return runCatching {
+            Log.d("TEAM_DATA_DEBUG", "getTasksByEmployee: employeeId = $employeeId")
+            val taskDtos = taskDataSource.getTasksForEmployee(employeeId)
+            Log.d("TEAM_DATA_DEBUG", "getTasksByEmployee: dto count = ${taskDtos.size}")
+            taskDtos.map { it.toDomain() }
+        }.onFailure { error ->
+            Log.e("TEAM_DATA_DEBUG", "getTasksByEmployee: failure = ${error.message}")
         }
     }
 

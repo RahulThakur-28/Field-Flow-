@@ -15,7 +15,8 @@ data class ProfileDto(
     @SerialName("employee_code") val employeeCode: String? = null,
     @SerialName("avatar_url") val avatarUrl: String? = null,
     @SerialName("is_active") val isActive: Boolean = true,
-    @SerialName("workspace_id") val workspaceId: String? = null
+    @SerialName("workspace_id") val workspaceId: String? = null,
+    @SerialName("created_at") val createdAt: String? = null
 ) {
     fun toDomain(): UserProfile {
         return UserProfile(
@@ -30,7 +31,8 @@ data class ProfileDto(
             employeeCode = employeeCode,
             avatarUrl = avatarUrl,
             isActive = isActive,
-            workspaceId = workspaceId
+            workspaceId = workspaceId,
+            createdAt = createdAt
         )
     }
 }

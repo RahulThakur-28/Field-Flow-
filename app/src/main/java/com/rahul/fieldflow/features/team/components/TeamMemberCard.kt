@@ -6,8 +6,9 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.DirectionsRun
 import androidx.compose.material.icons.filled.ChevronRight
+import androidx.compose.material.icons.filled.Email
+import androidx.compose.material.icons.filled.Phone
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -18,10 +19,14 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.rahul.fieldflow.features.profile.components.ProfileAvatar
+import com.rahul.fieldflow.features.tasks.components.TaskStatusBadge
 import com.rahul.fieldflow.features.team.model.EmployeeTeamUiModel
+import com.rahul.fieldflow.features.team.model.toUiStatus
+import com.rahul.fieldflow.core.utils.DateUtils
 import com.rahul.fieldflow.ui.theme.PrimaryBlue
 import com.rahul.fieldflow.ui.theme.TextDark
 import com.rahul.fieldflow.ui.theme.TextSecondary
+import java.time.format.DateTimeFormatter
 
 @Composable
 fun TeamMemberCard(
@@ -37,74 +42,90 @@ fun TeamMemberCard(
         elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
         border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFFF0F2F5))
     ) {
-        Column(modifier = Modifier.padding(16.dp)) {
+        Column(modifier = Modifier.padding(20.dp)) {
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier.fillMaxWidth()
             ) {
                 ProfileAvatar(
-                    initials = member.employee.name.take(1) + (member.employee.name.split(" ").getOrNull(1)?.take(1) ?: ""),
-                    modifier = Modifier.size(44.dp)
+                    initials = member.profile.fullName.take(1) + (member.profile.fullName.split(" ").getOrNull(1)?.take(1) ?: ""),
+                    modifier = Modifier.size(52.dp)
                 )
-                Spacer(modifier = Modifier.width(12.dp))
+                Spacer(modifier = Modifier.width(16.dp))
                 Column(modifier = Modifier.weight(1f)) {
                     Text(
-                        text = member.employee.name,
+                        text = member.profile.fullName,
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.Bold,
                         color = TextDark
                     )
                     Text(
-                        text = member.employee.role,
-                        style = MaterialTheme.typography.labelSmall,
+                        text = member.profile.role.name.lowercase().replaceFirstChar { it.uppercase() } + " Employee",
+                        style = MaterialTheme.typography.labelMedium,
                         color = TextSecondary
                     )
                 }
                 StatusIndicator(status = member.status)
             }
 
-            member.currentTaskTitle?.let { task ->
-                Spacer(modifier = Modifier.height(14.dp))
-                Surface(
-                    color = Color(0xFFF8F9FB),
-                    shape = RoundedCornerShape(8.dp),
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    Row(
-                        modifier = Modifier.padding(horizontal = 10.dp, vertical = 8.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Icon(
-                            Icons.AutoMirrored.Filled.DirectionsRun,
-                            contentDescription = null,
-                            tint = PrimaryBlue,
-                            modifier = Modifier.size(14.dp)
-                        )
-                        Spacer(modifier = Modifier.width(8.dp))
+            Spacer(modifier = Modifier.height(20.dp))
+
+            // Contact Info
+            ContactInfoRow(icon = Icons.Default.Email, text = member.profile.email)
+            Spacer(modifier = Modifier.height(8.dp))
+            ContactInfoRow(icon = Icons.Default.Phone, text = member.profile.phone ?: "No phone")
+
+            Spacer(modifier = Modifier.height(16.dp))
+            
+            Text(
+                text = DateUtils.formatMemberSince(member.profile.createdAt),
+                style = MaterialTheme.typography.labelSmall,
+                color = TextSecondary
+            )
+
+            Spacer(modifier = Modifier.height(20.dp))
+            HorizontalDivider(color = Color(0xFFF0F2F5))
+            Spacer(modifier = Modifier.height(20.dp))
+
+            Row(modifier = Modifier.fillMaxWidth()) {
+                PerformanceStat(label = "Total Tasks", value = "${member.totalTasks}", modifier = Modifier.weight(1f))
+                PerformanceStat(label = "Completed", value = "${member.completedTasks}", modifier = Modifier.weight(1f))
+            }
+
+            Spacer(modifier = Modifier.height(20.dp))
+
+            // Current Task
+            Text(
+                text = "Current Task",
+                style = MaterialTheme.typography.labelMedium,
+                fontWeight = FontWeight.Bold,
+                color = TextDark
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+            
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Column(modifier = Modifier.weight(1f)) {
+                    if (member.currentTask != null) {
                         Text(
-                            text = task,
-                            style = MaterialTheme.typography.bodySmall,
-                            color = TextDark,
+                            text = member.currentTask.title,
+                            style = MaterialTheme.typography.bodyMedium,
                             fontWeight = FontWeight.Medium,
-                            maxLines = 1,
-                            overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis
+                            color = TextDark
+                        )
+                        Spacer(modifier = Modifier.height(4.dp))
+                        TaskStatusBadge(status = member.currentTask.status.toUiStatus())
+                    } else {
+                        Text(
+                            text = "No task currently assigned",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = TextSecondary
                         )
                     }
                 }
-            }
-
-            Spacer(modifier = Modifier.height(16.dp))
-            HorizontalDivider(color = Color(0xFFF0F2F5))
-            Spacer(modifier = Modifier.height(16.dp))
-
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                PerformanceStat(label = "Completed", value = "${member.performance.completedTasks}", modifier = Modifier.weight(1f))
-                PerformanceStat(label = "On Time", value = "${member.performance.onTimePercentage}%", modifier = Modifier.weight(1f))
-                PerformanceStat(label = "Active", value = "${member.performance.activeTasks}", modifier = Modifier.weight(1f))
                 
                 Surface(
                     modifier = Modifier.size(32.dp),
@@ -126,41 +147,50 @@ fun TeamMemberCard(
 }
 
 @Composable
+fun ContactInfoRow(icon: androidx.compose.ui.graphics.vector.ImageVector, text: String) {
+    Row(verticalAlignment = Alignment.CenterVertically) {
+        Icon(
+            imageVector = icon,
+            contentDescription = null,
+            modifier = Modifier.size(14.dp),
+            tint = TextSecondary
+        )
+        Spacer(modifier = Modifier.width(8.dp))
+        Text(
+            text = text,
+            style = MaterialTheme.typography.bodySmall,
+            color = TextSecondary
+        )
+    }
+}
+
+@Composable
 fun StatusIndicator(status: String) {
     val isActive = status.equals("Active", ignoreCase = true)
     val color = if (isActive) Color(0xFF2E7D32) else Color(0xFF757575)
     
-    Surface(
-        color = color.copy(alpha = 0.08f),
-        shape = RoundedCornerShape(6.dp)
-    ) {
-        Row(
-            modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            if (isActive) {
-                Box(
-                    modifier = Modifier
-                        .size(6.dp)
-                        .clip(CircleShape)
-                        .background(color)
-                )
-                Spacer(modifier = Modifier.width(6.dp))
-            }
-            Text(
-                text = status,
-                color = color,
-                style = MaterialTheme.typography.labelSmall,
-                fontWeight = FontWeight.Bold
-            )
-        }
+    Row(verticalAlignment = Alignment.CenterVertically) {
+        Box(
+            modifier = Modifier
+                .size(6.dp)
+                .clip(CircleShape)
+                .background(color)
+        )
+        Spacer(modifier = Modifier.width(6.dp))
+        Text(
+            text = status,
+            color = color,
+            style = MaterialTheme.typography.labelSmall,
+            fontWeight = FontWeight.Bold
+        )
     }
 }
 
 @Composable
 fun PerformanceStat(label: String, value: String, modifier: Modifier = Modifier) {
     Column(modifier = modifier) {
-        Text(text = value, fontWeight = FontWeight.ExtraBold, color = TextDark, fontSize = 15.sp)
-        Text(text = label, style = MaterialTheme.typography.labelSmall, color = TextSecondary, fontSize = 10.sp)
+        Text(text = label, style = MaterialTheme.typography.labelSmall, color = TextSecondary, fontSize = 11.sp)
+        Spacer(modifier = Modifier.height(2.dp))
+        Text(text = value, fontWeight = FontWeight.ExtraBold, color = TextDark, fontSize = 18.sp)
     }
 }

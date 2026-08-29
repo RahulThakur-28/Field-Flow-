@@ -117,12 +117,12 @@ class TaskDataSource @Inject constructor(
 
     suspend fun getTasksCreatedBy(ownerId: String): List<TaskDto> {
         return try {
-            Log.d("OWNER_TASK_TRACE", "getTasksCreatedBy: owner query started for ownerId = $ownerId")
+            Log.d("TEAM_DATA_DEBUG", "getTasksCreatedBy: owner query started for ownerId = $ownerId")
             
             val response = supabaseClient.postgrest["tasks"]
                 .select(
                     Columns.raw(
-                        "*, task_assignments(*, profiles:profiles!employee_id(*)), task_checklist_items(*), geofences(*)"
+                        "*, task_assignments(*, profiles:profiles!employee_id(*)), task_checklist_items(*), geofences(*), task_reports(*), recording_sessions(*)"
                     )
                 ) {
                     filter {
@@ -131,23 +131,24 @@ class TaskDataSource @Inject constructor(
                     }
                 }
             
-            Log.d("OWNER_TASK_TRACE", "getTasksCreatedBy: raw Supabase response data = ${response.data}")
+            Log.d("TEAM_DATA_DEBUG", "getTasksCreatedBy: raw response = ${response.data}")
             
             val tasks = response.decodeList<TaskDto>()
-            Log.d("OWNER_TASK_TRACE", "getTasksCreatedBy: decoded TaskDto count = ${tasks.size}")
+            Log.d("TEAM_DATA_DEBUG", "getTasksCreatedBy: decoded count = ${tasks.size}")
             tasks
         } catch (e: Exception) {
-            Log.e("OWNER_TASK_TRACE", "getTasksCreatedBy: error = ${e.message}", e)
+            Log.e("TEAM_DATA_DEBUG", "getTasksCreatedBy: error = ${e.message}", e)
             throw e
         }
     }
 
     suspend fun getTasksForEmployee(employeeId: String): List<TaskDto> {
         return try {
-            supabaseClient.postgrest["tasks"]
+            Log.d("TEAM_DATA_DEBUG", "getTasksForEmployee: employeeId=$employeeId")
+            val response = supabaseClient.postgrest["tasks"]
                 .select(
                     Columns.raw(
-                        "*, task_assignments!inner(*, profiles:profiles!employee_id(*)), task_checklist_items(*), geofences(*)"
+                        "*, task_assignments!inner(*, profiles:profiles!employee_id(*)), task_checklist_items(*), geofences(*), task_reports(*), recording_sessions(*)"
                     )
                 ) {
                     filter {
@@ -155,9 +156,13 @@ class TaskDataSource @Inject constructor(
                         eq("is_deleted", false)
                     }
                 }
-                .decodeList<TaskDto>()
+            
+            Log.d("TEAM_DATA_DEBUG", "getTasksForEmployee: raw=${response.data}")
+            val list = response.decodeList<TaskDto>()
+            Log.d("TEAM_DATA_DEBUG", "getTasksForEmployee: count=${list.size}")
+            list
         } catch (e: Exception) {
-            Log.e("OWNER_TASK_TRACE", "getTasksForEmployee error: ${e.message}")
+            Log.e("TEAM_DATA_DEBUG", "getTasksForEmployee error: ${e.message}", e)
             throw e
         }
     }
@@ -178,7 +183,7 @@ class TaskDataSource @Inject constructor(
             val response = supabaseClient.postgrest["tasks"]
                 .select(
                     Columns.raw(
-                        "*, task_assignments(*, profiles:profiles!employee_id(*)), task_checklist_items(*), geofences(*)"
+                        "*, task_assignments(*, profiles:profiles!employee_id(*)), task_checklist_items(*), geofences(*), task_reports(*), recording_sessions(*)"
                     )
                 ) {
                     filter {

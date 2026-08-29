@@ -113,27 +113,29 @@ fun EmployeeReportCard(
                     )
                 }
 
-                Surface(
-                    color = PrimaryBlue.copy(alpha = 0.1f),
-                    shape = RoundedCornerShape(4.dp)
-                ) {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
+                if (report.isAiReady) {
+                    Surface(
+                        color = PrimaryBlue.copy(alpha = 0.1f),
+                        shape = RoundedCornerShape(4.dp)
                     ) {
-                        Icon(
-                            Icons.Default.AutoAwesome,
-                            contentDescription = null,
-                            modifier = Modifier.size(10.dp),
-                            tint = PrimaryBlue
-                        )
-                        Spacer(modifier = Modifier.width(4.dp))
-                        Text(
-                            text = "AI Summary",
-                            fontSize = 10.sp,
-                            color = PrimaryBlue,
-                            fontWeight = FontWeight.Bold
-                        )
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
+                        ) {
+                            Icon(
+                                Icons.Default.AutoAwesome,
+                                contentDescription = null,
+                                modifier = Modifier.size(10.dp),
+                                tint = PrimaryBlue
+                            )
+                            Spacer(modifier = Modifier.width(4.dp))
+                            Text(
+                                text = "AI Summary",
+                                fontSize = 10.sp,
+                                color = PrimaryBlue,
+                                fontWeight = FontWeight.Bold
+                            )
+                        }
                     }
                 }
             }
