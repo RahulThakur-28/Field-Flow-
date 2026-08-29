@@ -14,6 +14,7 @@ data class SelectedLocation(
 
 enum class TaskStatus(val label: String) {
     PENDING("Pending"),
+    ASSIGNED("Assigned"),
     IN_PROGRESS("In Progress"),
     COMPLETED("Completed"),
     OVERDUE("Overdue"),

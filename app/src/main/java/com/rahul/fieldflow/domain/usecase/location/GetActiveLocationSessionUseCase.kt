@@ -11,11 +11,3 @@ class GetActiveLocationSessionUseCase @Inject constructor(
         return locationRepository.getActiveSession(taskId)
     }
 }
-
-class StopTaskTrackingUseCase @Inject constructor(
-    private val locationRepository: LocationRepository
-) {
-    suspend operator fun invoke(sessionId: String): Result<Unit> {
-        return locationRepository.stopLocationSession(sessionId)
-    }
-}

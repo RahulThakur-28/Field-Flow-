@@ -60,7 +60,10 @@ data class TaskDto(
     val assignments: List<TaskAssignmentDto> = emptyList(),
 
     @SerialName("task_checklist_items")
-    val checklistItems: List<TaskChecklistItemDto> = emptyList()
+    val checklistItems: List<TaskChecklistItemDto> = emptyList(),
+
+    @SerialName("geofences")
+    val geofence: GeofenceDto? = null
 ) {
 
     fun toDomain(): Task {
@@ -87,9 +90,9 @@ data class TaskDto(
                 createdBy = createdBy.orEmpty(),
 
                 location = location,
-                latitude = latitude,
-                longitude = longitude,
-                radiusMeters = radiusMeters ?: 50,
+                latitude = latitude ?: geofence?.latitude,
+                longitude = longitude ?: geofence?.longitude,
+                radiusMeters = radiusMeters ?: geofence?.radiusMeters ?: 50,
 
                 dueDate = dueDate?.let {
                     runCatching { OffsetDateTime.parse(it, formatter) }.getOrNull()
@@ -147,3 +150,13 @@ data class TaskDto(
         }
     }
 }
+
+@Serializable
+data class GeofenceDto(
+    @SerialName("id") val id: String,
+    @SerialName("task_id") val taskId: String,
+    @SerialName("latitude") val latitude: Double,
+    @SerialName("longitude") val longitude: Double,
+    @SerialName("radius_meters") val radiusMeters: Int,
+    @SerialName("is_active") val isActive: Boolean = true
+)

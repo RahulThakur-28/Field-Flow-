@@ -3,6 +3,8 @@ package com.rahul.fieldflow.features.tasks.employee.screen
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -15,7 +17,6 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
-import com.rahul.fieldflow.core.navigation.AppRoutes
 import com.rahul.fieldflow.features.bottomnavigation.components.FieldFlowBottomNavigation
 import com.rahul.fieldflow.features.bottomnavigation.navigation.BottomNavigationConfig
 import com.rahul.fieldflow.features.tasks.components.TaskCard
@@ -67,9 +68,16 @@ fun EmployeeTasksScreen(
                 Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                     CircularProgressIndicator(color = PrimaryBlue)
                 }
+            } else if (uiState.error != null) {
+                ErrorState(
+                    message = uiState.error!!,
+                    onRetry = viewModel::loadTasks
+                )
             } else {
                 val filteredTasks = when (uiState.selectedTab) {
-                    0 -> uiState.tasks.filter { it.status == TaskStatus.PENDING }
+                    0 -> uiState.tasks.filter { 
+                        it.status == TaskStatus.PENDING || it.status == TaskStatus.ASSIGNED 
+                    }
                     1 -> uiState.tasks.filter { it.status == TaskStatus.IN_PROGRESS }
                     2 -> uiState.tasks.filter { it.status == TaskStatus.COMPLETED }
                     else -> uiState.tasks
@@ -91,6 +99,45 @@ fun EmployeeTasksScreen(
                     }
                 }
             }
+        }
+    }
+}
+
+@Composable
+private fun ErrorState(
+    message: String,
+    onRetry: () -> Unit
+) {
+    Column(
+        modifier = Modifier.fillMaxSize(),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Icon(
+            imageVector = Icons.Default.Warning,
+            contentDescription = null,
+            modifier = Modifier.size(64.dp),
+            tint = MaterialTheme.colorScheme.error
+        )
+        Spacer(modifier = Modifier.height(16.dp))
+        Text(
+            text = "Something went wrong",
+            style = MaterialTheme.typography.titleLarge,
+            fontWeight = FontWeight.Bold
+        )
+        Text(
+            text = message,
+            style = MaterialTheme.typography.bodyMedium,
+            color = TextSecondary,
+            textAlign = TextAlign.Center,
+            modifier = Modifier.padding(horizontal = 32.dp)
+        )
+        Spacer(modifier = Modifier.height(24.dp))
+        Button(
+            onClick = onRetry,
+            colors = ButtonDefaults.buttonColors(containerColor = PrimaryBlue)
+        ) {
+            Text("Retry")
         }
     }
 }

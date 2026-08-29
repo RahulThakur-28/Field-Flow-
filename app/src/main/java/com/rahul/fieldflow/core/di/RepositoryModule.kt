@@ -1,13 +1,12 @@
 package com.rahul.fieldflow.core.di
 
 import com.rahul.fieldflow.data.location.LocationRepositoryImpl
+import com.rahul.fieldflow.data.recording.RecordingRepositoryImpl
+import com.rahul.fieldflow.data.reports.ReportRepositoryImpl
 import com.rahul.fieldflow.data.requests.JoinRequestRepositoryImpl
 import com.rahul.fieldflow.data.tasks.TaskRepositoryImpl
 import com.rahul.fieldflow.data.workspace.WorkspaceRepositoryImpl
-import com.rahul.fieldflow.domain.repository.JoinRequestRepository
-import com.rahul.fieldflow.domain.repository.LocationRepository
-import com.rahul.fieldflow.domain.repository.TaskRepository
-import com.rahul.fieldflow.domain.repository.WorkspaceRepository
+import com.rahul.fieldflow.domain.repository.*
 import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn
@@ -41,4 +40,16 @@ abstract class RepositoryModule {
     abstract fun bindLocationRepository(
         locationRepositoryImpl: LocationRepositoryImpl
     ): LocationRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindRecordingRepository(
+        recordingRepositoryImpl: RecordingRepositoryImpl
+    ): RecordingRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindReportRepository(
+        reportRepositoryImpl: ReportRepositoryImpl
+    ): ReportRepository
 }

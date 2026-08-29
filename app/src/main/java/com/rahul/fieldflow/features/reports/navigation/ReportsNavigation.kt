@@ -9,8 +9,17 @@ import com.rahul.fieldflow.features.reports.owner.screen.OwnerReportsScreen
 import com.rahul.fieldflow.features.reports.owner.screen.OwnerReportDetailsScreen
 import com.rahul.fieldflow.features.reports.employee.screen.EmployeeReportsScreen
 import com.rahul.fieldflow.features.reports.employee.screen.EmployeeReportDetailsScreen
+import com.rahul.fieldflow.features.reports.screen.TaskReportScreen
 
 fun NavGraphBuilder.reportsNavigation(navController: NavController) {
+    composable<AppRoutes.TaskReport> { backStackEntry ->
+        val route = backStackEntry.toRoute<AppRoutes.TaskReport>()
+        TaskReportScreen(
+            taskId = route.taskId,
+            onBackClick = { navController.popBackStack() }
+        )
+    }
+
     composable<AppRoutes.OwnerReports> {
         OwnerReportsScreen(
             navController = navController,

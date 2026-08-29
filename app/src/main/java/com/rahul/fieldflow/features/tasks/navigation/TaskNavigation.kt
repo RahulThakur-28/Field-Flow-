@@ -62,6 +62,9 @@ fun NavGraphBuilder.taskNavigation(navController: NavController) {
                 onBackClick = { navController.popBackStack() },
                 onTrackClick = { taskId ->
                     navController.navigate(AppRoutes.LiveTracking(taskId))
+                },
+                onViewReportClick = { taskId ->
+                    navController.navigate(AppRoutes.TaskReport(taskId))
                 }
             )
         }
@@ -102,7 +105,10 @@ fun NavGraphBuilder.taskNavigation(navController: NavController) {
             val route = backStackEntry.toRoute<AppRoutes.EmployeeTaskDetails>()
             EmployeeTaskDetailsScreen(
                 taskId = route.taskId,
-                onBackClick = { navController.popBackStack() }
+                onBackClick = { navController.popBackStack() },
+                onViewReportClick = { taskId ->
+                    navController.navigate(AppRoutes.TaskReport(taskId))
+                }
             )
         }
     }

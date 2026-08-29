@@ -2,6 +2,7 @@ package com.rahul.fieldflow.features.tasks.employee.screen
 
 import android.Manifest
 import android.content.pm.PackageManager
+import android.os.Build
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
@@ -24,7 +25,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.rahul.fieldflow.core.navigation.AppRoutes
 import com.rahul.fieldflow.features.tasks.components.*
+import com.rahul.fieldflow.features.tasks.employee.components.RecordingStatusIndicator
 import com.rahul.fieldflow.features.tasks.employee.components.TaskJourneyStatus
 import com.rahul.fieldflow.features.tasks.employee.viewmodel.EmployeeTaskDetailsViewModel
 import com.rahul.fieldflow.ui.theme.FieldFlowTheme
@@ -39,6 +42,7 @@ import kotlin.math.roundToInt
 fun EmployeeTaskDetailsScreen(
     taskId: String,
     onBackClick: () -> Unit,
+    onViewReportClick: (String) -> Unit,
     viewModel: EmployeeTaskDetailsViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
@@ -47,9 +51,11 @@ fun EmployeeTaskDetailsScreen(
     val permissionLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.RequestMultiplePermissions()
     ) { permissions ->
-        val granted = permissions.getOrDefault(Manifest.permission.ACCESS_FINE_LOCATION, false) ||
-                      permissions.getOrDefault(Manifest.permission.ACCESS_COARSE_LOCATION, false)
-        if (granted) {
+        val locationGranted = permissions.getOrDefault(Manifest.permission.ACCESS_FINE_LOCATION, false) ||
+                             permissions.getOrDefault(Manifest.permission.ACCESS_COARSE_LOCATION, false)
+        val audioGranted = permissions.getOrDefault(Manifest.permission.RECORD_AUDIO, false)
+        
+        if (locationGranted && audioGranted) {
             viewModel.startTask()
         }
     }
@@ -71,11 +77,22 @@ fun EmployeeTaskDetailsScreen(
         }
     ) { padding ->
         if (uiState.isLoading) {
-            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+            Box(modifier = Modifier.fillMaxSize().padding(padding), contentAlignment = Alignment.Center) {
                 CircularProgressIndicator(color = PrimaryBlue)
+            }
+        } else if (uiState.error != null && uiState.task == null) {
+            Box(modifier = Modifier.fillMaxSize().padding(padding), contentAlignment = Alignment.Center) {
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    Text(text = uiState.error!!, color = MaterialTheme.colorScheme.error)
+                    Spacer(modifier = Modifier.height(16.dp))
+                    Button(onClick = { viewModel.loadTask(taskId) }) {
+                        Text("Retry")
+                    }
+                }
             }
         } else if (uiState.task != null) {
             val task = uiState.task!!
+            // ... (rest of the content)
             Column(
                 modifier = Modifier
                     .fillMaxSize()
@@ -88,20 +105,34 @@ fun EmployeeTaskDetailsScreen(
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
+                    Text(
+                        text = "TASK #${task.id.take(8).uppercase()}",
+                        style = MaterialTheme.typography.labelMedium,
+                        color = TextSecondary,
+                        fontWeight = FontWeight.Bold
+                    )
                     TaskStatusBadge(task.status)
-                    TaskPriorityBadge(task.priority)
                 }
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                Text(
-                    text = task.title,
-                    style = MaterialTheme.typography.headlineSmall,
-                    fontWeight = FontWeight.Bold,
-                    color = TextDark
-                )
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.Top
+                ) {
+                    Text(
+                        text = task.title,
+                        style = MaterialTheme.typography.headlineSmall,
+                        fontWeight = FontWeight.Bold,
+                        color = TextDark,
+                        modifier = Modifier.weight(1f)
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    TaskPriorityBadge(task.priority)
+                }
 
-                Spacer(modifier = Modifier.height(8.dp))
+                Spacer(modifier = Modifier.height(16.dp))
 
                 Text(
                     text = task.description,
@@ -135,22 +166,49 @@ fun EmployeeTaskDetailsScreen(
 
                 Spacer(modifier = Modifier.height(24.dp))
 
-                InstructionsCard(instructions = "Please ensure you have all the necessary tools before leaving. Call the supervisor if you encounter any unexpected issues.")
+                InstructionsCard(instructions = task.description)
 
                 Spacer(modifier = Modifier.height(24.dp))
 
                 if (task.checklist.isNotEmpty()) {
-                    TaskChecklistCard(task.checklist)
+                    TaskChecklistCard(
+                        items = task.checklist,
+                        onItemToggle = viewModel::toggleChecklistItem
+                    )
                     Spacer(modifier = Modifier.height(24.dp))
                 }
 
                 TaskJourneyStatus(currentStatus = task.status)
                 
-                Spacer(modifier = Modifier.height(32.dp))
+                Spacer(modifier = Modifier.height(24.dp))
+
+                if (task.status == com.rahul.fieldflow.features.tasks.model.TaskStatus.COMPLETED) {
+                    Button(
+                        onClick = { onViewReportClick(task.id) },
+                        modifier = Modifier.fillMaxWidth().height(50.dp),
+                        shape = RoundedCornerShape(12.dp),
+                        colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.secondary)
+                    ) {
+                        Icon(Icons.Default.Assessment, contentDescription = null)
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text(text = "View Field Report", fontWeight = FontWeight.Bold)
+                    }
+                    Spacer(modifier = Modifier.height(16.dp))
+                }
+
+                // Recording Status Indicator
+                RecordingStatusIndicator(
+                    state = uiState.recordingState,
+                    onRetry = { viewModel.startRecordingManual() }
+                )
+                
+                if (uiState.recordingState.status != com.rahul.fieldflow.core.audio.RecordingStatus.NOT_STARTED) {
+                    Spacer(modifier = Modifier.height(16.dp))
+                }
                 
                 // Action Button
                 if (task.status != com.rahul.fieldflow.features.tasks.model.TaskStatus.COMPLETED) {
-                    if (uiState.isTrackingActive) {
+                    if (task.status == com.rahul.fieldflow.features.tasks.model.TaskStatus.IN_PROGRESS) {
                         Button(
                             onClick = { viewModel.stopTask() },
                             modifier = Modifier.fillMaxWidth().height(50.dp),
@@ -162,16 +220,25 @@ fun EmployeeTaskDetailsScreen(
                     } else {
                         Button(
                             onClick = {
-                                val hasPermission = ContextCompat.checkSelfPermission(
+                                val hasLocationPermission = ContextCompat.checkSelfPermission(
                                     context, Manifest.permission.ACCESS_FINE_LOCATION
                                 ) == PackageManager.PERMISSION_GRANTED
+                                val hasAudioPermission = ContextCompat.checkSelfPermission(
+                                    context, Manifest.permission.RECORD_AUDIO
+                                ) == PackageManager.PERMISSION_GRANTED
                                 
-                                if (hasPermission) {
+                                if (hasLocationPermission && hasAudioPermission) {
                                     viewModel.startTask()
                                 } else {
-                                    permissionLauncher.launch(
-                                        arrayOf(Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION)
+                                    val permissions = mutableListOf(
+                                        Manifest.permission.ACCESS_FINE_LOCATION,
+                                        Manifest.permission.ACCESS_COARSE_LOCATION,
+                                        Manifest.permission.RECORD_AUDIO
                                     )
+                                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                                        permissions.add(Manifest.permission.POST_NOTIFICATIONS)
+                                    }
+                                    permissionLauncher.launch(permissions.toTypedArray())
                                 }
                             },
                             modifier = Modifier.fillMaxWidth().height(50.dp),
@@ -291,6 +358,6 @@ fun InstructionsCard(instructions: String) {
 @Composable
 fun EmployeeTaskDetailsScreenPreview() {
     FieldFlowTheme {
-        EmployeeTaskDetailsScreen(taskId = "1", onBackClick = {})
+        EmployeeTaskDetailsScreen(taskId = "1", onBackClick = {}, onViewReportClick = {})
     }
 }
