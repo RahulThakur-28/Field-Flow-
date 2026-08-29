@@ -1,22 +1,20 @@
 package com.rahul.fieldflow.features.home.owner.state
 
-import com.rahul.fieldflow.domain.model.JoinRequest
-import com.rahul.fieldflow.features.home.model.ActivityItemUiModel
-import com.rahul.fieldflow.features.home.model.FieldVisitUiModel
-import com.rahul.fieldflow.features.home.model.SummaryStatUiModel
-import com.rahul.fieldflow.features.home.model.TeamMemberUiModel
+import com.rahul.fieldflow.domain.model.*
 
 data class OwnerHomeUiState(
     val isLoading: Boolean = false,
+    val error: String? = null,
     val userName: String = "",
-    val location: String = "",
     val initials: String = "",
-    val notificationCount: Int = 0,
-    val stats: List<SummaryStatUiModel> = emptyList(),
-    val liveVisits: List<FieldVisitUiModel> = emptyList(),
-    val teamStatus: List<TeamMemberUiModel> = emptyList(),
-    val recentActivity: List<ActivityItemUiModel> = emptyList(),
-    val currentStep: Int = 0,
-    val pendingRequests: List<JoinRequest> = emptyList(),
-    val companyId: String? = null
+    val companyName: String = "",
+    val companyId: String = "",
+    val totalTasksCount: Int = 0,
+    val activeTasksCount: Int = 0,
+    val completedTasksCount: Int = 0,
+    val pendingTasksCount: Int = 0,
+    val lateTasksCount: Int = 0,
+    val latestTasks: List<Task> = emptyList(),
+    val latestReports: List<TaskReportContext> = emptyList(),
+    val teamPreview: List<TeamMemberWithStats> = emptyList()
 )
