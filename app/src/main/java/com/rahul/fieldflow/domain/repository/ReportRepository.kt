@@ -1,8 +1,10 @@
 package com.rahul.fieldflow.domain.repository
 
 import com.rahul.fieldflow.domain.model.TaskReport
+import com.rahul.fieldflow.domain.model.TaskReportContext
 
 interface ReportRepository {
     suspend fun getTaskReport(taskId: String): Result<TaskReport?>
     suspend fun triggerReportGeneration(taskId: String): Result<Unit>
+    suspend fun getEmployeeReports(): Result<List<TaskReportContext>>
 }

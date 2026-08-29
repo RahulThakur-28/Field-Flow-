@@ -21,6 +21,7 @@ class RecordingDataSource @Inject constructor(
     private val supabaseClient: SupabaseClient
 ) {
     suspend fun triggerTranscription(sessionId: String) {
+        Log.d("RECORD_DEBUG", "TRANSCRIPTION_TRIGGER_START sessionId=$sessionId")
         try {
             supabaseClient.functions.invoke(
                 function = "process-audio",
@@ -28,7 +29,9 @@ class RecordingDataSource @Inject constructor(
                     put("recording_session_id", sessionId)
                 }
             )
+            Log.d("RECORD_DEBUG", "TRANSCRIPTION_TRIGGER_SUCCESS sessionId=$sessionId")
         } catch (e: Exception) {
+            Log.e("RECORD_DEBUG", "TRANSCRIPTION_TRIGGER_FAILED sessionId=$sessionId error=${e.message}")
             Log.e("RecordingDataSource", "Failed to trigger transcription for session $sessionId", e)
         }
     }
@@ -73,13 +76,20 @@ class RecordingDataSource @Inject constructor(
 
     suspend fun uploadRecording(taskId: String, employeeId: String, fileName: String, bytes: ByteArray): String {
         val path = "$taskId/$employeeId/$fileName"
-        supabaseClient.storage["recordings"].upload(
-            path = path,
-            data = bytes
-        ) {
-            upsert = true
+        Log.d("RECORD_DEBUG", "RECORDING_UPLOAD_START path=$path")
+        try {
+            supabaseClient.storage["recordings"].upload(
+                path = path,
+                data = bytes
+            ) {
+                upsert = true
+            }
+            Log.d("RECORD_DEBUG", "RECORDING_UPLOAD_SUCCESS path=$path")
+            return path
+        } catch (e: Exception) {
+            Log.e("RECORD_DEBUG", "RECORDING_UPLOAD_FAILED path=$path error=${e.message}")
+            throw e
         }
-        return path
     }
 
     suspend fun updateSessionStoragePath(sessionId: String, storagePath: String) {
@@ -106,13 +116,38 @@ class RecordingDataSource @Inject constructor(
     }
 
     suspend fun getTranscriptsForTask(taskId: String): List<TranscriptDto> {
-        return supabaseClient.postgrest["transcripts"]
-            .select(Columns.raw("*, recording_sessions!inner(task_id)")) {
-                filter {
-                    eq("recording_sessions.task_id", taskId)
+        android.util.Log.d("REPORT_DEBUG", "REPORT_DATASOURCE_TRANSCRIPT_START taskId=$taskId")
+        return try {
+            // 1. Fetch session IDs for this task
+            val sessions = supabaseClient.postgrest["recording_sessions"]
+                .select(Columns.list("id")) {
+                    filter {
+                        eq("task_id", taskId)
+                    }
                 }
-            }
-            .decodeList<TranscriptDto>()
+                .decodeList<RecordingSessionDto>()
+            
+            val sessionIds = sessions.map { it.id }
+            android.util.Log.d("REPORT_DEBUG", "REPORT_DATASOURCE_SESSIONS found=${sessionIds.size} ids=$sessionIds")
+            
+            if (sessionIds.isEmpty()) return emptyList()
+
+            // 2. Fetch transcripts for these sessions
+            val response = supabaseClient.postgrest["transcripts"]
+                .select {
+                    filter {
+                        isIn("recording_session_id", sessionIds)
+                    }
+                }
+            
+            android.util.Log.d("REPORT_DEBUG", "REPORT_DATASOURCE_TRANSCRIPT_RAW: ${response.data}")
+            val result = response.decodeList<TranscriptDto>()
+            android.util.Log.d("REPORT_DEBUG", "REPORT_DATASOURCE_TRANSCRIPT_COUNT count=${result.size}")
+            result
+        } catch (e: Exception) {
+            android.util.Log.e("REPORT_DEBUG", "REPORT_DATASOURCE_TRANSCRIPT_ERROR", e)
+            emptyList()
+        }
     }
 
     suspend fun getSignedUrl(storagePath: String): String {
@@ -156,7 +191,7 @@ data class RecordingSessionDto(
 data class TranscriptDto(
     val id: String,
     @SerialName("recording_session_id") val recordingSessionId: String,
-    val text: String,
+    val text: String? = null,
     val segments: JsonArray? = null,
     val language: String? = null,
     val status: String,

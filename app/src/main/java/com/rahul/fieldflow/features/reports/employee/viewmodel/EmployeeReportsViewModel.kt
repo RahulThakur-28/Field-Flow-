@@ -2,43 +2,55 @@ package com.rahul.fieldflow.features.reports.employee.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.rahul.fieldflow.features.reports.model.ReportStatus
-import com.rahul.fieldflow.features.reports.model.mockReports
-import com.rahul.fieldflow.features.reports.employee.state.EmployeeReportDetailsUiState
+import com.rahul.fieldflow.domain.model.TaskReportContext
+import com.rahul.fieldflow.domain.usecase.reports.GetEmployeeReportsUseCase
 import com.rahul.fieldflow.features.reports.employee.state.EmployeeReportsUiState
-import kotlinx.coroutines.delay
+import com.rahul.fieldflow.features.reports.model.*
+import com.rahul.fieldflow.features.tasks.model.Employee
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import java.time.ZoneId
+import java.time.format.DateTimeFormatter
+import javax.inject.Inject
 
-class EmployeeReportsViewModel : ViewModel() {
+@HiltViewModel
+class EmployeeReportsViewModel @Inject constructor(
+    private val getEmployeeReportsUseCase: GetEmployeeReportsUseCase
+) : ViewModel() {
     private val _uiState = MutableStateFlow(EmployeeReportsUiState())
     val uiState: StateFlow<EmployeeReportsUiState> = _uiState.asStateFlow()
-
-    private val _detailsState = MutableStateFlow(EmployeeReportDetailsUiState())
-    val detailsState: StateFlow<EmployeeReportDetailsUiState> = _detailsState.asStateFlow()
 
     init {
         loadReports()
     }
 
-    private fun loadReports() {
+    fun loadReports() {
         viewModelScope.launch {
-            _uiState.update { it.copy(isLoading = true) }
-            delay(1000) // Simulate network
+            _uiState.update { it.copy(isLoading = true, error = null) }
             
-            // In a real app, filter by current employee ID
-            val reports = mockReports.filter { it.employee.name == "Rahul Thakur" } 
-            
-            _uiState.update { 
-                it.copy(
-                    reports = reports,
-                    filteredReports = reports,
-                    isLoading = false
-                )
-            }
+            getEmployeeReportsUseCase()
+                .onSuccess { contexts ->
+                    val reports = contexts.map { it.toUiModel() }
+                    _uiState.update { 
+                        it.copy(
+                            reports = reports,
+                            filteredReports = reports,
+                            isLoading = false
+                        )
+                    }
+                }
+                .onFailure { error ->
+                    _uiState.update { 
+                        it.copy(
+                            isLoading = false, 
+                            error = error.message ?: "Failed to load reports"
+                        ) 
+                    }
+                }
         }
     }
 
@@ -75,11 +87,6 @@ class EmployeeReportsViewModel : ViewModel() {
     }
 
     fun loadReportDetails(reportId: String) {
-        viewModelScope.launch {
-            _detailsState.update { it.copy(isLoading = true) }
-            delay(800)
-            val report = mockReports.find { it.id == reportId }
-            _detailsState.update { it.copy(report = report, isLoading = false) }
-        }
+        // Not used anymore as we navigate to TaskReportScreen
     }
 }

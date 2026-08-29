@@ -62,6 +62,9 @@ data class TaskDto(
     @SerialName("task_checklist_items")
     val checklistItems: List<TaskChecklistItemDto> = emptyList(),
 
+    @SerialName("recording_sessions")
+    val recordingSessions: List<com.rahul.fieldflow.data.recording.RecordingSessionDto> = emptyList(),
+
     @SerialName("geofences")
     val geofence: GeofenceDto? = null
 ) {

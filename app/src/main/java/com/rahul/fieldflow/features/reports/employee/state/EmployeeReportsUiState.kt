@@ -7,7 +7,8 @@ data class EmployeeReportsUiState(
     val filteredReports: List<Report> = emptyList(),
     val searchQuery: String = "",
     val selectedTab: Int = 0, // 0: All, 1: Pending, 2: Reviewed
-    val isLoading: Boolean = false
+    val isLoading: Boolean = false,
+    val error: String? = null
 )
 
 data class EmployeeReportDetailsUiState(

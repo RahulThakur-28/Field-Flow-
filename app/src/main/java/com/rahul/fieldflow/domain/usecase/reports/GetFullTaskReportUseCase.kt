@@ -18,6 +18,8 @@ class GetFullTaskReportUseCase @Inject constructor(
             val transcripts = recordingRepository.getTranscriptsByTaskId(taskId).getOrThrow()
             val aiReport = reportRepository.getTaskReport(taskId).getOrThrow()
 
+            android.util.Log.d("REPORT_DEBUG", "USECASE_RESULT task=${task.id} sessions=${sessions.size} transcripts=${transcripts.size} aiReport=${aiReport != null}")
+
             TaskReportContext(
                 task = task,
                 sessions = sessions,

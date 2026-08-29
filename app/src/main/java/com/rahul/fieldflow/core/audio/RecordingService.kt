@@ -181,9 +181,21 @@ class RecordingService : Service() {
 
         serviceScope.launch {
             // Update current session as interrupted
+            Log.d("RecordingService", "Handling interruption: sessionId=$sessionId")
             updateStatusUseCase(sessionId, "interrupted", end, duration)
+            
+            Log.d("RECORD_DEBUG", "RECORDING_UPLOAD_START (interrupted) sessionId=$sessionId")
             uploadUseCase(taskId, sessionId, file).onSuccess {
-                triggerTranscriptionUseCase(sessionId)
+                Log.d("RECORD_DEBUG", "RECORDING_UPLOAD_SUCCESS (interrupted) sessionId=$sessionId")
+                
+                Log.d("RECORD_DEBUG", "TRANSCRIPTION_TRIGGER_START (interrupted) sessionId=$sessionId")
+                triggerTranscriptionUseCase(sessionId).onSuccess {
+                    Log.d("RECORD_DEBUG", "TRANSCRIPTION_TRIGGER_SUCCESS (interrupted) sessionId=$sessionId")
+                }.onFailure { e ->
+                    Log.e("RECORD_DEBUG", "TRANSCRIPTION_TRIGGER_FAILED (interrupted) sessionId=$sessionId error=${e.message}")
+                }
+            }.onFailure { e ->
+                Log.e("RECORD_DEBUG", "RECORDING_UPLOAD_FAILED (interrupted) sessionId=$sessionId error=${e.message}")
             }
         }
     }
@@ -209,9 +221,21 @@ class RecordingService : Service() {
         recordingManager.updateState(status = RecordingStatus.COMPLETED)
 
         serviceScope.launch {
+            Log.d("RecordingService", "Finalizing recording: sessionId=$sessionId")
             updateStatusUseCase(sessionId, "completed", end, duration)
+            
+            Log.d("RECORD_DEBUG", "RECORDING_UPLOAD_START sessionId=$sessionId")
             uploadUseCase(taskId, sessionId, file).onSuccess {
-                triggerTranscriptionUseCase(sessionId)
+                Log.d("RECORD_DEBUG", "RECORDING_UPLOAD_SUCCESS sessionId=$sessionId")
+                
+                Log.d("RECORD_DEBUG", "TRANSCRIPTION_TRIGGER_START sessionId=$sessionId")
+                triggerTranscriptionUseCase(sessionId).onSuccess {
+                    Log.d("RECORD_DEBUG", "TRANSCRIPTION_TRIGGER_SUCCESS sessionId=$sessionId")
+                }.onFailure { e ->
+                    Log.e("RECORD_DEBUG", "TRANSCRIPTION_TRIGGER_FAILED sessionId=$sessionId error=${e.message}")
+                }
+            }.onFailure { e ->
+                Log.e("RECORD_DEBUG", "RECORDING_UPLOAD_FAILED sessionId=$sessionId error=${e.message}")
             }
             
             withContext(Dispatchers.Main) {

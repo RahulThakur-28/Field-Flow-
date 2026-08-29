@@ -13,6 +13,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
@@ -32,7 +33,7 @@ import com.rahul.fieldflow.ui.theme.TextSecondary
 fun OwnerReportsScreen(
     navController: NavController,
     onReportClick: (String) -> Unit,
-    viewModel: OwnerReportsViewModel = viewModel()
+    viewModel: OwnerReportsViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
 
@@ -85,6 +86,19 @@ fun OwnerReportsScreen(
             if (uiState.isLoading) {
                 Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                     CircularProgressIndicator(color = PrimaryBlue)
+                }
+            } else if (uiState.error != null) {
+                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                        Text(text = uiState.error!!, color = MaterialTheme.colorScheme.error)
+                        Button(onClick = { viewModel.loadReports() }) {
+                            Text("Retry")
+                        }
+                    }
+                }
+            } else if (uiState.reports.isEmpty()) {
+                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                    Text(text = "No reports found", style = MaterialTheme.typography.bodyLarge)
                 }
             } else {
                 LazyColumn(

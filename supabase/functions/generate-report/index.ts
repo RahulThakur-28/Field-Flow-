@@ -13,6 +13,7 @@ serve(async (req) => {
 
   try {
     const { task_id } = await req.json()
+    console.log(`GENERATE_REPORT_START for task ${task_id}`)
 
     if (!task_id) {
       throw new Error('task_id is required')
@@ -20,7 +21,11 @@ serve(async (req) => {
 
     const supabaseUrl = Deno.env.get('SUPABASE_URL') ?? ''
     const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
-    const openaiApiKey = Deno.env.get('OPENAI_API_KEY') ?? ''
+    const geminiApiKey = Deno.env.get('GEMINI_API_KEY') ?? ''
+
+    if (!geminiApiKey) {
+      throw new Error('GEMINI_API_KEY is not configured')
+    }
 
     const supabase = createClient(supabaseUrl, supabaseServiceKey)
 
@@ -36,10 +41,23 @@ serve(async (req) => {
     ])
 
     if (!sessions || sessions.length === 0) {
+      console.error(`GENERATE_REPORT_FAILED: No sessions`)
       throw new Error('No recording sessions found for this task')
     }
+    console.log(`SESSIONS_FOUND: ${sessions.length}`)
+    console.log(`TRANSCRIPTS_FOUND: ${transcripts?.length || 0}`)
 
-    // 2. Reconstruct chronological context
+    // 2. Guard: Ensure at least one completed transcript exists
+    const completedTranscripts = transcripts?.filter(t => t.status === 'completed') || []
+    if (completedTranscripts.length === 0) {
+      console.log(`GENERATE_REPORT_WAITING: No completed transcripts yet for task ${task_id}`)
+      return new Response(
+        JSON.stringify({ message: 'Waiting for transcriptions to complete', task_id, status: 'waiting' }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 200 }
+      )
+    }
+
+    // 3. Reconstruct chronological context
     let fullContext = ""
     sessions.forEach((session, index) => {
       const transcript = transcripts?.find(t => t.recording_session_id === session.id)
@@ -61,8 +79,10 @@ serve(async (req) => {
         fullContext += `\n[INTERRUPTION: ${gapLog?.metadata?.reason || 'Recording gap'}]\n\n`
       }
     })
+    console.log(`TIMELINE_BUILT`)
 
-    // 3. AI Analysis via GPT-4o
+    // 4. AI Analysis via Gemini 3.6 Flash
+    console.log(`GEMINI_REPORT_REQUEST_START`)
     const prompt = `
       You are an expert operations analyst. Analyze the following field work transcript and provide a structured report.
 
@@ -81,38 +101,51 @@ serve(async (req) => {
       }
     `
 
-    const aiResponse = await fetch('https://api.openai.com/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${openaiApiKey}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        model: 'gpt-4o',
-        messages: [{ role: 'user', content: prompt }],
-        response_format: { type: 'json_object' }
-      }),
-    })
+    // Update to v1beta API and gemini-3.6-flash for 2026 stability
+    const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:generateContent?key=${geminiApiKey}`
 
-    if (!aiResponse.ok) {
-      throw new Error('AI analysis failed')
+    const geminiRequest = {
+      contents: [{
+        parts: [{ text: prompt }]
+      }],
+      generationConfig: {
+        responseMimeType: "application/json"
+      }
     }
 
-    const aiResult = await aiResponse.json()
-    const reportContent = aiResult.choices[0].message.content
+    const geminiResponse = await fetch(geminiUrl, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(geminiRequest),
+    })
+
+    if (!geminiResponse.ok) {
+      const errorData = await geminiResponse.json()
+      console.error(`GEMINI_REPORT_REQUEST_FAILED: Gemini error - ${JSON.stringify(errorData)}`)
+      throw new Error(`Gemini analysis failed: ${errorData.error?.message || 'Unknown error'}`)
+    }
+
+    const geminiResult = await geminiResponse.json()
+    console.log(`GEMINI_REPORT_REQUEST_SUCCESS`)
+
+    const reportContent = geminiResult.candidates?.[0]?.content?.parts?.[0]?.text
+    if (!reportContent) {
+      throw new Error("Gemini returned no report content")
+    }
 
     let reportData;
     try {
       reportData = JSON.parse(reportContent)
-      // PRODUCTION HARDENING: Validate structure
       if (!reportData.summary || !Array.isArray(reportData.key_findings) || !Array.isArray(reportData.action_items)) {
-        throw new Error('AI returned malformed structured data')
+        throw new Error('Gemini returned malformed structured data')
       }
     } catch (e) {
-      throw new Error(`Failed to parse AI response: ${e.message}`)
+      throw new Error(`Failed to parse Gemini response: ${e.message}`)
     }
 
-    // 4. Update task_reports
+    // 5. Update task_reports
     const { error: reportError } = await supabase
       .from('task_reports')
       .upsert({
@@ -124,7 +157,12 @@ serve(async (req) => {
         updated_at: new Date().toISOString(),
       }, { onConflict: 'task_id' })
 
-    if (reportError) throw reportError
+    if (reportError) {
+      console.error(`GENERATE_REPORT_FAILED: DB error - ${reportError.message}`)
+      throw reportError
+    }
+
+    console.log(`REPORT_SAVE_SUCCESS`)
 
     return new Response(
       JSON.stringify({ message: 'Report generated successfully', task_id }),

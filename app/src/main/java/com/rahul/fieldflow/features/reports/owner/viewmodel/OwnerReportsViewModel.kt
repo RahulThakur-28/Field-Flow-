@@ -2,18 +2,23 @@ package com.rahul.fieldflow.features.reports.owner.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.rahul.fieldflow.features.reports.model.ReportStatus
-import com.rahul.fieldflow.features.reports.model.mockReports
+import com.rahul.fieldflow.domain.usecase.reports.GetEmployeeReportsUseCase
+import com.rahul.fieldflow.features.reports.model.*
 import com.rahul.fieldflow.features.reports.owner.state.OwnerReportDetailsUiState
 import com.rahul.fieldflow.features.reports.owner.state.OwnerReportsUiState
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
-class OwnerReportsViewModel : ViewModel() {
+@HiltViewModel
+class OwnerReportsViewModel @Inject constructor(
+    private val getReportsUseCase: GetEmployeeReportsUseCase
+) : ViewModel() {
     private val _uiState = MutableStateFlow(OwnerReportsUiState())
     val uiState: StateFlow<OwnerReportsUiState> = _uiState.asStateFlow()
 
@@ -24,19 +29,30 @@ class OwnerReportsViewModel : ViewModel() {
         loadReports()
     }
 
-    private fun loadReports() {
+    fun loadReports() {
         viewModelScope.launch {
-            _uiState.update { it.copy(isLoading = true) }
-            delay(1000) // Simulate network
-            val reports = mockReports
-            _uiState.update { 
-                it.copy(
-                    reports = reports,
-                    filteredReports = reports,
-                    isLoading = false,
-                    needsReviewCount = reports.count { r -> r.status == ReportStatus.NEEDS_REVIEW }
-                )
-            }
+            _uiState.update { it.copy(isLoading = true, error = null) }
+            
+            getReportsUseCase()
+                .onSuccess { contexts ->
+                    val reports = contexts.map { it.toUiModel() }
+                    _uiState.update { 
+                        it.copy(
+                            reports = reports,
+                            filteredReports = reports,
+                            isLoading = false,
+                            needsReviewCount = reports.count { r -> r.status == ReportStatus.PENDING || r.status == ReportStatus.NEEDS_REVIEW }
+                        )
+                    }
+                }
+                .onFailure { error ->
+                    _uiState.update { 
+                        it.copy(
+                            isLoading = false, 
+                            error = error.message ?: "Failed to load reports"
+                        ) 
+                    }
+                }
         }
     }
 

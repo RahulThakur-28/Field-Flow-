@@ -26,6 +26,7 @@ class TaskReportViewModel @Inject constructor(
             _uiState.update { it.copy(isLoading = true, error = null) }
             getFullTaskReportUseCase(taskId)
                 .onSuccess { context ->
+                    android.util.Log.d("REPORT_DEBUG", "REPORT_VIEWMODEL_STATE success context.aiReport=${context.aiReport != null} transcripts=${context.transcripts.size}")
                     _uiState.update { 
                         it.copy(
                             reportContext = context, 
