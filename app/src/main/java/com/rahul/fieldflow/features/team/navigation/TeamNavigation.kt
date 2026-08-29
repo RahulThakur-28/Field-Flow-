@@ -35,6 +35,9 @@ fun NavGraphBuilder.teamNavigation(navController: NavController) {
             onBackClick = { navController.popBackStack() },
             onTaskClick = { taskId: String ->
                 navController.navigate(AppRoutes.TaskDetails(taskId))
+            },
+            onViewReportClick = { taskId: String ->
+                navController.navigate(AppRoutes.TaskReport(taskId))
             }
         )
     }

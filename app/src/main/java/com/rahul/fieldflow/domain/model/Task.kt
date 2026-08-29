@@ -19,7 +19,11 @@ data class Task(
     val createdAt: OffsetDateTime,
     val updatedAt: OffsetDateTime,
     val assignedEmployee: UserProfile? = null,
-    val checklist: List<TaskChecklistItem> = emptyList()
+    val checklist: List<TaskChecklistItem> = emptyList(),
+    val hasReport: Boolean = false,
+    val reportStatus: String? = null,
+    val reportId: String? = null,
+    val totalRecordingDurationSeconds: Int = 0
 )
 
 enum class TaskStatus {

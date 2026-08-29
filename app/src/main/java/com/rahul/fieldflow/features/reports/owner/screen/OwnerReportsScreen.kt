@@ -108,7 +108,12 @@ fun OwnerReportsScreen(
                     items(uiState.filteredReports) { report ->
                         ReportCard(
                             report = report,
-                            onClick = { onReportClick(report.id) }
+                            onClick = { onReportClick(report.id) },
+                            onReviewClick = { 
+                                viewModel.markAsReviewed(report.reportId) {
+                                    // Success callback
+                                }
+                            }
                         )
                     }
                 }

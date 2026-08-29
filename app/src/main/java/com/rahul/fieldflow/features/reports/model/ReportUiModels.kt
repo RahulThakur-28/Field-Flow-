@@ -31,7 +31,8 @@ data class ActionItem(
 )
 
 data class Report(
-    val id: String,
+    val id: String, // This is taskId for navigation
+    val reportId: String, // This is the actual task_reports.id for updates
     val title: String,
     val employee: Employee,
     val date: LocalDateTime,
@@ -67,11 +68,14 @@ fun TaskReportContext.toUiModel(): Report {
         "processing" -> ReportStatus.PROCESSING
         "pending" -> ReportStatus.PENDING
         "failed" -> ReportStatus.FAILED
+        "needs_review" -> ReportStatus.NEEDS_REVIEW
+        "reviewed" -> ReportStatus.REVIEWED
         else -> ReportStatus.PENDING
     }
 
     return Report(
         id = task.id, // Use task ID for navigation
+        reportId = aiReport?.id ?: "",
         title = task.title,
         employee = Employee(
             id = task.assignedEmployee?.id ?: "",
@@ -92,45 +96,3 @@ fun TaskReportContext.toUiModel(): Report {
         } ?: emptyList()
     )
 }
-
-val mockReports = listOf(
-    Report(
-        id = "1",
-        title = "College Placement Visit",
-        employee = Employee("1", "Rahul Thakur", "Field Employee"),
-        date = LocalDateTime.of(2026, 8, 22, 12, 22),
-        location = "ABC College, Andheri East",
-        status = ReportStatus.NEEDS_REVIEW,
-        isLocationVerified = true,
-        voiceDuration = "4:32",
-        isAiReady = true,
-        photoCount = 3,
-        submittedTime = "12:22 PM",
-        transcript = "Visited the placement cell at ABC College today and met with the placement coordinator, Mr. Deepak Verma. We had a very productive discussion about internship opportunities for the upcoming batch. The college has approximately 340 students eligible for placements this year across engineering and management courses. Mr. Verma expressed strong interest in partnering with us...",
-        actionItems = listOf(
-            ActionItem("1", "Send company profile and brochure to coordinator"),
-            ActionItem("2", "Prepare and share internship proposal document"),
-            ActionItem("3", "Draft MOU for college review"),
-            ActionItem("4", "Schedule HR team visit for 1–5 September 2026"),
-            ActionItem("5", "Follow up with placement coordinator by 25 August")
-        ),
-        followUpDate = "25 August 2026",
-        proofs = listOf(
-            ReportProof(ProofType.PHOTO, 3, "High resolution"),
-            ReportProof(ProofType.DOC, 2, "PDF format")
-        )
-    ),
-    Report(
-        id = "2",
-        title = "Document Collection – HDFC",
-        employee = Employee("1", "Rahul Thakur", "Field Employee"),
-        date = LocalDateTime.of(2026, 8, 21, 10, 45),
-        location = "HDFC Bank, Goregaon West",
-        status = ReportStatus.REVIEWED,
-        isLocationVerified = true,
-        voiceDuration = "2:14",
-        isAiReady = true,
-        photoCount = 2,
-        submittedTime = "10:45 AM"
-    )
-)

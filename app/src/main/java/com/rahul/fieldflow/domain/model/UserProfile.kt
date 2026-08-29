@@ -12,5 +12,6 @@ data class UserProfile(
     val employeeCode: String? = null,
     val avatarUrl: String? = null,
     val isActive: Boolean = true,
-    val workspaceId: String? = null
+    val workspaceId: String? = null,
+    val createdAt: String? = null
 )

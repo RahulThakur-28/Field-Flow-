@@ -6,5 +6,7 @@ import com.rahul.fieldflow.domain.model.TaskReportContext
 interface ReportRepository {
     suspend fun getTaskReport(taskId: String): Result<TaskReport?>
     suspend fun triggerReportGeneration(taskId: String): Result<Unit>
-    suspend fun getEmployeeReports(): Result<List<TaskReportContext>>
+    suspend fun getEmployeeReports(userId: String): Result<List<TaskReportContext>>
+    suspend fun getOwnerReports(ownerId: String): Result<List<TaskReportContext>>
+    suspend fun updateReportStatus(reportId: String, status: String): Result<Unit>
 }

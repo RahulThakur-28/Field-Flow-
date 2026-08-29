@@ -65,6 +65,9 @@ data class TaskDto(
     @SerialName("recording_sessions")
     val recordingSessions: List<com.rahul.fieldflow.data.recording.RecordingSessionDto> = emptyList(),
 
+    @SerialName("task_reports")
+    val report: com.rahul.fieldflow.data.reports.TaskReportDto? = null,
+
     @SerialName("geofences")
     val geofence: GeofenceDto? = null
 ) {
@@ -123,7 +126,20 @@ data class TaskDto(
 
                 checklist = checklistItems
                     .sortedBy { it.position }
-                    .map { it.toDomain() }
+                    .map { it.toDomain() },
+                
+                hasReport = report != null,
+                reportStatus = report?.status,
+                reportId = report?.id,
+                totalRecordingDurationSeconds = recordingSessions.sumOf { session ->
+                    session.durationSeconds ?: run {
+                        val start = runCatching { OffsetDateTime.parse(session.startedAt, formatter) }.getOrNull()
+                        val end = session.endedAt?.let { runCatching { OffsetDateTime.parse(it, formatter) }.getOrNull() }
+                        if (start != null && end != null) {
+                            java.time.Duration.between(start, end).seconds.toInt()
+                        } else 0
+                    }
+                }
             ).also { 
                 Log.d("OWNER_CHECKLIST_TRACE", "TaskDto.toDomain: domain checklist count=${it.checklist.size}")
                 it.checklist.forEach { item ->

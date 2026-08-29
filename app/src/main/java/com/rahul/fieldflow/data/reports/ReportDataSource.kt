@@ -45,14 +45,68 @@ class ReportDataSource @Inject constructor(
         )
     }
 
-    suspend fun getEmployeeReports(): List<TaskReportWithDetailsDto> {
-        // Query tasks assigned to employee that have a report
-        // Join tasks -> task_assignments -> profiles (to get employee info)
-        // Join tasks -> recording_sessions (to get duration)
-        // Explicitly specify the relationship to profiles to avoid ambiguity (PGRST201)
-        return supabaseClient.postgrest["task_reports"]
-            .select(Columns.raw("*, tasks(*, task_assignments(*, profiles:profiles!task_assignments_employee_id_fkey(*)), recording_sessions(*))"))
-            .decodeList<TaskReportWithDetailsDto>()
+    suspend fun getEmployeeReports(userId: String): List<TaskReportWithDetailsDto> {
+        android.util.Log.d("REPORT_DEBUG", "MY_REPORTS_DATASOURCE_START userId=$userId")
+        return try {
+            val response = supabaseClient.postgrest["task_reports"]
+                .select(Columns.raw("*, tasks!inner(*, task_assignments!inner(*, profiles:profiles!task_assignments_employee_id_fkey(*)), recording_sessions(*))")) {
+                    filter {
+                        eq("tasks.task_assignments.employee_id", userId)
+                    }
+                }
+            
+            android.util.Log.d("REPORT_DEBUG", "MY_REPORTS_DATASOURCE_RAW: ${response.data}")
+            val result = response.decodeList<TaskReportWithDetailsDto>()
+            android.util.Log.d("REPORT_DEBUG", "MY_REPORTS_DATASOURCE_COUNT: ${result.size}")
+            result
+        } catch (e: Exception) {
+            android.util.Log.e("REPORT_DEBUG", "MY_REPORTS_DATASOURCE_ERROR", e)
+            emptyList()
+        }
+    }
+
+    suspend fun getOwnerReports(ownerId: String): List<TaskReportWithDetailsDto> {
+        android.util.Log.d("REPORT_DEBUG", "OWNER_REPORTS_DATASOURCE_START ownerId=$ownerId")
+        return try {
+            val response = supabaseClient.postgrest["task_reports"]
+                .select(Columns.raw("*, tasks!inner(*, task_assignments(*, profiles:profiles!task_assignments_employee_id_fkey(*)), recording_sessions(*))")) {
+                    filter {
+                        eq("tasks.created_by", ownerId)
+                    }
+                }
+            
+            android.util.Log.d("REPORT_DEBUG", "OWNER_REPORTS_DATASOURCE_RAW: ${response.data}")
+            val result = response.decodeList<TaskReportWithDetailsDto>()
+            android.util.Log.d("REPORT_DEBUG", "OWNER_REPORTS_DATASOURCE_COUNT: ${result.size}")
+            result
+        } catch (e: Exception) {
+            android.util.Log.e("REPORT_DEBUG", "OWNER_REPORTS_DATASOURCE_ERROR", e)
+            emptyList()
+        }
+    }
+
+    suspend fun updateReportStatus(reportId: String, status: String) {
+        android.util.Log.d("REPORT_DEBUG", "UPDATE_REPORT_STATUS_START reportId=$reportId status=$status")
+        if (reportId.isEmpty()) {
+            android.util.Log.e("REPORT_DEBUG", "UPDATE_REPORT_STATUS_FAILED: reportId is empty")
+            return
+        }
+        try {
+            supabaseClient.postgrest["task_reports"].update(
+                buildJsonObject {
+                    put("status", status)
+                    put("updated_at", java.time.OffsetDateTime.now().toString())
+                }
+            ) {
+                filter {
+                    eq("id", reportId)
+                }
+            }
+            android.util.Log.d("REPORT_DEBUG", "UPDATE_REPORT_STATUS_SUCCESS")
+        } catch (e: Exception) {
+            android.util.Log.e("REPORT_DEBUG", "UPDATE_REPORT_STATUS_ERROR", e)
+            throw e
+        }
     }
 }
 

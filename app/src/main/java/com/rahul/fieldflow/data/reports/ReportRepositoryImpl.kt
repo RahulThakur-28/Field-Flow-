@@ -26,29 +26,47 @@ class ReportRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun getEmployeeReports(): Result<List<TaskReportContext>> {
+    override suspend fun getEmployeeReports(userId: String): Result<List<TaskReportContext>> {
         return runCatching {
-            reportDataSource.getEmployeeReports().map { dto ->
-                val taskDomain = dto.tasks?.toDomain() ?: throw Exception("Task data missing for report ${dto.id}")
-                TaskReportContext(
-                    task = taskDomain,
-                    sessions = dto.tasks.recordingSessions.map { sessionDto ->
-                        RecordingSession(
-                            id = sessionDto.id,
-                            taskId = sessionDto.taskId,
-                            employeeId = sessionDto.employeeId,
-                            startedAt = OffsetDateTime.parse(sessionDto.startedAt),
-                            endedAt = sessionDto.endedAt?.let { OffsetDateTime.parse(it) },
-                            status = sessionDto.status,
-                            storagePath = sessionDto.storagePath,
-                            durationSeconds = sessionDto.durationSeconds
-                        )
-                    },
-                    transcripts = emptyList(), // Not needed for list view
-                    aiReport = dto.toDomain()
-                )
+            reportDataSource.getEmployeeReports(userId).map { dto ->
+                dto.toTaskReportContext()
             }
         }
+    }
+
+    override suspend fun getOwnerReports(ownerId: String): Result<List<TaskReportContext>> {
+        return runCatching {
+            reportDataSource.getOwnerReports(ownerId).map { dto ->
+                dto.toTaskReportContext()
+            }
+        }
+    }
+
+    override suspend fun updateReportStatus(reportId: String, status: String): Result<Unit> {
+        return runCatching {
+            reportDataSource.updateReportStatus(reportId, status)
+        }
+    }
+
+    private fun TaskReportWithDetailsDto.toTaskReportContext(): TaskReportContext {
+        val taskDomain = tasks?.toDomain() ?: throw Exception("Task data missing for report $id")
+        return TaskReportContext(
+            task = taskDomain,
+            sessions = tasks.recordingSessions.map { sessionDto ->
+                RecordingSession(
+                    id = sessionDto.id,
+                    taskId = sessionDto.taskId,
+                    employeeId = sessionDto.employeeId,
+                    startedAt = OffsetDateTime.parse(sessionDto.startedAt),
+                    endedAt = sessionDto.endedAt?.let { OffsetDateTime.parse(it) },
+                    status = sessionDto.status,
+                    storagePath = sessionDto.storagePath,
+                    durationSeconds = sessionDto.durationSeconds
+                )
+            },
+            transcripts = emptyList(), // Not needed for list view
+            aiReport = toDomain()
+        )
     }
 
     private fun TaskReportWithDetailsDto.toDomain(): TaskReport {

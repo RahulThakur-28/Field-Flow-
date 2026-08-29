@@ -16,6 +16,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.rahul.fieldflow.features.reports.model.Report
+import com.rahul.fieldflow.features.reports.model.ReportStatus
 import com.rahul.fieldflow.ui.theme.PrimaryBlue
 import com.rahul.fieldflow.ui.theme.TextDark
 import com.rahul.fieldflow.ui.theme.TextSecondary
@@ -24,7 +25,8 @@ import java.time.format.DateTimeFormatter
 @Composable
 fun ReportCard(
     report: Report,
-    onClick: () -> Unit
+    onClick: () -> Unit,
+    onReviewClick: (() -> Unit)? = null
 ) {
     Card(
         modifier = Modifier
@@ -94,11 +96,13 @@ fun ReportCard(
                     icon = Icons.Default.Mic,
                     text = report.voiceDuration
                 )
-                MetadataItem(
-                    icon = Icons.Default.AutoAwesome,
-                    text = "AI Ready",
-                    iconTint = PrimaryBlue
-                )
+                if (report.isAiReady) {
+                    MetadataItem(
+                        icon = Icons.Default.AutoAwesome,
+                        text = "AI Ready",
+                        iconTint = PrimaryBlue
+                    )
+                }
                 MetadataItem(
                     icon = Icons.Default.PhotoLibrary,
                     text = "${report.photoCount} photos"
@@ -117,12 +121,30 @@ fun ReportCard(
                     style = MaterialTheme.typography.labelSmall,
                     color = TextSecondary
                 )
-                Text(
-                    text = "View Report →",
-                    style = MaterialTheme.typography.labelMedium,
-                    color = PrimaryBlue,
-                    fontWeight = FontWeight.Bold
-                )
+                
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    if (onReviewClick != null && 
+                        report.status != ReportStatus.REVIEWED && 
+                        report.status != ReportStatus.FAILED && 
+                        report.status != ReportStatus.PROCESSING) {
+                        Button(
+                            onClick = { onReviewClick() },
+                            contentPadding = PaddingValues(horizontal = 12.dp, vertical = 4.dp),
+                            modifier = Modifier.height(32.dp).padding(end = 8.dp),
+                            colors = ButtonDefaults.buttonColors(containerColor = PrimaryBlue)
+                        ) {
+                            Text("Mark Reviewed", fontSize = 10.sp)
+                        }
+                    }
+
+                    Text(
+                        text = "View Report →",
+                        style = MaterialTheme.typography.labelMedium,
+                        color = PrimaryBlue,
+                        fontWeight = FontWeight.Bold,
+                        modifier = Modifier.clickable { onClick() }
+                    )
+                }
             }
         }
     }
