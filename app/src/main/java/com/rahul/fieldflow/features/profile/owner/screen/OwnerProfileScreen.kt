@@ -23,6 +23,8 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.rahul.fieldflow.core.navigation.AppRoutes
 import com.rahul.fieldflow.features.auth.viewmodel.AuthViewModel
+import com.rahul.fieldflow.features.bottomnavigation.components.FieldFlowBottomNavigation
+import com.rahul.fieldflow.features.bottomnavigation.navigation.BottomNavigationConfig
 import com.rahul.fieldflow.features.profile.components.ProfileAvatar
 import com.rahul.fieldflow.features.profile.components.ProfileContactItem
 import com.rahul.fieldflow.features.profile.components.ProfileSettingItem
@@ -72,12 +74,13 @@ fun OwnerProfileScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Profile", fontWeight = FontWeight.Bold) },
-                navigationIcon = {
-                    IconButton(onClick = { navController.popBackStack() }) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "Back")
-                    }
-                }
+                title = { Text("Profile", fontWeight = FontWeight.Bold) }
+            )
+        },
+        bottomBar = {
+            FieldFlowBottomNavigation(
+                items = BottomNavigationConfig.ownerItems,
+                navController = navController
             )
         },
         containerColor = MaterialTheme.colorScheme.background
