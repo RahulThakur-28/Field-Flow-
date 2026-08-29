@@ -1,18 +1,17 @@
 package com.rahul.fieldflow.features.home.employee.state
 
-import com.rahul.fieldflow.features.home.model.NextTaskUiModel
-import com.rahul.fieldflow.features.home.model.QuickAccessUiModel
-import com.rahul.fieldflow.features.home.model.ScheduleTaskUiModel
-import com.rahul.fieldflow.features.home.model.SummaryStatUiModel
+import com.rahul.fieldflow.domain.model.*
 
 data class EmployeeHomeUiState(
     val isLoading: Boolean = false,
+    val error: String? = null,
     val userName: String = "",
-    val date: String = "",
     val initials: String = "",
-    val notificationCount: Int = 0,
-    val stats: List<SummaryStatUiModel> = emptyList(),
-    val nextTask: NextTaskUiModel? = null,
-    val schedule: List<ScheduleTaskUiModel> = emptyList(),
-    val quickAccess: List<QuickAccessUiModel> = emptyList()
+    val allTasksCount: Int = 0,
+    val activeTasksCount: Int = 0,
+    val completedTasksCount: Int = 0,
+    val nextTask: Task? = null,
+    val upcomingTasks: List<Task> = emptyList(),
+    val recentReports: List<TaskReportContext> = emptyList(),
+    val unreadNotificationsCount: Int = 0
 )
