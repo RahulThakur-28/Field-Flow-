@@ -15,6 +15,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.rahul.fieldflow.features.home.components.NotificationButton
 import com.rahul.fieldflow.features.profile.components.ProfileAvatar
 import com.rahul.fieldflow.ui.theme.TextDark
 import java.time.LocalTime
@@ -23,7 +24,9 @@ import java.time.LocalTime
 fun HomeGreetingHeader(
     userName: String,
     initials: String,
+    unreadNotificationsCount: Int,
     onProfileClick: () -> Unit,
+    onNotificationClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val currentTime = LocalTime.now()
@@ -73,10 +76,20 @@ fun HomeGreetingHeader(
             )
         }
 
-        ProfileAvatar(
-            initials = initials,
-            onClick = onProfileClick,
-            modifier = Modifier.size(48.dp)
-        )
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            NotificationButton(
+                notificationCount = unreadNotificationsCount,
+                onClick = onNotificationClick
+            )
+
+            ProfileAvatar(
+                initials = initials,
+                onClick = onProfileClick,
+                modifier = Modifier.size(48.dp)
+            )
+        }
     }
 }

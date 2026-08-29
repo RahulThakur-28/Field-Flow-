@@ -1,30 +1,86 @@
 package com.rahul.fieldflow.features.profile.owner.viewmodel
 
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.rahul.fieldflow.domain.model.AppTheme
+import com.rahul.fieldflow.domain.repository.AuthRepository
+import com.rahul.fieldflow.domain.repository.SettingsRepository
+import com.rahul.fieldflow.domain.usecase.home.GetOwnerHomeDashboardUseCase
+import com.rahul.fieldflow.domain.usecase.profile.UpdateProfileUseCase
 import com.rahul.fieldflow.features.profile.owner.state.OwnerProfileUiState
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.update
+import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.launch
+import javax.inject.Inject
 
-class OwnerProfileViewModel : ViewModel() {
+@HiltViewModel
+class OwnerProfileViewModel @Inject constructor(
+    private val getOwnerHomeDashboardUseCase: GetOwnerHomeDashboardUseCase,
+    private val updateProfileUseCase: UpdateProfileUseCase,
+    private val authRepository: AuthRepository,
+    private val settingsRepository: SettingsRepository
+) : ViewModel() {
     private val _uiState = MutableStateFlow(OwnerProfileUiState())
     val uiState: StateFlow<OwnerProfileUiState> = _uiState.asStateFlow()
 
-    fun updateName(name: String) {
-        _uiState.update { it.copy(userName = name, initials = name.take(2).uppercase()) }
+    init {
+        loadProfile()
+        observeSettings()
     }
 
-    fun updateEmail(email: String) {
-        _uiState.update { it.copy(email = email) }
+    private fun loadProfile() {
+        viewModelScope.launch {
+            _uiState.update { it.copy(isLoading = true, error = null) }
+            getOwnerHomeDashboardUseCase()
+                .onSuccess { dashboard ->
+                    _uiState.update {
+                        it.copy(
+                            isLoading = false,
+                            userName = dashboard.profile.fullName,
+                            initials = dashboard.profile.fullName.take(1) + (dashboard.profile.fullName.split(" ").getOrNull(1)?.take(1) ?: ""),
+                            email = dashboard.profile.email,
+                            phone = dashboard.profile.phone,
+                            company = dashboard.workspace.name,
+                            totalTasks = dashboard.taskStats.totalCount,
+                            teamSize = dashboard.totalEmployeesCount
+                        )
+                    }
+                }
+                .onFailure { error ->
+                    _uiState.update { it.copy(isLoading = false, error = error.message) }
+                }
+        }
+    }
+    
+    fun reload() {
+        loadProfile()
     }
 
-    fun updatePhone(phone: String) {
-        _uiState.update { it.copy(phone = phone) }
+    fun saveProfile(name: String, phone: String?, onResult: (Boolean) -> Unit) {
+        viewModelScope.launch {
+            updateProfileUseCase(name, phone)
+                .onSuccess {
+                    loadProfile()
+                    onResult(true)
+                }
+                .onFailure {
+                    onResult(false)
+                }
+        }
     }
 
-    fun updateCompany(company: String) {
-        _uiState.update { it.copy(company = company) }
+    private fun observeSettings() {
+        settingsRepository.theme
+            .onEach { theme ->
+                _uiState.update { it.copy(appTheme = theme) }
+            }
+            .launchIn(viewModelScope)
+    }
+
+    fun setTheme(theme: AppTheme) {
+        viewModelScope.launch {
+            settingsRepository.setTheme(theme)
+        }
     }
 
     fun togglePushNotifications(enabled: Boolean) {

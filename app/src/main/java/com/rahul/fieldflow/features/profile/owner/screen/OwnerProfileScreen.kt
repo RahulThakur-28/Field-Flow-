@@ -22,6 +22,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.rahul.fieldflow.core.navigation.AppRoutes
+import com.rahul.fieldflow.domain.model.AppTheme
 import com.rahul.fieldflow.features.auth.viewmodel.AuthViewModel
 import com.rahul.fieldflow.features.bottomnavigation.components.FieldFlowBottomNavigation
 import com.rahul.fieldflow.features.bottomnavigation.navigation.BottomNavigationConfig
@@ -40,7 +41,7 @@ import com.rahul.fieldflow.ui.theme.TextSecondary
 @Composable
 fun OwnerProfileScreen(
     navController: NavController,
-    viewModel: OwnerProfileViewModel = viewModel(),
+    viewModel: OwnerProfileViewModel = hiltViewModel(),
     authViewModel: AuthViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
@@ -152,8 +153,6 @@ fun OwnerProfileScreen(
                             ProfileStatCard(value = "${uiState.totalTasks}", label = "Total Tasks")
                             ProfileVerticalDivider()
                             ProfileStatCard(value = "${uiState.teamSize}", label = "Team Size")
-                            ProfileVerticalDivider()
-                            ProfileStatCard(value = "${uiState.efficiency}%", label = "Efficiency")
                         }
                     }
                 }
@@ -170,9 +169,9 @@ fun OwnerProfileScreen(
                     Column(modifier = Modifier.padding(16.dp)) {
                         ProfileContactItem(icon = Icons.Default.Email, label = "Email", value = uiState.email)
                         HorizontalDivider(modifier = Modifier.padding(vertical = 12.dp), color = Color.LightGray.copy(alpha = 0.3f))
-                        ProfileContactItem(icon = Icons.Default.Phone, label = "Phone", value = uiState.phone)
+                        ProfileContactItem(icon = Icons.Default.Phone, label = "Phone", value = uiState.phone ?: "Not added")
                         HorizontalDivider(modifier = Modifier.padding(vertical = 12.dp), color = Color.LightGray.copy(alpha = 0.3f))
-                        ProfileContactItem(icon = Icons.Default.Business, label = "Company", value = uiState.company)
+                        ProfileContactItem(icon = Icons.Default.Business, label = "Company", value = uiState.company.ifEmpty { "Company not available" })
                     }
                 }
 
@@ -192,9 +191,26 @@ fun OwnerProfileScreen(
                         )
                         HorizontalDivider(color = Color.LightGray.copy(alpha = 0.3f))
                         ProfileSettingItem(
-                            title = "Notification Preferences",
-                            subtitle = "All enabled",
-                            onClick = { navController.navigate(AppRoutes.OwnerNotificationPreferences) }
+                            title = "Notifications",
+                            onClick = { navController.navigate(AppRoutes.Notifications) }
+                        )
+                        HorizontalDivider(color = Color.LightGray.copy(alpha = 0.3f))
+                        ProfileSettingItem(
+                            title = "Dark Theme",
+                            trailingSwitch = uiState.appTheme == AppTheme.DARK,
+                            onSwitchChange = { isDark ->
+                                viewModel.setTheme(if (isDark) AppTheme.DARK else AppTheme.LIGHT)
+                            }
+                        )
+                        HorizontalDivider(color = Color.LightGray.copy(alpha = 0.3f))
+                        ProfileSettingItem(
+                            title = "Privacy Policy",
+                            onClick = { navController.navigate(AppRoutes.PrivacyPolicy) }
+                        )
+                        HorizontalDivider(color = Color.LightGray.copy(alpha = 0.3f))
+                        ProfileSettingItem(
+                            title = "About Us",
+                            onClick = { navController.navigate(AppRoutes.AboutUs) }
                         )
                         HorizontalDivider(color = Color.LightGray.copy(alpha = 0.3f))
                         ProfileSettingItem(

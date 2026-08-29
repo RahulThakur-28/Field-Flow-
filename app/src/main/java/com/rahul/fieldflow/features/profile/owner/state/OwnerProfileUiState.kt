@@ -1,17 +1,19 @@
 package com.rahul.fieldflow.features.profile.owner.state
 
+import com.rahul.fieldflow.domain.model.AppTheme
+
 data class OwnerProfileUiState(
-    val userName: String = "Rahul Verma",
-    val initials: String = "RV",
+    val userName: String = "",
+    val initials: String = "",
     val role: String = "Owner",
-    val company: String = "FieldFlow Inc.",
-    val email: String = "rahul@fieldflow.in",
-    val phone: String = "+91 98765 43210",
-    val totalTasks: Int = 103,
-    val teamSize: Int = 4,
-    val efficiency: Int = 91,
+    val company: String = "",
+    val email: String = "",
+    val phone: String? = null,
+    val totalTasks: Int = 0,
+    val teamSize: Int = 0,
     val isLoading: Boolean = false,
     val error: String? = null,
+    val appTheme: AppTheme = AppTheme.SYSTEM,
     val pushNotificationsEnabled: Boolean = true,
     val emailNotificationsEnabled: Boolean = true,
     val taskUpdatesEnabled: Boolean = true,

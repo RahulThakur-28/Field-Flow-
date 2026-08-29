@@ -4,6 +4,7 @@ import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
 import com.rahul.fieldflow.core.navigation.AppRoutes
+import com.rahul.fieldflow.features.notifications.screen.NotificationScreen
 import com.rahul.fieldflow.features.profile.owner.screen.*
 import com.rahul.fieldflow.features.profile.employee.screen.*
 
@@ -38,5 +39,17 @@ fun NavGraphBuilder.profileNavigation(navController: NavController) {
 
     composable<AppRoutes.OwnerAccountSettings> {
         OwnerAccountSettingsScreen(navController = navController)
+    }
+
+    composable<AppRoutes.Notifications> {
+        NotificationScreen(onBack = { navController.popBackStack() })
+    }
+
+    composable<AppRoutes.AboutUs> {
+        AboutUsScreen(onBack = { navController.popBackStack() })
+    }
+
+    composable<AppRoutes.PrivacyPolicy> {
+        PrivacyPolicyScreen(onBack = { navController.popBackStack() })
     }
 }

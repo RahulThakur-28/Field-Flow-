@@ -75,6 +75,19 @@ class AuthDataSource @Inject constructor(
             .decodeList<ProfileDto>()
     }
 
+    suspend fun updateProfile(userId: String, fullName: String, phone: String?) {
+        supabaseClient.postgrest["profiles"].update(
+            buildJsonObject {
+                put("full_name", fullName)
+                if (phone != null) put("phone", phone)
+            }
+        ) {
+            filter {
+                eq("id", userId)
+            }
+        }
+    }
+
     fun getCurrentUserId(): String? {
         return supabaseClient.auth.currentUserOrNull()?.id
     }

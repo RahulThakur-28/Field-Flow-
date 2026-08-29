@@ -198,4 +198,12 @@ class AuthRepositoryImpl @Inject constructor(
             authDataSource.getTeamMembers(workspaceId).map { it.toDomain() }
         }
     }
+
+    override suspend fun updateProfile(fullName: String, phone: String?): Result<Unit> {
+        return runCatching {
+            val userId = authDataSource.getCurrentUserId() ?: throw Exception("Not logged in")
+            authDataSource.updateProfile(userId, fullName, phone)
+            refreshProfile()
+        }
+    }
 }

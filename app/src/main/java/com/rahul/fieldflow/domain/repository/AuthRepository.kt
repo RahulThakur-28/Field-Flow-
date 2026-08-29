@@ -31,4 +31,6 @@ interface AuthRepository {
     suspend fun resendVerificationEmail(email: String): Result<Unit>
 
     suspend fun getTeamMembers(workspaceId: String): Result<List<UserProfile>>
+
+    suspend fun updateProfile(fullName: String, phone: String?): Result<Unit>
 }
