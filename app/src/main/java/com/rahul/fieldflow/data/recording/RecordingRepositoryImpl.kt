@@ -49,10 +49,15 @@ class RecordingRepositoryImpl @Inject constructor(
 
     override suspend fun uploadRecording(taskId: String, sessionId: String, audioFile: File): Result<String> {
         return runCatching {
+            Log.d("RecordingRepo", "uploadRecording: taskId=$taskId, sessionId=$sessionId")
             val employeeId = authDataSource.getCurrentUserId() ?: throw Exception("Not logged in")
             val fileName = audioFile.name
             val bytes = audioFile.readBytes()
+            
+            Log.d("RecordingRepo", "Uploading to storage: $fileName")
             val storagePath = recordingDataSource.uploadRecording(taskId, employeeId, fileName, bytes)
+            
+            Log.d("RecordingRepo", "Updating session with storagePath: $storagePath")
             recordingDataSource.updateSessionStoragePath(sessionId, storagePath)
             
             // PRODUCTION HARDENING: Cleanup local file ONLY after successful upload
@@ -66,6 +71,7 @@ class RecordingRepositoryImpl @Inject constructor(
 
     override suspend fun triggerTranscription(sessionId: String): Result<Unit> {
         return runCatching {
+            Log.d("RecordingRepo", "Triggering transcription for sessionId=$sessionId")
             recordingDataSource.triggerTranscription(sessionId)
         }
     }
@@ -88,32 +94,64 @@ class RecordingRepositoryImpl @Inject constructor(
         }
     }
 
-    private fun RecordingSessionDto.toDomain() = RecordingSession(
-        id = id,
-        taskId = taskId,
-        employeeId = employeeId,
-        startedAt = OffsetDateTime.parse(startedAt),
-        endedAt = endedAt?.let { OffsetDateTime.parse(it) },
-        status = status,
-        storagePath = storagePath,
-        durationSeconds = durationSeconds
-    )
+    private fun RecordingSessionDto.toDomain(): RecordingSession {
+        val formatter = java.time.format.DateTimeFormatter.ISO_OFFSET_DATE_TIME
+        return RecordingSession(
+            id = id,
+            taskId = taskId,
+            employeeId = employeeId,
+            startedAt = try { 
+                OffsetDateTime.parse(startedAt) 
+            } catch (e: Exception) {
+                try {
+                    OffsetDateTime.parse(startedAt, formatter)
+                } catch (e2: Exception) {
+                    OffsetDateTime.now() 
+                }
+            },
+            endedAt = endedAt?.let {
+                try { 
+                    OffsetDateTime.parse(it) 
+                } catch (e: Exception) {
+                    try {
+                        OffsetDateTime.parse(it, formatter)
+                    } catch (e2: Exception) {
+                        null
+                    }
+                }
+            },
+            status = status,
+            storagePath = storagePath,
+            durationSeconds = durationSeconds
+        )
+    }
 
-    private fun TranscriptDto.toDomain() = Transcript(
-        id = id,
-        recordingSessionId = recordingSessionId,
-        text = text,
-        segments = segments?.map { 
-            val obj = it.jsonObject
-            TranscriptSegment(
-                start = obj["start"]?.jsonPrimitive?.double ?: 0.0,
-                end = obj["end"]?.jsonPrimitive?.double ?: 0.0,
-                text = obj["text"]?.jsonPrimitive?.content ?: "",
-                speaker = obj["speaker"]?.jsonPrimitive?.content
-            )
-        } ?: emptyList(),
-        language = language,
-        status = status,
-        createdAt = OffsetDateTime.parse(createdAt)
-    )
+    private fun TranscriptDto.toDomain(): Transcript {
+        val formatter = java.time.format.DateTimeFormatter.ISO_OFFSET_DATE_TIME
+        return Transcript(
+            id = id,
+            recordingSessionId = recordingSessionId,
+            text = text.orEmpty(),
+            segments = segments?.map { 
+                val obj = it.jsonObject
+                TranscriptSegment(
+                    start = obj["start"]?.jsonPrimitive?.double ?: 0.0,
+                    end = obj["end"]?.jsonPrimitive?.double ?: 0.0,
+                    text = obj["text"]?.jsonPrimitive?.content ?: "",
+                    speaker = obj["speaker"]?.jsonPrimitive?.content
+                )
+            } ?: emptyList(),
+            language = language,
+            status = status,
+            createdAt = try { 
+                OffsetDateTime.parse(createdAt) 
+            } catch (e: Exception) {
+                try {
+                    OffsetDateTime.parse(createdAt, formatter)
+                } catch (e2: Exception) {
+                    OffsetDateTime.now() 
+                }
+            }
+        )
+    }
 }

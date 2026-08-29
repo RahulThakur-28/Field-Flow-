@@ -31,6 +31,7 @@ fun TimelineSection(
         sessions.forEachIndexed { index, session ->
             // Transcript part
             val transcript = transcripts.find { it.recordingSessionId == session.id }
+            android.util.Log.d("REPORT_DEBUG", "TIMELINE_MATCH session=${session.id} transcriptFound=${transcript != null}")
             if (transcript != null) {
                 transcript.segments.forEach { segment ->
                     TranscriptSegmentItem(

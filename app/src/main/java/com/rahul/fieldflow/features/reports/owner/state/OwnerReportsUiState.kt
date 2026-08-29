@@ -8,7 +8,8 @@ data class OwnerReportsUiState(
     val searchQuery: String = "",
     val selectedTab: Int = 0, // 0: All, 1: Needs Review, 2: Reviewed
     val isLoading: Boolean = false,
-    val needsReviewCount: Int = 0
+    val needsReviewCount: Int = 0,
+    val error: String? = null
 )
 
 data class OwnerReportDetailsUiState(

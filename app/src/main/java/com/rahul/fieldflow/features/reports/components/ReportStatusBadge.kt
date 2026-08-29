@@ -15,6 +15,10 @@ import com.rahul.fieldflow.features.reports.model.ReportStatus
 @Composable
 fun ReportStatusBadge(status: ReportStatus) {
     val color = when (status) {
+        ReportStatus.PENDING -> Color(0xFFFF9800)
+        ReportStatus.PROCESSING -> Color(0xFF2196F3)
+        ReportStatus.COMPLETED -> Color(0xFF4CAF50)
+        ReportStatus.FAILED -> Color(0xFFF44336)
         ReportStatus.NEEDS_REVIEW -> Color(0xFFFF9800)
         ReportStatus.REVIEWED -> Color(0xFF4CAF50)
     }

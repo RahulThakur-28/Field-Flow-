@@ -61,6 +61,9 @@ fun TaskReportScreen(
             }
         } else if (uiState.reportContext != null) {
             val context = uiState.reportContext!!
+            LaunchedEffect(context) {
+                android.util.Log.d("REPORT_DEBUG", "REPORT_UI_VISIBLE taskId=${context.task.id} aiReportPresent=${context.aiReport != null} sessions=${context.sessions.size} transcripts=${context.transcripts.size}")
+            }
             LazyColumn(
                 modifier = Modifier.fillMaxSize().padding(padding).padding(horizontal = 16.dp),
                 contentPadding = PaddingValues(bottom = 32.dp)
