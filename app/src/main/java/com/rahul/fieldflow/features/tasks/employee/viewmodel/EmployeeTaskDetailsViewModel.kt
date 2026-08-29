@@ -64,15 +64,22 @@ class EmployeeTaskDetailsViewModel @Inject constructor(
         viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true, error = null) }
             taskRepository.getTaskById(taskId).onSuccess { task ->
+                val uiStatus = if (task.status != com.rahul.fieldflow.domain.model.TaskStatus.COMPLETED && 
+                    task.dueDate?.isBefore(OffsetDateTime.now()) == true) {
+                    com.rahul.fieldflow.features.tasks.model.TaskStatus.OVERDUE
+                } else {
+                    try {
+                        com.rahul.fieldflow.features.tasks.model.TaskStatus.valueOf(task.status.name)
+                    } catch (e: Exception) {
+                        com.rahul.fieldflow.features.tasks.model.TaskStatus.PENDING
+                    }
+                }
+
                 val uiTask = com.rahul.fieldflow.features.tasks.model.Task(
                     id = task.id,
                     title = task.title,
                     description = task.description ?: "",
-                    status = try {
-                        com.rahul.fieldflow.features.tasks.model.TaskStatus.valueOf(task.status.name)
-                    } catch (e: Exception) {
-                        com.rahul.fieldflow.features.tasks.model.TaskStatus.PENDING
-                    },
+                    status = uiStatus,
                     priority = try {
                         com.rahul.fieldflow.features.tasks.model.TaskPriority.valueOf(task.priority.name)
                     } catch (e: Exception) {

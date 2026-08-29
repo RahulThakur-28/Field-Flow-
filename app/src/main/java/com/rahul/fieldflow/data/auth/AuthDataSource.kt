@@ -1,7 +1,9 @@
 package com.rahul.fieldflow.data.auth
 
+import android.util.Log
 import io.github.jan.supabase.SupabaseClient
 import io.github.jan.supabase.auth.auth
+import io.github.jan.supabase.auth.handleDeeplinks
 import io.github.jan.supabase.auth.providers.builtin.Email
 import io.github.jan.supabase.auth.status.SessionStatus
 import io.github.jan.supabase.postgrest.postgrest
@@ -94,6 +96,19 @@ class AuthDataSource @Inject constructor(
 
     @OptIn(io.github.jan.supabase.annotations.SupabaseInternal::class, kotlin.time.ExperimentalTime::class)
     fun isEmailVerified(): Boolean {
-        return supabaseClient.auth.currentUserOrNull()?.emailConfirmedAt != null
+        val user = supabaseClient.auth.currentUserOrNull()
+        return user?.emailConfirmedAt != null || user?.confirmedAt != null
+    }
+
+    suspend fun refreshUser() {
+        try {
+            supabaseClient.auth.refreshCurrentSession()
+        } catch (e: Exception) {
+            Log.e("AUTH_DEBUG", "Failed to refresh session", e)
+        }
+    }
+
+    fun handleDeepLinks(intent: android.content.Intent) {
+        supabaseClient.handleDeeplinks(intent)
     }
 }

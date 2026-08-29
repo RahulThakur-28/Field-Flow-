@@ -9,13 +9,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.Assignment
-import androidx.compose.material.icons.filled.Check
-import androidx.compose.material.icons.filled.Close
-import androidx.compose.material.icons.filled.Email
-import androidx.compose.material.icons.filled.Event
-import androidx.compose.material.icons.filled.Info
-import androidx.compose.material.icons.filled.Person
-import androidx.compose.material.icons.filled.Phone
+import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -53,21 +47,22 @@ fun EmployeeRequestsScreen(
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = Color.White
+                    containerColor = MaterialTheme.colorScheme.background,
+                    titleContentColor = MaterialTheme.colorScheme.onBackground
                 )
             )
-        }
+        },
+        containerColor = MaterialTheme.colorScheme.background
     ) { padding ->
         Box(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(padding)
-                .background(BackgroundLight)
         ) {
             if (uiState.isLoading) {
                 CircularProgressIndicator(
                     modifier = Modifier.align(Alignment.Center),
-                    color = PrimaryBlue
+                    color = MaterialTheme.colorScheme.primary
                 )
             } else if (uiState.requests.isEmpty()) {
                 EmptyRequestsState()
@@ -111,8 +106,12 @@ fun RequestCard(
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(24.dp),
-        colors = CardDefaults.cardColors(containerColor = Color.White),
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
+        border = androidx.compose.foundation.BorderStroke(
+            1.dp, 
+            MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f)
+        )
     ) {
         Column(modifier = Modifier.padding(20.dp)) {
             // Header
@@ -129,12 +128,12 @@ fun RequestCard(
                         text = request.employeeName ?: "New Employee",
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.Bold,
-                        color = TextDark
+                        color = MaterialTheme.colorScheme.onSurface
                     )
                     Text(
                         text = (request.employeeRole ?: "Employee").replaceFirstChar { it.uppercase() },
                         style = MaterialTheme.typography.bodySmall,
-                        color = TextSecondary
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }
 
@@ -153,7 +152,7 @@ fun RequestCard(
             }
             
             Spacer(modifier = Modifier.height(20.dp))
-            HorizontalDivider(color = GrayLight.copy(alpha = 0.5f))
+            HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f))
             Spacer(modifier = Modifier.height(20.dp))
 
             // Details
@@ -179,7 +178,7 @@ fun RequestCard(
             // Info Box
             Surface(
                 modifier = Modifier.fillMaxWidth(),
-                color = BackgroundLight.copy(alpha = 0.5f),
+                color = MaterialTheme.colorScheme.primary.copy(alpha = 0.05f),
                 shape = RoundedCornerShape(12.dp)
             ) {
                 Row(
@@ -189,14 +188,14 @@ fun RequestCard(
                     Icon(
                         Icons.Default.Info, 
                         contentDescription = null, 
-                        tint = TextSecondary, 
+                        tint = MaterialTheme.colorScheme.primary, 
                         modifier = Modifier.size(16.dp)
                     )
                     Spacer(modifier = Modifier.width(12.dp))
                     Text(
                         text = "This employee has requested to join your organization. You can accept or reject this request.",
                         style = MaterialTheme.typography.bodySmall,
-                        color = TextSecondary,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
                         lineHeight = 18.sp
                     )
                 }
@@ -226,7 +225,7 @@ fun RequestCard(
                     onClick = onAccept,
                     modifier = Modifier.weight(1f).height(48.dp),
                     enabled = !isProcessing,
-                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF4CAF50)),
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF43A047)),
                     shape = RoundedCornerShape(12.dp)
                 ) {
                     if (isProcessing) {
@@ -249,19 +248,19 @@ fun DetailRow(icon: ImageVector, label: String, value: String) {
             imageVector = icon,
             contentDescription = null,
             modifier = Modifier.size(18.dp),
-            tint = TextSecondary
+            tint = MaterialTheme.colorScheme.onSurfaceVariant
         )
         Spacer(modifier = Modifier.width(12.dp))
         Text(
             text = label,
             style = MaterialTheme.typography.bodyMedium,
-            color = TextSecondary,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
             modifier = Modifier.width(100.dp)
         )
         Text(
             text = value,
             style = MaterialTheme.typography.bodyMedium,
-            color = TextDark,
+            color = MaterialTheme.colorScheme.onSurface,
             fontWeight = FontWeight.Medium,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis
@@ -281,14 +280,14 @@ fun EmptyRequestsState() {
         Surface(
             modifier = Modifier.size(120.dp),
             shape = CircleShape,
-            color = GrayLight.copy(alpha = 0.3f)
+            color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
         ) {
             Box(contentAlignment = Alignment.Center) {
                 Icon(
                     Icons.Default.Person,
                     contentDescription = null,
                     modifier = Modifier.size(64.dp),
-                    tint = GrayLight
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
         }
@@ -299,7 +298,7 @@ fun EmptyRequestsState() {
             text = "No pending employee requests",
             style = MaterialTheme.typography.titleLarge,
             fontWeight = FontWeight.Bold,
-            color = TextDark,
+            color = MaterialTheme.colorScheme.onBackground,
             textAlign = TextAlign.Center
         )
         
@@ -308,7 +307,7 @@ fun EmptyRequestsState() {
         Text(
             text = "New employees will appear here when they request to join your workspace.",
             style = MaterialTheme.typography.bodyMedium,
-            color = TextSecondary,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
             textAlign = TextAlign.Center
         )
     }

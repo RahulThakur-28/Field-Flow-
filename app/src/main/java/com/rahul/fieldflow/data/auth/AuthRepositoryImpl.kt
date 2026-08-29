@@ -24,6 +24,9 @@ class AuthRepositoryImpl @Inject constructor(
     private val _currentUser = MutableStateFlow<UserProfile?>(null)
     override val currentUser: Flow<UserProfile?> = _currentUser.asStateFlow()
 
+    private val _isProcessingDeepLink = MutableStateFlow(false)
+    override val isProcessingDeepLink: Flow<Boolean> = _isProcessingDeepLink.asStateFlow()
+
     init {
         observeSessionStatus()
     }
@@ -31,17 +34,24 @@ class AuthRepositoryImpl @Inject constructor(
     private fun observeSessionStatus() {
         authDataSource.sessionStatus
             .onEach { status ->
+                Log.d("AUTH_DEBUG", "Session status changed: $status")
                 when (status) {
                     is SessionStatus.Authenticated -> {
+                        _isProcessingDeepLink.value = false
                         val userId = status.session.user?.id
+                        Log.d("AUTH_DEBUG", "User authenticated: $userId")
                         if (userId != null) {
                             refreshProfile()
                         }
                     }
                     is SessionStatus.NotAuthenticated -> {
+                        Log.d("AUTH_DEBUG", "User not authenticated")
+                        _isProcessingDeepLink.value = false
                         _currentUser.value = null
                     }
-                    else -> {}
+                    else -> {
+                        Log.d("AUTH_DEBUG", "Other session status: $status")
+                    }
                 }
             }
             .launchIn(repositoryScope)
@@ -180,10 +190,15 @@ class AuthRepositoryImpl @Inject constructor(
 
     override suspend fun refreshProfile(): Result<UserProfile> {
         return runCatching {
+            Log.d("AUTH_DEBUG", "refreshProfile started")
+            authDataSource.refreshUser() // Refresh auth user state first
             val userId = authDataSource.getCurrentUserId() ?: throw Exception("No active session")
             val profile = authDataSource.getProfile(userId).toDomain()
+            Log.d("AUTH_DEBUG", "refreshProfile: profile loaded for ${profile.email}, verified=${isEmailVerified()}")
             _currentUser.value = profile
             profile
+        }.onFailure {
+            Log.e("AUTH_DEBUG", "refreshProfile failed", it)
         }
     }
 
@@ -204,6 +219,17 @@ class AuthRepositoryImpl @Inject constructor(
             val userId = authDataSource.getCurrentUserId() ?: throw Exception("Not logged in")
             authDataSource.updateProfile(userId, fullName, phone)
             refreshProfile()
+        }
+    }
+
+    override fun handleDeepLink(intent: android.content.Intent) {
+        Log.d("AUTH_DEBUG", "handleDeepLink called")
+        val data = intent.data
+        if (data?.scheme == "fieldflow" && data.host == "auth") {
+            _isProcessingDeepLink.value = true
+            authDataSource.handleDeepLinks(intent)
+            // Note: We don't set it to false immediately because handleDeeplinks is async.
+            // We'll set it to false once a session is established or fails.
         }
     }
 }

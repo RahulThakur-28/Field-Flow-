@@ -12,11 +12,13 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
@@ -30,10 +32,7 @@ import com.rahul.fieldflow.features.tasks.components.*
 import com.rahul.fieldflow.features.tasks.employee.components.RecordingStatusIndicator
 import com.rahul.fieldflow.features.tasks.employee.components.TaskJourneyStatus
 import com.rahul.fieldflow.features.tasks.employee.viewmodel.EmployeeTaskDetailsViewModel
-import com.rahul.fieldflow.ui.theme.FieldFlowTheme
-import com.rahul.fieldflow.ui.theme.PrimaryBlue
-import com.rahul.fieldflow.ui.theme.TextDark
-import com.rahul.fieldflow.ui.theme.TextSecondary
+import com.rahul.fieldflow.ui.theme.*
 import java.time.format.DateTimeFormatter
 import kotlin.math.roundToInt
 
@@ -65,14 +64,30 @@ fun EmployeeTaskDetailsScreen(
     }
 
     Scaffold(
+        containerColor = MaterialTheme.colorScheme.background,
         topBar = {
             TopAppBar(
                 title = { Text("Task Details", fontWeight = FontWeight.Bold) },
                 navigationIcon = {
-                    IconButton(onClick = onBackClick) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "Back")
+                    Surface(
+                        onClick = onBackClick,
+                        shape = CircleShape,
+                        color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f),
+                        modifier = Modifier.padding(8.dp).size(40.dp)
+                    ) {
+                        Box(contentAlignment = Alignment.Center) {
+                            Icon(
+                                imageVector = Icons.AutoMirrored.Filled.ArrowBack, 
+                                contentDescription = "Back",
+                                modifier = Modifier.size(20.dp)
+                            )
+                        }
                     }
-                }
+                },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = Color.Transparent,
+                    titleContentColor = MaterialTheme.colorScheme.onBackground
+                )
             )
         }
     ) { padding ->
@@ -83,8 +98,10 @@ fun EmployeeTaskDetailsScreen(
         } else if (uiState.error != null && uiState.task == null) {
             Box(modifier = Modifier.fillMaxSize().padding(padding), contentAlignment = Alignment.Center) {
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                    Text(text = uiState.error!!, color = MaterialTheme.colorScheme.error)
+                    Icon(Icons.Default.ErrorOutline, contentDescription = null, modifier = Modifier.size(64.dp), tint = MaterialTheme.colorScheme.error)
                     Spacer(modifier = Modifier.height(16.dp))
+                    Text(text = uiState.error!!, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    Spacer(modifier = Modifier.height(24.dp))
                     Button(onClick = { viewModel.loadTask(taskId) }) {
                         Text("Retry")
                     }
@@ -92,57 +109,18 @@ fun EmployeeTaskDetailsScreen(
             }
         } else if (uiState.task != null) {
             val task = uiState.task!!
-            // ... (rest of the content)
             Column(
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(padding)
-                    .padding(horizontal = 16.dp)
                     .verticalScroll(rememberScrollState())
+                    .padding(16.dp),
+                verticalArrangement = Arrangement.spacedBy(20.dp)
             ) {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Text(
-                        text = "TASK #${task.id.take(8).uppercase()}",
-                        style = MaterialTheme.typography.labelMedium,
-                        color = TextSecondary,
-                        fontWeight = FontWeight.Bold
-                    )
-                    TaskStatusBadge(task.status)
-                }
+                // 1. Task Header Card
+                TaskHeaderCard(task)
 
-                Spacer(modifier = Modifier.height(16.dp))
-
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.Top
-                ) {
-                    Text(
-                        text = task.title,
-                        style = MaterialTheme.typography.headlineSmall,
-                        fontWeight = FontWeight.Bold,
-                        color = TextDark,
-                        modifier = Modifier.weight(1f)
-                    )
-                    Spacer(modifier = Modifier.width(8.dp))
-                    TaskPriorityBadge(task.priority)
-                }
-
-                Spacer(modifier = Modifier.height(16.dp))
-
-                Text(
-                    text = task.description,
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = TextSecondary
-                )
-
-                Spacer(modifier = Modifier.height(24.dp))
-
-                // Location & Geofence Status Card
+                // 2. Geofence & Location
                 GeofenceStatusCard(
                     locationName = task.location,
                     radius = task.radiusMeters,
@@ -150,72 +128,50 @@ fun EmployeeTaskDetailsScreen(
                     distance = uiState.distanceToDestination
                 )
 
-                Spacer(modifier = Modifier.height(24.dp))
+                // 3. Schedule Card
+                TaskScheduleCardDetailed(task)
 
-                Card(
-                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f)),
-                    shape = RoundedCornerShape(12.dp)
-                ) {
-                    Column(modifier = Modifier.padding(16.dp)) {
-                        TaskScheduleCard(
-                            scheduledDate = task.scheduledDate.format(DateTimeFormatter.ofPattern("MMM dd, yyyy")),
-                            deadline = (task.deadline ?: task.scheduledDate).format(DateTimeFormatter.ofPattern("HH:mm"))
-                        )
-                    }
-                }
-
-                Spacer(modifier = Modifier.height(24.dp))
-
+                // 4. Instructions Card
                 InstructionsCard(instructions = task.description)
 
-                Spacer(modifier = Modifier.height(24.dp))
-
+                // 5. Checklist
                 if (task.checklist.isNotEmpty()) {
                     TaskChecklistCard(
                         items = task.checklist,
                         onItemToggle = viewModel::toggleChecklistItem
                     )
-                    Spacer(modifier = Modifier.height(24.dp))
                 }
 
+                // 6. Journey Status
                 TaskJourneyStatus(currentStatus = task.status)
                 
-                Spacer(modifier = Modifier.height(24.dp))
-
-                if (task.status == com.rahul.fieldflow.features.tasks.model.TaskStatus.COMPLETED) {
-                    Button(
-                        onClick = { onViewReportClick(task.id) },
-                        modifier = Modifier.fillMaxWidth().height(50.dp),
-                        shape = RoundedCornerShape(12.dp),
-                        colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.secondary)
-                    ) {
-                        Icon(Icons.Default.Assessment, contentDescription = null)
-                        Spacer(modifier = Modifier.width(8.dp))
-                        Text(text = "View Field Report", fontWeight = FontWeight.Bold)
-                    }
-                    Spacer(modifier = Modifier.height(16.dp))
-                }
-
-                // Recording Status Indicator
+                // 7. Recording Status
                 RecordingStatusIndicator(
                     state = uiState.recordingState,
                     onRetry = { viewModel.startRecordingManual() }
                 )
                 
-                if (uiState.recordingState.status != com.rahul.fieldflow.core.audio.RecordingStatus.NOT_STARTED) {
-                    Spacer(modifier = Modifier.height(16.dp))
-                }
-                
-                // Action Button
-                if (task.status != com.rahul.fieldflow.features.tasks.model.TaskStatus.COMPLETED) {
+                // 8. Bottom Actions
+                if (task.status == com.rahul.fieldflow.features.tasks.model.TaskStatus.COMPLETED) {
+                    Button(
+                        onClick = { onViewReportClick(task.id) },
+                        modifier = Modifier.fillMaxWidth().height(56.dp),
+                        shape = RoundedCornerShape(16.dp),
+                        colors = ButtonDefaults.buttonColors(containerColor = SecondaryIndigo)
+                    ) {
+                        Icon(Icons.Default.Assessment, contentDescription = null)
+                        Spacer(modifier = Modifier.width(10.dp))
+                        Text(text = "View Field Report", fontWeight = FontWeight.Bold, fontSize = 16.sp)
+                    }
+                } else {
                     if (task.status == com.rahul.fieldflow.features.tasks.model.TaskStatus.IN_PROGRESS) {
                         Button(
                             onClick = { viewModel.stopTask() },
-                            modifier = Modifier.fillMaxWidth().height(50.dp),
-                            shape = RoundedCornerShape(12.dp),
+                            modifier = Modifier.fillMaxWidth().height(56.dp),
+                            shape = RoundedCornerShape(16.dp),
                             colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFC62828))
                         ) {
-                            Text(text = "Complete Field Work", fontWeight = FontWeight.Bold)
+                            Text(text = "Complete Field Work", fontWeight = FontWeight.Bold, fontSize = 16.sp)
                         }
                     } else {
                         Button(
@@ -241,17 +197,16 @@ fun EmployeeTaskDetailsScreen(
                                     permissionLauncher.launch(permissions.toTypedArray())
                                 }
                             },
-                            modifier = Modifier.fillMaxWidth().height(50.dp),
-                            shape = RoundedCornerShape(12.dp),
+                            modifier = Modifier.fillMaxWidth().height(56.dp),
+                            shape = RoundedCornerShape(16.dp),
                             colors = ButtonDefaults.buttonColors(containerColor = PrimaryBlue)
                         ) {
-                            Text(text = "Start Field Work", fontWeight = FontWeight.Bold)
+                            Text(text = "Start Field Work", fontWeight = FontWeight.Bold, fontSize = 16.sp)
                         }
                     }
                 }
 
                 uiState.error?.let { error ->
-                    Spacer(modifier = Modifier.height(16.dp))
                     Text(
                         text = error,
                         color = MaterialTheme.colorScheme.error,
@@ -261,7 +216,124 @@ fun EmployeeTaskDetailsScreen(
                     )
                 }
                 
-                Spacer(modifier = Modifier.height(32.dp))
+                Spacer(modifier = Modifier.height(40.dp))
+            }
+        }
+    }
+}
+
+@Composable
+private fun TaskHeaderCard(task: com.rahul.fieldflow.features.tasks.model.Task) {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(24.dp),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+        border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.3f))
+    ) {
+        Column(modifier = Modifier.padding(20.dp)) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = "TASK #${task.id.take(8).uppercase()}",
+                    style = MaterialTheme.typography.labelMedium,
+                    color = MaterialTheme.colorScheme.primary,
+                    fontWeight = FontWeight.Bold,
+                    letterSpacing = 1.sp
+                )
+                TaskStatusBadge(task.status)
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            Text(
+                text = task.title,
+                style = MaterialTheme.typography.headlineSmall,
+                fontWeight = FontWeight.ExtraBold,
+                color = MaterialTheme.colorScheme.onSurface
+            )
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                TaskPriorityBadge(task.priority)
+            }
+        }
+    }
+}
+
+@Composable
+private fun TaskScheduleCardDetailed(task: com.rahul.fieldflow.features.tasks.model.Task) {
+    val isOverdue = task.status == com.rahul.fieldflow.features.tasks.model.TaskStatus.OVERDUE
+    
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(20.dp),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+        border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.3f))
+    ) {
+        Column(modifier = Modifier.padding(20.dp)) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Icon(Icons.Default.Event, contentDescription = null, tint = MaterialTheme.colorScheme.primary)
+                Spacer(modifier = Modifier.width(12.dp))
+                Column {
+                    Text("Scheduled Date", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    Text(
+                        task.scheduledDate.format(DateTimeFormatter.ofPattern("EEEE, MMM dd, yyyy")),
+                        style = MaterialTheme.typography.bodyLarge,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
+            }
+            
+            Spacer(modifier = Modifier.height(16.dp))
+            HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.2f))
+            Spacer(modifier = Modifier.height(16.dp))
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Icon(
+                        imageVector = Icons.Default.Schedule, 
+                        contentDescription = null, 
+                        tint = if (isOverdue) Color.Red else MaterialTheme.colorScheme.primary
+                    )
+                    Spacer(modifier = Modifier.width(12.dp))
+                    Column {
+                        Text(
+                            text = "Deadline", 
+                            style = MaterialTheme.typography.labelSmall, 
+                            color = Color.Red,
+                            fontWeight = FontWeight.Bold
+                        )
+                        Text(
+                            (task.deadline ?: task.scheduledDate).format(DateTimeFormatter.ofPattern("hh:mm a")),
+                            style = MaterialTheme.typography.bodyLarge,
+                            fontWeight = FontWeight.Bold,
+                            color = if (isOverdue) Color.Red else MaterialTheme.colorScheme.onSurface
+                        )
+                    }
+                }
+                
+                if (isOverdue) {
+                    Surface(
+                        color = Color.Red.copy(alpha = 0.1f),
+                        shape = RoundedCornerShape(8.dp)
+                    ) {
+                        Text(
+                            "OVERDUE",
+                            modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp),
+                            color = Color.Red,
+                            style = MaterialTheme.typography.labelSmall,
+                            fontWeight = FontWeight.ExtraBold
+                        )
+                    }
+                }
             }
         }
     }
@@ -274,27 +346,29 @@ fun GeofenceStatusCard(
     isInside: Boolean,
     distance: Float?
 ) {
+    val statusColor = if (isInside) Color(0xFF2E7D32) else Color(0xFFEF6C00)
+    val bgColor = statusColor.copy(alpha = 0.08f)
+
     Card(
         modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = if (isInside) Color(0xFFE8F5E9) else Color(0xFFFFF3E0)
-        )
+        shape = RoundedCornerShape(20.dp),
+        colors = CardDefaults.cardColors(containerColor = bgColor),
+        border = androidx.compose.foundation.BorderStroke(1.dp, statusColor.copy(alpha = 0.2f))
     ) {
         Row(
-            modifier = Modifier.padding(16.dp),
+            modifier = Modifier.padding(20.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
             Surface(
                 modifier = Modifier.size(48.dp),
                 shape = CircleShape,
-                color = if (isInside) Color(0xFF4CAF50).copy(alpha = 0.2f) else Color(0xFFFF9800).copy(alpha = 0.2f)
+                color = statusColor.copy(alpha = 0.15f)
             ) {
                 Box(contentAlignment = Alignment.Center) {
                     Icon(
                         imageVector = if (isInside) Icons.Default.GpsFixed else Icons.Default.LocationOff,
                         contentDescription = null,
-                        tint = if (isInside) Color(0xFF2E7D32) else Color(0xFFEF6C00)
+                        tint = statusColor
                     )
                 }
             }
@@ -306,19 +380,19 @@ fun GeofenceStatusCard(
                     text = locationName,
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Bold,
-                    color = TextDark
+                    color = statusColor
                 )
                 Text(
                     text = if (isInside) "Inside Geofence (${radius}m)" else "Outside Geofence (${radius}m)",
                     style = MaterialTheme.typography.bodySmall,
-                    color = if (isInside) Color(0xFF2E7D32) else Color(0xFFEF6C00),
+                    color = statusColor.copy(alpha = 0.8f),
                     fontWeight = FontWeight.Bold
                 )
                 distance?.let {
                     Text(
-                        text = "${it.roundToInt()}m away",
+                        text = "${it.roundToInt()}m away from site",
                         style = MaterialTheme.typography.labelSmall,
-                        color = TextSecondary
+                        color = statusColor.copy(alpha = 0.6f)
                     )
                 }
             }
@@ -331,16 +405,18 @@ fun InstructionsCard(instructions: String) {
     Column(modifier = Modifier.fillMaxWidth()) {
         Text(
             text = "Instructions",
-            style = MaterialTheme.typography.labelLarge,
+            style = MaterialTheme.typography.titleMedium,
             fontWeight = FontWeight.Bold,
-            color = TextSecondary,
-            modifier = Modifier.padding(vertical = 8.dp)
+            color = MaterialTheme.colorScheme.onBackground,
+            modifier = Modifier.padding(bottom = 12.dp)
         )
         Card(
-            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.3f)),
-            shape = RoundedCornerShape(12.dp)
+            modifier = Modifier.fillMaxWidth(),
+            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.1f)),
+            shape = RoundedCornerShape(20.dp),
+            border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.secondary.copy(alpha = 0.1f))
         ) {
-            Row(modifier = Modifier.padding(16.dp), verticalAlignment = Alignment.Top) {
+            Row(modifier = Modifier.padding(20.dp), verticalAlignment = Alignment.Top) {
                 Icon(
                     Icons.Default.Info, 
                     contentDescription = null, 
@@ -348,7 +424,12 @@ fun InstructionsCard(instructions: String) {
                     modifier = Modifier.size(20.dp)
                 )
                 Spacer(modifier = Modifier.width(12.dp))
-                Text(text = instructions, style = MaterialTheme.typography.bodyMedium, color = TextDark)
+                Text(
+                    text = instructions, 
+                    style = MaterialTheme.typography.bodyLarge, 
+                    color = MaterialTheme.colorScheme.onSurface,
+                    lineHeight = 24.sp
+                )
             }
         }
     }

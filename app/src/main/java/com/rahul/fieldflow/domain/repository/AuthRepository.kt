@@ -33,4 +33,8 @@ interface AuthRepository {
     suspend fun getTeamMembers(workspaceId: String): Result<List<UserProfile>>
 
     suspend fun updateProfile(fullName: String, phone: String?): Result<Unit>
+
+    fun handleDeepLink(intent: android.content.Intent)
+
+    val isProcessingDeepLink: Flow<Boolean>
 }

@@ -17,19 +17,22 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.rahul.fieldflow.features.tasks.owner.state.TaskFilter
 import com.rahul.fieldflow.ui.theme.PrimaryBlue
-import com.rahul.fieldflow.ui.theme.TextSecondary
 
 @Composable
 fun OwnerTaskFilter(
     selectedFilter: TaskFilter,
     onFilterSelected: (TaskFilter) -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    allCount: Int = 0,
+    activeCount: Int = 0,
+    completedCount: Int = 0,
+    overdueCount: Int = 0
 ) {
     Row(
         modifier = modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(12.dp))
-            .background(Color.LightGray.copy(alpha = 0.1f))
+            .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f))
             .padding(4.dp),
         horizontalArrangement = Arrangement.spacedBy(4.dp)
     ) {
@@ -41,6 +44,13 @@ fun OwnerTaskFilter(
                 TaskFilter.COMPLETED -> Color(0xFFFFA000)
                 TaskFilter.OVERDUE -> Color(0xFFF44336)
             }
+            
+            val count = when (filter) {
+                TaskFilter.ALL -> allCount
+                TaskFilter.ACTIVE -> activeCount
+                TaskFilter.COMPLETED -> completedCount
+                TaskFilter.OVERDUE -> overdueCount
+            }
 
             Surface(
                 modifier = Modifier
@@ -51,16 +61,23 @@ fun OwnerTaskFilter(
                 shape = RoundedCornerShape(8.dp),
                 border = if (isSelected) androidx.compose.foundation.BorderStroke(1.dp, semanticColor.copy(alpha = 0.2f)) else null
             ) {
-                Box(
+                Column(
                     modifier = Modifier.padding(vertical = 8.dp),
-                    contentAlignment = Alignment.Center
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Center
                 ) {
                     Text(
+                        text = count.toString(),
+                        style = MaterialTheme.typography.labelMedium,
+                        color = if (isSelected) semanticColor else MaterialTheme.colorScheme.onSurfaceVariant,
+                        fontWeight = FontWeight.Bold
+                    )
+                    Text(
                         text = filter.label,
-                        style = MaterialTheme.typography.labelLarge,
-                        color = if (isSelected) semanticColor else TextSecondary,
+                        style = MaterialTheme.typography.labelSmall,
+                        color = if (isSelected) semanticColor else MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
                         fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium,
-                        fontSize = 13.sp
+                        fontSize = 11.sp
                     )
                 }
             }

@@ -30,9 +30,7 @@ fun NavGraphBuilder.authNavigation(navController: NavController) {
     composable<AppRoutes.EmailVerification> {
         EmailVerificationScreen(
             onVerifySuccess = { 
-                navController.navigate(AppRoutes.Login) {
-                    popUpTo(AppRoutes.Login) { inclusive = true }
-                }
+                // Navigation handled by AppNavGraph observing AuthState
             },
             onChangeEmail = { navController.popBackStack() }
         )
@@ -42,7 +40,6 @@ fun NavGraphBuilder.authNavigation(navController: NavController) {
         EmployeeJoinScreen(
             onBack = { navController.popBackStack() },
             onCompanyFound = { navController.navigate(AppRoutes.CompanyFound) },
-            onNavigateToInvitation = { /* Future feature */ },
             viewModel = hiltViewModel(backStackEntry)
         )
     }

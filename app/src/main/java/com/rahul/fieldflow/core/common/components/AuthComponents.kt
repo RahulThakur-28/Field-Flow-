@@ -2,6 +2,7 @@ package com.rahul.fieldflow.core.common.components
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
@@ -32,6 +33,7 @@ fun AppTextField(
     placeholder: String,
     leadingIcon: ImageVector? = null,
     keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
+    keyboardActions: KeyboardActions = KeyboardActions.Default,
     errorText: String? = null,
     modifier: Modifier = Modifier
 ) {
@@ -51,6 +53,7 @@ fun AppTextField(
             modifier = Modifier.fillMaxWidth(),
             shape = RoundedCornerShape(16.dp),
             keyboardOptions = keyboardOptions,
+            keyboardActions = keyboardActions,
             isError = errorText != null,
             singleLine = true,
             textStyle = MaterialTheme.typography.bodyLarge,
@@ -93,6 +96,8 @@ fun PasswordTextField(
     label: String,
     placeholder: String,
     leadingIcon: ImageVector? = null,
+    keyboardOptions: KeyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
+    keyboardActions: KeyboardActions = KeyboardActions.Default,
     errorText: String? = null,
     modifier: Modifier = Modifier
 ) {
@@ -120,7 +125,8 @@ fun PasswordTextField(
             modifier = Modifier.fillMaxWidth(),
             shape = RoundedCornerShape(16.dp),
             visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
+            keyboardOptions = keyboardOptions,
+            keyboardActions = keyboardActions,
             isError = errorText != null,
             singleLine = true,
             textStyle = MaterialTheme.typography.bodyLarge,

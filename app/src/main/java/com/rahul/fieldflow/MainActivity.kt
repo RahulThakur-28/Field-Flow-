@@ -15,10 +15,10 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.compose.rememberNavController
 import com.rahul.fieldflow.core.navigation.AppNavGraph
 import com.rahul.fieldflow.domain.model.AppTheme
+import com.rahul.fieldflow.domain.repository.AuthRepository
 import com.rahul.fieldflow.ui.theme.FieldFlowTheme
 import dagger.hilt.android.AndroidEntryPoint
 import io.github.jan.supabase.SupabaseClient
-import io.github.jan.supabase.auth.handleDeeplinks
 import org.maplibre.android.MapLibre
 import javax.inject.Inject
 
@@ -28,20 +28,23 @@ class MainActivity : ComponentActivity() {
     @Inject
     lateinit var supabaseClient: SupabaseClient
 
+    @Inject
+    lateinit var authRepository: AuthRepository
+
     private val viewModel: MainViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        Log.d(
-            "FIELD_FLOW_STARTUP",
-            "MainActivity onCreate started"
-        )
+        Log.d("FIELD_FLOW_STARTUP", "MainActivity onCreate started with intent: ${intent?.data}")
 
         // Initialize MapLibre BEFORE any MapView is created
         MapLibre.getInstance(this)
 
-        supabaseClient.handleDeeplinks(intent)
+        if (intent?.data != null) {
+            Log.d("FIELD_FLOW_STARTUP", "Handling deep link in onCreate")
+            authRepository.handleDeepLink(intent)
+        }
 
         enableEdgeToEdge()
 
@@ -66,12 +69,12 @@ class MainActivity : ComponentActivity() {
     override fun onNewIntent(intent: android.content.Intent) {
         super.onNewIntent(intent)
 
-        Log.d(
-            "FIELD_FLOW_STARTUP",
-            "MainActivity onNewIntent"
-        )
+        Log.d("FIELD_FLOW_STARTUP", "MainActivity onNewIntent with data: ${intent.data}")
 
-        supabaseClient.handleDeeplinks(intent)
+        if (intent.data != null) {
+            Log.d("FIELD_FLOW_STARTUP", "Handling deep link in onNewIntent")
+            authRepository.handleDeepLink(intent)
+        }
     }
 }
 

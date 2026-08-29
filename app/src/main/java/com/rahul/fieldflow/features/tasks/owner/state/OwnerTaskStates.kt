@@ -12,7 +12,11 @@ data class OwnerTasksUiState(
     val isLoading: Boolean = false,
     val searchQuery: String = "",
     val selectedFilter: TaskFilter = TaskFilter.ALL,
-    val error: String? = null
+    val error: String? = null,
+    val allCount: Int = 0,
+    val activeCount: Int = 0,
+    val completedCount: Int = 0,
+    val overdueCount: Int = 0
 )
 
 enum class TaskFilter(val label: String) {

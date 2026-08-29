@@ -7,6 +7,8 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
@@ -15,23 +17,23 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import com.rahul.fieldflow.features.tasks.model.Employee
 import com.rahul.fieldflow.features.tasks.model.TaskPriority
 import com.rahul.fieldflow.ui.theme.PrimaryBlue
-import com.rahul.fieldflow.ui.theme.TextDark
-import com.rahul.fieldflow.ui.theme.TextSecondary
 import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalTime
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
-import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -69,10 +71,13 @@ fun TaskForm(
     generalError: String? = null,
     modifier: Modifier = Modifier
 ) {
+    val focusManager = LocalFocusManager.current
+
     Column(
         modifier = modifier
             .fillMaxSize()
             .verticalScroll(rememberScrollState())
+            .imePadding()
             .padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(24.dp)
     ) {
@@ -88,7 +93,14 @@ fun TaskForm(
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(12.dp),
                     isError = titleError != null,
-                    singleLine = true
+                    singleLine = true,
+                    keyboardOptions = KeyboardOptions(
+                        keyboardType = KeyboardType.Text,
+                        imeAction = ImeAction.Next
+                    ),
+                    keyboardActions = KeyboardActions(
+                        onNext = { focusManager.moveFocus(FocusDirection.Down) }
+                    )
                 )
             }
 
@@ -103,7 +115,14 @@ fun TaskForm(
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(12.dp),
                     isError = descriptionError != null,
-                    minLines = 3
+                    minLines = 3,
+                    keyboardOptions = KeyboardOptions(
+                        keyboardType = KeyboardType.Text,
+                        imeAction = ImeAction.Next
+                    ),
+                    keyboardActions = KeyboardActions(
+                        onNext = { focusManager.moveFocus(FocusDirection.Down) }
+                    )
                 )
             }
         }
@@ -146,7 +165,14 @@ fun TaskForm(
                         IconButton(onClick = onPickOnMap) {
                             Icon(Icons.Default.Map, contentDescription = "Pick on map", tint = PrimaryBlue)
                         }
-                    }
+                    },
+                    keyboardOptions = KeyboardOptions(
+                        keyboardType = KeyboardType.Text,
+                        imeAction = ImeAction.Done
+                    ),
+                    keyboardActions = KeyboardActions(
+                        onDone = { focusManager.clearFocus() }
+                    )
                 )
             }
         }
@@ -201,7 +227,14 @@ fun TaskForm(
                     placeholder = { Text("Additional details, tools required, etc.") },
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(12.dp),
-                    minLines = 2
+                    minLines = 2,
+                    keyboardOptions = KeyboardOptions(
+                        keyboardType = KeyboardType.Text,
+                        imeAction = ImeAction.Next
+                    ),
+                    keyboardActions = KeyboardActions(
+                        onNext = { focusManager.moveFocus(FocusDirection.Down) }
+                    )
                 )
             }
         }
@@ -236,7 +269,7 @@ fun FormSection(
         Text(
             text = title,
             style = MaterialTheme.typography.labelLarge,
-            color = TextSecondary,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
             fontWeight = FontWeight.Bold,
             letterSpacing = 1.sp
         )
@@ -256,7 +289,7 @@ fun AppFormField(
             text = label,
             style = MaterialTheme.typography.bodyMedium,
             fontWeight = FontWeight.SemiBold,
-            color = TextDark
+            color = MaterialTheme.colorScheme.onBackground
         )
         content()
         if (error != null) {
@@ -305,10 +338,11 @@ fun EmployeeSelector(
                 .menuAnchor(),
             shape = RoundedCornerShape(12.dp),
             isError = isError,
-            leadingIcon = { Icon(Icons.Default.Person, contentDescription = null, tint = TextSecondary) },
+            leadingIcon = { Icon(Icons.Default.Person, contentDescription = null, tint = MaterialTheme.colorScheme.onSurfaceVariant) },
             colors = OutlinedTextFieldDefaults.colors(
-                unfocusedContainerColor = Color.White,
-                focusedContainerColor = Color.White
+                focusedContainerColor = MaterialTheme.colorScheme.surface,
+                unfocusedContainerColor = MaterialTheme.colorScheme.surface,
+                disabledContainerColor = MaterialTheme.colorScheme.surface
             )
         )
 
@@ -323,13 +357,13 @@ fun EmployeeSelector(
                             Surface(
                                 modifier = Modifier.size(32.dp),
                                 shape = CircleShape,
-                                color = PrimaryBlue.copy(alpha = 0.1f)
+                                color = MaterialTheme.colorScheme.primary.copy(alpha = 0.1f)
                             ) {
                                 Box(contentAlignment = Alignment.Center) {
                                     Text(
                                         text = employee.name.take(1).uppercase(),
                                         style = MaterialTheme.typography.labelLarge,
-                                        color = PrimaryBlue,
+                                        color = MaterialTheme.colorScheme.primary,
                                         fontWeight = FontWeight.Bold
                                     )
                                 }
@@ -337,7 +371,7 @@ fun EmployeeSelector(
                             Spacer(modifier = Modifier.width(12.dp))
                             Column {
                                 Text(employee.name, fontWeight = FontWeight.Bold)
-                                Text(employee.role, style = MaterialTheme.typography.bodySmall, color = TextSecondary)
+                                Text(employee.role, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                             }
                         }
                     },
@@ -370,17 +404,17 @@ fun PrioritySelector(
                     .height(44.dp)
                     .clickable { onPriorityChange(priority) },
                 shape = RoundedCornerShape(8.dp),
-                color = if (isSelected) config.backgroundColor else Color.White,
+                color = if (isSelected) config.backgroundColor else MaterialTheme.colorScheme.surface,
                 border = BorderStroke(
                     width = if (isSelected) 1.5.dp else 1.dp,
-                    color = if (isSelected) config.color else Color.LightGray.copy(alpha = 0.5f)
+                    color = if (isSelected) config.color else MaterialTheme.colorScheme.outlineVariant
                 )
             ) {
                 Box(contentAlignment = Alignment.Center) {
                     Text(
                         text = priority.label,
                         style = MaterialTheme.typography.labelLarge,
-                        color = if (isSelected) config.color else TextSecondary,
+                        color = if (isSelected) config.color else MaterialTheme.colorScheme.onSurfaceVariant,
                         fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium
                     )
                 }
@@ -394,10 +428,10 @@ data class PriorityUiConfig(val color: Color, val backgroundColor: Color)
 @Composable
 fun getPriorityConfig(priority: TaskPriority): PriorityUiConfig {
     return when (priority) {
-        TaskPriority.LOW -> PriorityUiConfig(Color(0xFF2E7D32), Color(0xFFE8F5E9))
-        TaskPriority.MEDIUM -> PriorityUiConfig(Color(0xFFF9A825), Color(0xFFFFFDE7))
-        TaskPriority.HIGH -> PriorityUiConfig(Color(0xFFEF6C00), Color(0xFFFFF3E0))
-        TaskPriority.URGENT -> PriorityUiConfig(Color(0xFFC62828), Color(0xFFFFEBEE))
+        TaskPriority.LOW -> PriorityUiConfig(Color(0xFF2E7D32), Color(0xFFE8F5E9).copy(alpha = if (MaterialTheme.colorScheme.primary.red < 0.5f) 0.1f else 1.0f))
+        TaskPriority.MEDIUM -> PriorityUiConfig(Color(0xFFF9A825), Color(0xFFFFFDE7).copy(alpha = if (MaterialTheme.colorScheme.primary.red < 0.5f) 0.1f else 1.0f))
+        TaskPriority.HIGH -> PriorityUiConfig(Color(0xFFEF6C00), Color(0xFFFFF3E0).copy(alpha = if (MaterialTheme.colorScheme.primary.red < 0.5f) 0.1f else 1.0f))
+        TaskPriority.URGENT -> PriorityUiConfig(Color(0xFFC62828), Color(0xFFFFEBEE).copy(alpha = if (MaterialTheme.colorScheme.primary.red < 0.5f) 0.1f else 1.0f))
     }
 }
 
@@ -424,13 +458,13 @@ fun DatePickerField(
         enabled = false,
         shape = RoundedCornerShape(12.dp),
         isError = isError,
-        leadingIcon = { Icon(Icons.Default.CalendarToday, contentDescription = null, tint = TextSecondary) },
+        leadingIcon = { Icon(Icons.Default.CalendarToday, contentDescription = null, tint = MaterialTheme.colorScheme.onSurfaceVariant) },
         colors = OutlinedTextFieldDefaults.colors(
-            disabledTextColor = TextDark,
-            disabledBorderColor = if (isError) MaterialTheme.colorScheme.error else Color.LightGray.copy(alpha = 0.5f),
-            disabledPlaceholderColor = TextSecondary,
-            disabledLeadingIconColor = TextSecondary,
-            disabledContainerColor = Color.White
+            disabledTextColor = MaterialTheme.colorScheme.onSurface,
+            disabledBorderColor = if (isError) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.outlineVariant,
+            disabledPlaceholderColor = MaterialTheme.colorScheme.onSurfaceVariant,
+            disabledLeadingIconColor = MaterialTheme.colorScheme.onSurfaceVariant,
+            disabledContainerColor = MaterialTheme.colorScheme.surface
         )
     )
 
@@ -483,13 +517,13 @@ fun TimePickerField(
         enabled = false,
         shape = RoundedCornerShape(12.dp),
         isError = isError,
-        leadingIcon = { Icon(Icons.Default.Schedule, contentDescription = null, tint = TextSecondary) },
+        leadingIcon = { Icon(Icons.Default.Schedule, contentDescription = null, tint = MaterialTheme.colorScheme.onSurfaceVariant) },
         colors = OutlinedTextFieldDefaults.colors(
-            disabledTextColor = TextDark,
-            disabledBorderColor = if (isError) MaterialTheme.colorScheme.error else Color.LightGray.copy(alpha = 0.5f),
-            disabledPlaceholderColor = TextSecondary,
-            disabledLeadingIconColor = TextSecondary,
-            disabledContainerColor = Color.White
+            disabledTextColor = MaterialTheme.colorScheme.onSurface,
+            disabledBorderColor = if (isError) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.outlineVariant,
+            disabledPlaceholderColor = MaterialTheme.colorScheme.onSurfaceVariant,
+            disabledLeadingIconColor = MaterialTheme.colorScheme.onSurfaceVariant,
+            disabledContainerColor = MaterialTheme.colorScheme.surface
         )
     )
 
@@ -543,15 +577,15 @@ fun ChecklistSection(
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .background(Color(0xFFF8F9FA), RoundedCornerShape(8.dp))
+                    .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f), RoundedCornerShape(8.dp))
                     .padding(horizontal = 12.dp, vertical = 8.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Icon(Icons.Default.CheckCircle, contentDescription = null, tint = PrimaryBlue, modifier = Modifier.size(18.dp))
+                Icon(Icons.Default.CheckCircle, contentDescription = null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(18.dp))
                 Spacer(modifier = Modifier.width(12.dp))
                 Text(text = item, modifier = Modifier.weight(1f), style = MaterialTheme.typography.bodyMedium)
                 IconButton(onClick = { onRemoveItem(item) }, modifier = Modifier.size(24.dp)) {
-                    Icon(Icons.Default.Close, contentDescription = "Remove", tint = TextSecondary, modifier = Modifier.size(16.dp))
+                    Icon(Icons.Default.Close, contentDescription = "Remove", tint = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.size(16.dp))
                 }
             }
         }
@@ -574,7 +608,7 @@ fun ChecklistSection(
                             onAddItem(newItemText)
                             newItemText = ""
                         }) {
-                            Icon(Icons.Default.Add, contentDescription = "Add", tint = PrimaryBlue)
+                            Icon(Icons.Default.Add, contentDescription = "Add", tint = MaterialTheme.colorScheme.primary)
                         }
                     }
                 }

@@ -2,8 +2,12 @@ package com.rahul.fieldflow.features.auth.common.screen
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Email
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -21,6 +25,7 @@ import com.rahul.fieldflow.features.auth.viewmodel.AuthViewModel
 import com.rahul.fieldflow.ui.theme.*
 import kotlinx.coroutines.delay
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun EmailVerificationScreen(
     onVerifySuccess: () -> Unit,
@@ -54,110 +59,149 @@ fun EmailVerificationScreen(
         }
     }
 
-    Surface(
-        modifier = Modifier.fillMaxSize(),
-        color = BackgroundLight
-    ) {
+    var isVerifying by remember { mutableStateOf(false) }
+    var verificationError by remember { mutableStateOf<String?>(null) }
+
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = { },
+                navigationIcon = {
+                    IconButton(onClick = onChangeEmail) {
+                        Icon(
+                            Icons.AutoMirrored.Filled.ArrowBack, 
+                            contentDescription = "Back", 
+                            tint = MaterialTheme.colorScheme.onBackground
+                        )
+                    }
+                },
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.Transparent)
+            )
+        },
+        containerColor = MaterialTheme.colorScheme.background
+    ) { padding ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(horizontal = 24.dp),
+                .padding(padding)
+                .padding(horizontal = 24.dp)
+                .verticalScroll(rememberScrollState()),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
             Surface(
-                modifier = Modifier.size(100.dp),
+                modifier = Modifier.size(120.dp),
                 shape = CircleShape,
-                color = PrimaryBlue.copy(alpha = 0.1f)
+                color = MaterialTheme.colorScheme.primary.copy(alpha = 0.1f)
             ) {
                 Box(contentAlignment = Alignment.Center) {
                     Icon(
                         imageVector = Icons.Default.Email,
                         contentDescription = null,
-                        tint = PrimaryBlue,
-                        modifier = Modifier.size(48.dp)
+                        tint = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.size(56.dp)
                     )
                 }
             }
             
-            Spacer(modifier = Modifier.height(32.dp))
+            Spacer(modifier = Modifier.height(40.dp))
             
             Text(
                 text = "Verify your email",
                 style = MaterialTheme.typography.headlineMedium,
-                color = TextDark,
-                fontWeight = FontWeight.Bold
+                color = MaterialTheme.colorScheme.onBackground,
+                fontWeight = FontWeight.ExtraBold,
+                textAlign = TextAlign.Center
             )
             
             Spacer(modifier = Modifier.height(16.dp))
             
             Text(
-                text = "We sent a verification link to",
+                text = "We've sent a verification link to",
                 style = MaterialTheme.typography.bodyLarge,
-                color = TextSecondary,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
                 textAlign = TextAlign.Center
             )
             
             Text(
                 text = email,
                 style = MaterialTheme.typography.bodyLarge,
-                color = TextDark,
+                color = MaterialTheme.colorScheme.onBackground,
                 fontWeight = FontWeight.Bold,
                 textAlign = TextAlign.Center
             )
             
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(24.dp))
             
             Text(
-                text = "Open your email and click the verification link to continue.",
-                style = MaterialTheme.typography.bodyLarge,
-                color = TextSecondary,
+                text = "Please check your inbox and click the link to continue. If you don't see it, check your spam folder.",
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
                 textAlign = TextAlign.Center,
-                lineHeight = 24.sp
+                lineHeight = 22.sp
             )
 
-            Spacer(modifier = Modifier.height(64.dp))
+            if (verificationError != null) {
+                Spacer(modifier = Modifier.height(16.dp))
+                Text(
+                    text = verificationError!!,
+                    color = MaterialTheme.colorScheme.error,
+                    style = MaterialTheme.typography.bodySmall,
+                    textAlign = TextAlign.Center
+                )
+            }
+
+            Spacer(modifier = Modifier.height(48.dp))
             
             PrimaryButton(
                 text = "Check Verification Status",
-                onClick = { viewModel.refreshStatus() },
-                isLoading = authState is AuthState.Checking
+                onClick = { 
+                    isVerifying = true
+                    verificationError = null
+                    viewModel.refreshStatus() 
+                    // Add a small delay to check if state changed, or let AuthViewModel handle it
+                },
+                isLoading = authState is AuthState.Checking || isVerifying
             )
+
+            LaunchedEffect(authState) {
+                if (isVerifying && authState is AuthState.EmailUnverified) {
+                    isVerifying = false
+                    verificationError = "Email is not verified yet. Please check your inbox."
+                } else if (authState !is AuthState.Checking) {
+                    isVerifying = false
+                }
+            }
             
             Spacer(modifier = Modifier.height(24.dp))
             
             if (canResend) {
-                TextButton(
+                OutlinedButton(
                     onClick = {
                         viewModel.resendVerificationEmail(email)
                         canResend = false
-                    }
+                        verificationError = "Verification email sent again. Please check your inbox."
+                    },
+                    modifier = Modifier.fillMaxWidth().height(54.dp),
+                    shape = RoundedCornerShape(16.dp),
+                    border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.primary)
                 ) {
                     Text(
                         text = "Resend Email",
-                        color = PrimaryBlue,
-                        style = MaterialTheme.typography.bodyLarge,
+                        color = MaterialTheme.colorScheme.primary,
+                        style = MaterialTheme.typography.labelLarge,
                         fontWeight = FontWeight.Bold
                     )
                 }
             } else {
                 Text(
                     text = "Resend available in ${timer}s",
-                    color = TextSecondary,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                     style = MaterialTheme.typography.bodyMedium
                 )
             }
             
-            Spacer(modifier = Modifier.height(32.dp))
-            
-            TextButton(onClick = onChangeEmail) {
-                Text(
-                    text = "Wrong email? Change email",
-                    color = PrimaryBlue,
-                    style = MaterialTheme.typography.bodyMedium,
-                    fontWeight = FontWeight.Bold
-                )
-            }
+            Spacer(modifier = Modifier.height(48.dp))
         }
     }
 }
