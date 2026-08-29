@@ -86,7 +86,9 @@ fun OwnerHomeContent(
                     HomeGreetingHeader(
                         userName = uiState.userName,
                         initials = uiState.initials,
-                        onProfileClick = { navController.navigate(AppRoutes.OwnerProfile) }
+                        unreadNotificationsCount = uiState.unreadNotificationsCount,
+                        onProfileClick = { navController.navigate(AppRoutes.OwnerProfile) },
+                        onNotificationClick = { navController.navigate(AppRoutes.Notifications) }
                     )
 
                     CompanyInfoCard(

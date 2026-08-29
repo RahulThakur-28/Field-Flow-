@@ -46,7 +46,8 @@ class OwnerHomeViewModel @Inject constructor(
                             lateTasksCount = dashboard.taskStats.lateCount,
                             latestTasks = dashboard.latestTasks,
                             latestReports = dashboard.latestReports,
-                            teamPreview = dashboard.teamPreview
+                            teamPreview = dashboard.teamPreview,
+                            unreadNotificationsCount = dashboard.unreadNotificationsCount
                         )
                     }
                 }

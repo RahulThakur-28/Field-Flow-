@@ -17,7 +17,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.rahul.fieldflow.features.profile.owner.viewmodel.OwnerProfileViewModel
@@ -28,14 +28,21 @@ import com.rahul.fieldflow.ui.theme.PrimaryBlue
 @Composable
 fun OwnerEditProfileScreen(
     navController: NavController,
-    viewModel: OwnerProfileViewModel = viewModel()
+    viewModel: OwnerProfileViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
     
     var name by remember { mutableStateOf(uiState.userName) }
     var email by remember { mutableStateOf(uiState.email) }
-    var phone by remember { mutableStateOf(uiState.phone) }
+    var phone by remember { mutableStateOf(uiState.phone ?: "") }
     var company by remember { mutableStateOf(uiState.company) }
+
+    LaunchedEffect(uiState) {
+        if (name.isEmpty() && uiState.userName.isNotEmpty()) name = uiState.userName
+        if (email.isEmpty() && uiState.email.isNotEmpty()) email = uiState.email
+        if (phone.isEmpty() && !uiState.phone.isNullOrEmpty()) phone = uiState.phone!!
+        if (company.isEmpty() && uiState.company.isNotEmpty()) company = uiState.company
+    }
 
     Scaffold(
         topBar = {
@@ -56,11 +63,11 @@ fun OwnerEditProfileScreen(
             ) {
                 Button(
                     onClick = {
-                        viewModel.updateName(name)
-                        viewModel.updateEmail(email)
-                        viewModel.updatePhone(phone)
-                        viewModel.updateCompany(company)
-                        navController.popBackStack()
+                        viewModel.saveProfile(name, phone) { success ->
+                            if (success) {
+                                navController.popBackStack()
+                            }
+                        }
                     },
                     modifier = Modifier
                         .fillMaxWidth()

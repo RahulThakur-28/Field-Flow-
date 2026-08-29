@@ -16,5 +16,6 @@ data class OwnerHomeUiState(
     val lateTasksCount: Int = 0,
     val latestTasks: List<Task> = emptyList(),
     val latestReports: List<TaskReportContext> = emptyList(),
-    val teamPreview: List<TeamMemberWithStats> = emptyList()
+    val teamPreview: List<TeamMemberWithStats> = emptyList(),
+    val unreadNotificationsCount: Int = 0
 )

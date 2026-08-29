@@ -12,14 +12,17 @@ data class OwnerHomeDashboard(
     val taskStats: TaskStats,
     val latestTasks: List<Task>,
     val latestReports: List<TaskReportContext>,
-    val teamPreview: List<TeamMemberWithStats>
+    val teamPreview: List<TeamMemberWithStats>,
+    val totalEmployeesCount: Int,
+    val unreadNotificationsCount: Int
 )
 
 class GetOwnerHomeDashboardUseCase @Inject constructor(
     private val authRepository: AuthRepository,
     private val workspaceRepository: WorkspaceRepository,
     private val taskRepository: TaskRepository,
-    private val reportRepository: ReportRepository
+    private val reportRepository: ReportRepository,
+    private val notificationRepository: NotificationRepository
 ) {
     suspend operator fun invoke(): Result<OwnerHomeDashboard> {
         val user = authRepository.currentUser.first() ?: return Result.failure(Exception("Not logged in"))
@@ -29,11 +32,13 @@ class GetOwnerHomeDashboardUseCase @Inject constructor(
         val tasksResult = taskRepository.getOwnerTasks()
         val reportsResult = reportRepository.getOwnerReports(user.id)
         val employeesResult = authRepository.getTeamMembers(workspaceId)
+        val notificationsResult = notificationRepository.getUnreadCount()
 
         return workspaceResult.map { workspace ->
             val allTasks = tasksResult.getOrDefault(emptyList())
             val allReports = reportsResult.getOrDefault(emptyList())
             val allEmployees = employeesResult.getOrDefault(emptyList())
+            val unreadCount = notificationsResult.getOrDefault(0)
 
             val now = OffsetDateTime.now()
             
@@ -56,7 +61,7 @@ class GetOwnerHomeDashboardUseCase @Inject constructor(
                     completedTasks = employeeTasks.count { it.status == TaskStatus.COMPLETED },
                     currentTask = employeeTasks.find { it.status == TaskStatus.IN_PROGRESS || it.status == TaskStatus.ASSIGNED }
                 )
-            }.take(5)
+            }
 
             OwnerHomeDashboard(
                 profile = user,
@@ -64,7 +69,9 @@ class GetOwnerHomeDashboardUseCase @Inject constructor(
                 taskStats = taskStats,
                 latestTasks = latestTasks,
                 latestReports = latestReports,
-                teamPreview = teamPreview
+                teamPreview = teamPreview.take(5),
+                totalEmployeesCount = teamPreview.size,
+                unreadNotificationsCount = unreadCount
             )
         }
     }
