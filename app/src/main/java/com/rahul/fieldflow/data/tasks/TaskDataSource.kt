@@ -122,7 +122,7 @@ class TaskDataSource @Inject constructor(
             val response = supabaseClient.postgrest["tasks"]
                 .select(
                     Columns.raw(
-                        "*, task_assignments(*, profiles:profiles!employee_id(*)), task_checklist_items(*)"
+                        "*, task_assignments(*, profiles:profiles!employee_id(*)), task_checklist_items(*), geofences(*)"
                     )
                 ) {
                     filter {
@@ -147,7 +147,7 @@ class TaskDataSource @Inject constructor(
             supabaseClient.postgrest["tasks"]
                 .select(
                     Columns.raw(
-                        "*, task_assignments!inner(*, profiles:profiles!employee_id(*)), task_checklist_items(*)"
+                        "*, task_assignments!inner(*, profiles:profiles!employee_id(*)), task_checklist_items(*), geofences(*)"
                     )
                 ) {
                     filter {
@@ -178,7 +178,7 @@ class TaskDataSource @Inject constructor(
             val response = supabaseClient.postgrest["tasks"]
                 .select(
                     Columns.raw(
-                        "*, task_assignments(*, profiles:profiles!employee_id(*)), task_checklist_items(*)"
+                        "*, task_assignments(*, profiles:profiles!employee_id(*)), task_checklist_items(*), geofences(*)"
                     )
                 ) {
                     filter {
@@ -244,6 +244,38 @@ class TaskDataSource @Inject constructor(
             filter {
                 eq("id", itemId)
             }
+        }
+    }
+
+    suspend fun startTask(taskId: String): TaskDto {
+        return try {
+            val response = supabaseClient.postgrest.rpc(
+                function = "start_task",
+                parameters = buildJsonObject {
+                    put("p_task_id", taskId)
+                }
+            )
+            Log.d("TASK_RPC_DEBUG", "start_task raw response: ${response.data}")
+            response.decodeAs<TaskDto>()
+        } catch (e: Exception) {
+            Log.e("TASK_RPC_DEBUG", "start_task RPC FAILED: ${e.message}", e)
+            throw e
+        }
+    }
+
+    suspend fun completeTask(taskId: String): TaskDto {
+        return try {
+            val response = supabaseClient.postgrest.rpc(
+                function = "complete_task",
+                parameters = buildJsonObject {
+                    put("p_task_id", taskId)
+                }
+            )
+            Log.d("TASK_RPC_DEBUG", "complete_task raw response: ${response.data}")
+            response.decodeAs<TaskDto>()
+        } catch (e: Exception) {
+            Log.e("TASK_RPC_DEBUG", "complete_task RPC FAILED: ${e.message}", e)
+            throw e
         }
     }
 

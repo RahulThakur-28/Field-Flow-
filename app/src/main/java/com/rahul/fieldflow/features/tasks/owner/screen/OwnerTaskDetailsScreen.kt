@@ -36,6 +36,7 @@ fun OwnerTaskDetailsScreen(
     taskId: String,
     onBackClick: () -> Unit,
     onTrackClick: (String) -> Unit,
+    onViewReportClick: (String) -> Unit,
     viewModel: OwnerTaskDetailsViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
@@ -69,23 +70,38 @@ fun OwnerTaskDetailsScreen(
                     color = Color.White,
                     shadowElevation = 8.dp
                 ) {
-                    Box(
+                    Row(
                         modifier = Modifier
                             .padding(16.dp)
-                            .navigationBarsPadding()
+                            .navigationBarsPadding(),
+                        horizontalArrangement = Arrangement.spacedBy(12.dp)
                     ) {
                         Button(
                             onClick = { onTrackClick(taskId) },
                             modifier = Modifier
-                                .fillMaxWidth()
+                                .weight(1f)
                                 .height(56.dp),
                             shape = RoundedCornerShape(16.dp),
                             colors = ButtonDefaults.buttonColors(containerColor = PrimaryBlue),
                             elevation = ButtonDefaults.buttonElevation(defaultElevation = 2.dp)
                         ) {
                             Icon(Icons.Default.MyLocation, contentDescription = null, modifier = Modifier.size(20.dp))
-                            Spacer(modifier = Modifier.width(10.dp))
-                            Text("Live Track Task", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Text("Live Track", style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.Bold)
+                        }
+                        
+                        OutlinedButton(
+                            onClick = { onViewReportClick(taskId) },
+                            modifier = Modifier
+                                .weight(1f)
+                                .height(56.dp),
+                            shape = RoundedCornerShape(16.dp),
+                            border = androidx.compose.foundation.BorderStroke(1.dp, PrimaryBlue),
+                            colors = ButtonDefaults.outlinedButtonColors(contentColor = PrimaryBlue)
+                        ) {
+                            Icon(Icons.Default.Assessment, contentDescription = null, modifier = Modifier.size(20.dp))
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Text("View Report", style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.Bold)
                         }
                     }
                 }
@@ -240,6 +256,6 @@ private fun TaskOverviewCard(task: Task) {
 @Composable
 fun OwnerTaskDetailsScreenPreview() {
     FieldFlowTheme {
-        OwnerTaskDetailsScreen(taskId = "1", onBackClick = {}, onTrackClick = {})
+        OwnerTaskDetailsScreen(taskId = "1", onBackClick = {}, onTrackClick = {}, onViewReportClick = {})
     }
 }

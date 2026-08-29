@@ -36,6 +36,7 @@ data class StatusUiConfig(val color: Color)
 fun getStatusConfig(status: TaskStatus): StatusUiConfig {
     return when (status) {
         TaskStatus.PENDING -> StatusUiConfig(Color(0xFFFFA000))
+        TaskStatus.ASSIGNED -> StatusUiConfig(Color(0xFF2196F3))
         TaskStatus.IN_PROGRESS -> StatusUiConfig(PrimaryBlue)
         TaskStatus.COMPLETED -> StatusUiConfig(Color(0xFF4CAF50))
         TaskStatus.OVERDUE -> StatusUiConfig(Color(0xFFF44336))

@@ -80,6 +80,9 @@ sealed class AppRoutes {
     data class EmployeeReportDetails(val reportId: String) : AppRoutes()
 
     @Serializable
+    data class TaskReport(val taskId: String) : AppRoutes()
+
+    @Serializable
     data object OwnerReports : AppRoutes()
 
     @Serializable

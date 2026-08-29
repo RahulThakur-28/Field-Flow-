@@ -21,12 +21,13 @@ import com.rahul.fieldflow.ui.theme.PrimaryBlue
 @Composable
 fun TaskJourneyStatus(currentStatus: TaskStatus) {
     val stages = listOf(
-        TaskStatus.PENDING to "Assigned",
+        TaskStatus.ASSIGNED to "Assigned",
         TaskStatus.IN_PROGRESS to "In Progress",
         TaskStatus.COMPLETED to "Completed"
     )
 
     Column(modifier = Modifier.fillMaxWidth()) {
+        // ... (rest of the component)
         Text(
             text = "Journey Status",
             style = MaterialTheme.typography.titleSmall,

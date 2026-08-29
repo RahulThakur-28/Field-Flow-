@@ -20,6 +20,13 @@ interface TaskRepository {
 
     suspend fun getOwnerTasks(): Result<List<Task>>
 
+    suspend fun getEmployeeTasks(): Result<List<Task>>
+
     suspend fun getTaskById(taskId: String): Result<Task>
 
+    suspend fun startTask(taskId: String): Result<Task>
+
+    suspend fun completeTask(taskId: String): Result<Task>
+
+    suspend fun updateChecklistItem(itemId: String, isCompleted: Boolean): Result<Unit>
 }

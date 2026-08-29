@@ -67,6 +67,22 @@ class TaskRepositoryImpl @Inject constructor(
         }
     }
 
+    override suspend fun getEmployeeTasks(): Result<List<Task>> {
+        return runCatching {
+            val employeeId = authDataSource.getCurrentUserId()
+                ?: throw Exception("Not authenticated")
+
+            Log.d("EMPLOYEE_TASK_TRACE", "getEmployeeTasks: authenticatedUserId = $employeeId")
+
+            val taskDtos = taskDataSource.getTasksForEmployee(employeeId)
+            Log.d("EMPLOYEE_TASK_TRACE", "getEmployeeTasks: decoded TaskDto count = ${taskDtos.size}")
+
+            taskDtos.map { it.toDomain() }
+        }.onFailure { error ->
+            Log.e("EMPLOYEE_TASK_TRACE", "getEmployeeTasks: failure = ${error.message}")
+        }
+    }
+
     override suspend fun getTaskById(taskId: String): Result<Task> {
         return runCatching {
             if (taskId.isBlank()) {
@@ -79,6 +95,24 @@ class TaskRepositoryImpl @Inject constructor(
             taskDataSource
                 .getTaskById(taskId)
                 .toDomain()
+        }
+    }
+
+    override suspend fun startTask(taskId: String): Result<Task> {
+        return runCatching {
+            taskDataSource.startTask(taskId).toDomain()
+        }
+    }
+
+    override suspend fun completeTask(taskId: String): Result<Task> {
+        return runCatching {
+            taskDataSource.completeTask(taskId).toDomain()
+        }
+    }
+
+    override suspend fun updateChecklistItem(itemId: String, isCompleted: Boolean): Result<Unit> {
+        return runCatching {
+            taskDataSource.updateChecklistItemCompletion(itemId, isCompleted)
         }
     }
 }

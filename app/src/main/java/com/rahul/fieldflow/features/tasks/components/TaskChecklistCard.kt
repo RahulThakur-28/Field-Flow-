@@ -20,7 +20,10 @@ import com.rahul.fieldflow.ui.theme.TextDark
 import com.rahul.fieldflow.ui.theme.TextSecondary
 
 @Composable
-fun TaskChecklistCard(items: List<ChecklistItem>) {
+fun TaskChecklistCard(
+    items: List<ChecklistItem>,
+    onItemToggle: (String, Boolean) -> Unit = { _, _ -> }
+) {
     Log.d("OWNER_CHECKLIST_TRACE", "TaskChecklistCard received=${items.size}")
     
     val completedCount = items.count { it.isChecked }
@@ -34,6 +37,7 @@ fun TaskChecklistCard(items: List<ChecklistItem>) {
         border = androidx.compose.foundation.BorderStroke(1.dp, Color.LightGray.copy(alpha = 0.3f))
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
+            // ... (header part remains the same)
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
@@ -81,7 +85,9 @@ fun TaskChecklistCard(items: List<ChecklistItem>) {
                 ) {
                     Checkbox(
                         checked = item.isChecked,
-                        onCheckedChange = null,
+                        onCheckedChange = { isChecked ->
+                            onItemToggle(item.id, isChecked)
+                        },
                         colors = CheckboxDefaults.colors(checkedColor = PrimaryBlue)
                     )
                     Spacer(modifier = Modifier.width(12.dp))
@@ -89,7 +95,8 @@ fun TaskChecklistCard(items: List<ChecklistItem>) {
                         text = item.title,
                         style = MaterialTheme.typography.bodyMedium,
                         color = if (item.isChecked) TextSecondary else TextDark,
-                        textDecoration = if (item.isChecked) TextDecoration.LineThrough else null
+                        textDecoration = if (item.isChecked) TextDecoration.LineThrough else null,
+                        modifier = Modifier.weight(1f)
                     )
                 }
                 if (index < items.size - 1) {
