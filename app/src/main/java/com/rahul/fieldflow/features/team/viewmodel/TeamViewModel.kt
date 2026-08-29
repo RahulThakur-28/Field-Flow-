@@ -32,9 +32,15 @@ class TeamViewModel @Inject constructor(
         loadTeam()
     }
 
-    fun loadTeam() {
+    fun loadTeam(isRefreshing: Boolean = false) {
         viewModelScope.launch {
-            _teamUiState.update { it.copy(isLoading = true) }
+            if (!isRefreshing) {
+                _teamUiState.update { it.copy(isLoading = true) }
+            } else {
+                // We could add an isRefreshing state to UI state if needed, 
+                // but usually isLoading is enough for standard indicators.
+                _teamUiState.update { it.copy(isLoading = true) }
+            }
             
             getTeamWithStatsUseCase()
                 .onSuccess { members ->
@@ -52,6 +58,10 @@ class TeamViewModel @Inject constructor(
                     _teamUiState.update { it.copy(isLoading = false) }
                 }
         }
+    }
+
+    fun refreshTeam() {
+        loadTeam(isRefreshing = true)
     }
 
     fun onSearchQueryChange(query: String) {
@@ -78,9 +88,11 @@ class TeamViewModel @Inject constructor(
         )
     }
 
-    fun loadEmployeeDetails(employeeId: String) {
+    fun loadEmployeeDetails(employeeId: String, isRefreshing: Boolean = false) {
         viewModelScope.launch {
-            _employeeDetailsUiState.update { it.copy(isLoading = true) }
+            if (!isRefreshing) {
+                _employeeDetailsUiState.update { it.copy(isLoading = true) }
+            }
             
             getEmployeeDetailsUseCase(employeeId)
                 .onSuccess { details ->
@@ -99,5 +111,9 @@ class TeamViewModel @Inject constructor(
                     _employeeDetailsUiState.update { it.copy(isLoading = false) }
                 }
         }
+    }
+
+    fun refreshEmployeeDetails(employeeId: String) {
+        loadEmployeeDetails(employeeId, isRefreshing = true)
     }
 }
