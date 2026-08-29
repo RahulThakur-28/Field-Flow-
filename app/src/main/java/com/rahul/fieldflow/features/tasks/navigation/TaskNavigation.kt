@@ -12,7 +12,7 @@ import com.rahul.fieldflow.features.tasks.owner.screen.*
 import org.maplibre.android.geometry.LatLng
 
 fun NavGraphBuilder.taskNavigation(navController: NavController) {
-    navigation<AppRoutes.Tasks>(startDestination = AppRoutes.OwnerTasks) {
+    navigation<AppRoutes.Tasks>(startDestination = AppRoutes.OwnerTasks()) {
         // Owner Routes
         composable<AppRoutes.OwnerTasks> {
             OwnerTasksScreen(

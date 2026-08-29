@@ -1,8 +1,11 @@
 package com.rahul.fieldflow.features.tasks.owner.viewmodel
 
 import android.util.Log
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.navigation.toRoute
+import com.rahul.fieldflow.core.navigation.AppRoutes
 import com.rahul.fieldflow.domain.repository.AuthRepository
 import com.rahul.fieldflow.domain.repository.TaskRepository
 import com.rahul.fieldflow.features.tasks.model.Employee
@@ -12,13 +15,23 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import javax.inject.Inject
+import java.time.OffsetDateTime
 
 @HiltViewModel
 class OwnerTasksViewModel @Inject constructor(
     private val taskRepository: TaskRepository,
-    private val authRepository: AuthRepository
+    private val authRepository: AuthRepository,
+    savedStateHandle: SavedStateHandle
 ) : ViewModel() {
-    private val _uiState = MutableStateFlow(OwnerTasksUiState())
+    private val initialFilter = try {
+        savedStateHandle.toRoute<AppRoutes.OwnerTasks>().filter?.let { 
+            TaskFilter.valueOf(it.uppercase()) 
+        } ?: TaskFilter.ALL
+    } catch (e: Exception) {
+        TaskFilter.ALL
+    }
+
+    private val _uiState = MutableStateFlow(OwnerTasksUiState(selectedFilter = initialFilter))
     val uiState: StateFlow<OwnerTasksUiState> = _uiState.asStateFlow()
 
     init {
@@ -96,18 +109,25 @@ class OwnerTasksViewModel @Inject constructor(
     }
 
     private fun com.rahul.fieldflow.domain.model.Task.toUiTask(): com.rahul.fieldflow.features.tasks.model.Task {
-        return com.rahul.fieldflow.features.tasks.model.Task(
-            id = id,
-            title = title,
-            description = description ?: "",
-            status = when(status) {
+        val uiStatus = if (status != com.rahul.fieldflow.domain.model.TaskStatus.COMPLETED && 
+            dueDate?.isBefore(OffsetDateTime.now()) == true) {
+            com.rahul.fieldflow.features.tasks.model.TaskStatus.OVERDUE
+        } else {
+            when(status) {
                 com.rahul.fieldflow.domain.model.TaskStatus.PENDING -> com.rahul.fieldflow.features.tasks.model.TaskStatus.PENDING
                 com.rahul.fieldflow.domain.model.TaskStatus.ASSIGNED -> com.rahul.fieldflow.features.tasks.model.TaskStatus.PENDING
                 com.rahul.fieldflow.domain.model.TaskStatus.IN_PROGRESS -> com.rahul.fieldflow.features.tasks.model.TaskStatus.IN_PROGRESS
                 com.rahul.fieldflow.domain.model.TaskStatus.COMPLETED -> com.rahul.fieldflow.features.tasks.model.TaskStatus.COMPLETED
                 com.rahul.fieldflow.domain.model.TaskStatus.CANCELLED -> com.rahul.fieldflow.features.tasks.model.TaskStatus.CANCELLED
                 else -> com.rahul.fieldflow.features.tasks.model.TaskStatus.PENDING
-            },
+            }
+        }
+
+        return com.rahul.fieldflow.features.tasks.model.Task(
+            id = id,
+            title = title,
+            description = description ?: "",
+            status = uiStatus,
             priority = when(priority) {
                 com.rahul.fieldflow.domain.model.TaskPriority.LOW -> com.rahul.fieldflow.features.tasks.model.TaskPriority.LOW
                 com.rahul.fieldflow.domain.model.TaskPriority.MEDIUM -> com.rahul.fieldflow.features.tasks.model.TaskPriority.MEDIUM
