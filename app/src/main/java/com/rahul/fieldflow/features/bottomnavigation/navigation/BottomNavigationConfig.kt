@@ -11,7 +11,7 @@ object BottomNavigationConfig {
         NavigationItemUiModel("Tasks", Icons.Default.Assignment, AppRoutes.OwnerTasks),
         NavigationItemUiModel("Team", Icons.Default.Group, AppRoutes.Team),
         NavigationItemUiModel("Reports", Icons.Default.Description, AppRoutes.OwnerReports),
-        NavigationItemUiModel("Analytics", Icons.Default.BarChart, AppRoutes.Analytics)
+        NavigationItemUiModel("Profile", Icons.Default.Person, AppRoutes.OwnerProfile)
     )
 
     val employeeItems = listOf(

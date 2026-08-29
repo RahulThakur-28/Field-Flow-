@@ -157,7 +157,7 @@ fun OwnerHomeContent(
                             SummaryStatCard(
                                 stat = stat, 
                                 modifier = Modifier.weight(1f),
-                                onClick = { navController.navigate(AppRoutes.Analytics) }
+                                onClick = { navController.navigate(AppRoutes.OwnerProfile) }
                             )
                         }
                     }
