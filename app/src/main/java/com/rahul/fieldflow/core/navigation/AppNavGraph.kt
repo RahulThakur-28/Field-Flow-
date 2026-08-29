@@ -51,6 +51,7 @@ fun AppNavGraph(
             AuthState.NoWorkspace,
             AuthState.PendingApproval,
             AuthState.Rejected -> {
+                Log.d("FIELD_FLOW_STARTUP", "Processing state: $currentAuthState")
 
                 val targetDestination: Any = when (currentAuthState) {
                     is AuthState.Authenticated -> {

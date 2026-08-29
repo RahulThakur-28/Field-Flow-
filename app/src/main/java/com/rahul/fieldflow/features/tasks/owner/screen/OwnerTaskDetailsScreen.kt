@@ -4,6 +4,7 @@ import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
@@ -35,7 +36,6 @@ import java.util.Locale
 fun OwnerTaskDetailsScreen(
     taskId: String,
     onBackClick: () -> Unit,
-    onTrackClick: (String) -> Unit,
     onViewReportClick: (String) -> Unit,
     viewModel: OwnerTaskDetailsViewModel = hiltViewModel()
 ) {
@@ -46,13 +46,24 @@ fun OwnerTaskDetailsScreen(
     }
 
     Scaffold(
-        containerColor = Color(0xFFF8F9FB),
+        containerColor = MaterialTheme.colorScheme.background,
         topBar = {
             TopAppBar(
-                title = { Text("Task Details", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold) },
+                title = { Text("Task Details", fontWeight = FontWeight.Bold) },
                 navigationIcon = {
-                    IconButton(onClick = onBackClick) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                    Surface(
+                        onClick = onBackClick,
+                        shape = CircleShape,
+                        color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f),
+                        modifier = Modifier.padding(8.dp).size(40.dp)
+                    ) {
+                        Box(contentAlignment = Alignment.Center) {
+                            Icon(
+                                imageVector = Icons.AutoMirrored.Filled.ArrowBack, 
+                                contentDescription = "Back",
+                                modifier = Modifier.size(20.dp)
+                            )
+                        }
                     }
                 },
                 actions = {
@@ -60,48 +71,39 @@ fun OwnerTaskDetailsScreen(
                         Icon(Icons.Default.MoreVert, contentDescription = "More")
                     }
                 },
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.White)
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = Color.Transparent,
+                    titleContentColor = MaterialTheme.colorScheme.onBackground
+                )
             )
         },
         bottomBar = {
             if (uiState.task != null) {
                 Surface(
                     modifier = Modifier.fillMaxWidth(),
-                    color = Color.White,
-                    shadowElevation = 8.dp
+                    color = MaterialTheme.colorScheme.surface,
+                    shadowElevation = 16.dp,
+                    border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.3f))
                 ) {
-                    Row(
+                    Box(
                         modifier = Modifier
                             .padding(16.dp)
-                            .navigationBarsPadding(),
-                        horizontalArrangement = Arrangement.spacedBy(12.dp)
+                            .navigationBarsPadding()
                     ) {
                         Button(
-                            onClick = { onTrackClick(taskId) },
-                            modifier = Modifier
-                                .weight(1f)
-                                .height(56.dp),
-                            shape = RoundedCornerShape(16.dp),
-                            colors = ButtonDefaults.buttonColors(containerColor = PrimaryBlue),
-                            elevation = ButtonDefaults.buttonElevation(defaultElevation = 2.dp)
-                        ) {
-                            Icon(Icons.Default.MyLocation, contentDescription = null, modifier = Modifier.size(20.dp))
-                            Spacer(modifier = Modifier.width(8.dp))
-                            Text("Live Track", style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.Bold)
-                        }
-                        
-                        OutlinedButton(
                             onClick = { onViewReportClick(taskId) },
                             modifier = Modifier
-                                .weight(1f)
+                                .fillMaxWidth()
                                 .height(56.dp),
                             shape = RoundedCornerShape(16.dp),
-                            border = androidx.compose.foundation.BorderStroke(1.dp, PrimaryBlue),
-                            colors = ButtonDefaults.outlinedButtonColors(contentColor = PrimaryBlue)
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = SecondaryIndigo
+                            ),
+                            elevation = ButtonDefaults.buttonElevation(defaultElevation = 2.dp)
                         ) {
                             Icon(Icons.Default.Assessment, contentDescription = null, modifier = Modifier.size(20.dp))
-                            Spacer(modifier = Modifier.width(8.dp))
-                            Text("View Report", style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.Bold)
+                            Spacer(modifier = Modifier.width(10.dp))
+                            Text("View AI Report", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
                         }
                     }
                 }
@@ -115,9 +117,9 @@ fun OwnerTaskDetailsScreen(
         } else if (uiState.task == null) {
             Box(modifier = Modifier.fillMaxSize().padding(paddingValues), contentAlignment = Alignment.Center) {
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                    Icon(Icons.Default.ErrorOutline, contentDescription = null, modifier = Modifier.size(48.dp), tint = Color.Gray)
+                    Icon(Icons.Default.ErrorOutline, contentDescription = null, modifier = Modifier.size(64.dp), tint = MaterialTheme.colorScheme.error)
                     Spacer(modifier = Modifier.height(16.dp))
-                    Text("Task not found", style = MaterialTheme.typography.bodyLarge, color = Color.Gray)
+                    Text("Task not found", style = MaterialTheme.typography.titleLarge, color = MaterialTheme.colorScheme.onSurfaceVariant)
                     Spacer(modifier = Modifier.height(24.dp))
                     Button(onClick = onBackClick) {
                         Text("Go Back")
@@ -126,19 +128,21 @@ fun OwnerTaskDetailsScreen(
             }
         } else {
             val task = uiState.task!!
-            Log.d("OWNER_CHECKLIST_TRACE", "uiState checklist count=${task.checklist.size}")
             Column(
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(paddingValues)
                     .verticalScroll(rememberScrollState())
                     .padding(16.dp),
-                verticalArrangement = Arrangement.spacedBy(16.dp)
+                verticalArrangement = Arrangement.spacedBy(20.dp)
             ) {
                 // 1. Task Overview Card
                 TaskOverviewCard(task)
 
-                // 2. Location Card
+                // 2. Assigned Employee Card (Blue Themed)
+                EmployeeAssignmentCard(task.assignedTo)
+
+                // 3. Location Card
                 TaskLocationCard(
                     location = task.location,
                     latitude = task.latitude,
@@ -146,27 +150,20 @@ fun OwnerTaskDetailsScreen(
                     radiusMeters = task.radiusMeters
                 )
 
-                // 3. Schedule Card
-                TaskScheduleCard(
-                    scheduledDate = task.scheduledDate.format(DateTimeFormatter.ofPattern("EEEE, MMM dd")),
-                    deadline = (task.deadline ?: task.scheduledDate).format(DateTimeFormatter.ofPattern("hh:mm a"))
-                )
+                // 4. Schedule Card with Red Deadline
+                TaskScheduleCardDetailed(task)
 
-                // 4. Checklist Card (only if real data exists)
-                Log.d("OWNER_CHECKLIST_TRACE", "render checklist count=${task.checklist.size}")
+                // 5. Checklist Card
                 if (task.checklist.isNotEmpty()) {
-                    Log.d("OWNER_CHECKLIST_TRACE", "rendering checklist card = true")
                     TaskChecklistCard(task.checklist)
-                } else {
-                    Log.d("OWNER_CHECKLIST_TRACE", "rendering checklist card = false")
                 }
 
-                // 5. Timeline Card (only if real data exists)
+                // 6. Timeline Card
                 if (task.timeline.isNotEmpty()) {
                     TaskProgressTimeline(task.timeline)
                 }
 
-                Spacer(modifier = Modifier.height(80.dp)) // Extra padding for bottom bar
+                Spacer(modifier = Modifier.height(100.dp))
             }
         }
     }
@@ -176,76 +173,160 @@ fun OwnerTaskDetailsScreen(
 private fun TaskOverviewCard(task: Task) {
     Card(
         modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(containerColor = Color.White),
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+        shape = RoundedCornerShape(24.dp),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
+        border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.3f))
     ) {
-        Column(modifier = Modifier.padding(16.dp)) {
-            // ID and Date
+        Column(modifier = Modifier.padding(20.dp)) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = "#${task.id.takeLast(4).uppercase()} · ${task.scheduledDate.format(DateTimeFormatter.ofPattern("MMM dd, yyyy"))}",
+                    text = "#${task.id.takeLast(6).uppercase()}",
                     style = MaterialTheme.typography.labelLarge,
-                    color = Color.Gray,
-                    fontWeight = FontWeight.Bold
+                    color = MaterialTheme.colorScheme.primary,
+                    fontWeight = FontWeight.Bold,
+                    letterSpacing = 1.sp
                 )
+                TaskStatusBadge(task.status)
             }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            Text(
+                text = task.title,
+                style = MaterialTheme.typography.headlineSmall,
+                fontWeight = FontWeight.ExtraBold,
+                color = MaterialTheme.colorScheme.onSurface
+            )
 
             Spacer(modifier = Modifier.height(12.dp))
 
-            // Title
-            Text(
-                text = task.title,
-                style = MaterialTheme.typography.titleLarge,
-                fontWeight = FontWeight.ExtraBold,
-                color = TextDark
-            )
-
-            Spacer(modifier = Modifier.height(8.dp))
-
-            // Description
             Text(
                 text = task.description,
-                style = MaterialTheme.typography.bodyMedium,
-                color = TextSecondary,
-                lineHeight = 22.sp
+                style = MaterialTheme.typography.bodyLarge,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                lineHeight = 24.sp
             )
 
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(20.dp))
 
-            // Badges
             Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                TaskStatusBadge(task.status)
                 TaskPriorityBadge(task.priority)
             }
+        }
+    }
+}
 
-            Spacer(modifier = Modifier.height(16.dp))
-            HorizontalDivider(color = Color(0xFFF0F2F5))
-            Spacer(modifier = Modifier.height(16.dp))
-
-            // Assigned Employee
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                ProfileAvatar(
-                    initials = task.assignedTo.name.take(1) + (task.assignedTo.name.split(" ").getOrNull(1)?.take(1) ?: ""),
-                    modifier = Modifier.size(44.dp)
+@Composable
+private fun EmployeeAssignmentCard(employee: com.rahul.fieldflow.features.tasks.model.Employee) {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(20.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = PrimaryBlue.copy(alpha = 0.08f)
+        ),
+        border = androidx.compose.foundation.BorderStroke(1.dp, PrimaryBlue.copy(alpha = 0.2f))
+    ) {
+        Row(
+            modifier = Modifier.padding(16.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            ProfileAvatar(
+                initials = employee.name.take(1) + (employee.name.split(" ").getOrNull(1)?.take(1) ?: ""),
+                modifier = Modifier.size(52.dp)
+            )
+            Spacer(modifier = Modifier.width(16.dp))
+            Column {
+                Text(
+                    text = employee.name,
+                    style = MaterialTheme.typography.titleLarge,
+                    fontWeight = FontWeight.Bold,
+                    color = PrimaryBlue
                 )
+                Text(
+                    text = "Assigned Employee",
+                    style = MaterialTheme.typography.labelMedium,
+                    color = PrimaryBlue.copy(alpha = 0.7f),
+                    fontWeight = FontWeight.SemiBold
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun TaskScheduleCardDetailed(task: Task) {
+    val isOverdue = task.status == com.rahul.fieldflow.features.tasks.model.TaskStatus.OVERDUE
+    
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(20.dp),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+        border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.3f))
+    ) {
+        Column(modifier = Modifier.padding(20.dp)) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Icon(Icons.Default.Event, contentDescription = null, tint = MaterialTheme.colorScheme.primary)
                 Spacer(modifier = Modifier.width(12.dp))
                 Column {
+                    Text("Date", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                     Text(
-                        text = task.assignedTo.name,
+                        task.scheduledDate.format(DateTimeFormatter.ofPattern("EEEE, MMM dd, yyyy")),
                         style = MaterialTheme.typography.bodyLarge,
-                        fontWeight = FontWeight.Bold,
-                        color = TextDark
+                        fontWeight = FontWeight.Bold
                     )
-                    Text(
-                        text = "Assigned Employee",
-                        style = MaterialTheme.typography.labelSmall,
-                        color = TextSecondary
+                }
+            }
+            
+            Spacer(modifier = Modifier.height(16.dp))
+            HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.2f))
+            Spacer(modifier = Modifier.height(16.dp))
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Icon(
+                        imageVector = Icons.Default.Schedule, 
+                        contentDescription = null, 
+                        tint = if (isOverdue) Color.Red else MaterialTheme.colorScheme.primary
                     )
+                    Spacer(modifier = Modifier.width(12.dp))
+                    Column {
+                        Text(
+                            text = "Deadline", 
+                            style = MaterialTheme.typography.labelSmall, 
+                            color = if (isOverdue) Color.Red else Color.Red,
+                            fontWeight = FontWeight.Bold
+                        )
+                        Text(
+                            (task.deadline ?: task.scheduledDate).format(DateTimeFormatter.ofPattern("hh:mm a")),
+                            style = MaterialTheme.typography.bodyLarge,
+                            fontWeight = FontWeight.Bold,
+                            color = if (isOverdue) Color.Red else MaterialTheme.colorScheme.onSurface
+                        )
+                    }
+                }
+                
+                if (isOverdue) {
+                    Surface(
+                        color = Color.Red.copy(alpha = 0.1f),
+                        shape = RoundedCornerShape(8.dp)
+                    ) {
+                        Text(
+                            "OVERDUE",
+                            modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp),
+                            color = Color.Red,
+                            style = MaterialTheme.typography.labelSmall,
+                            fontWeight = FontWeight.ExtraBold
+                        )
+                    }
                 }
             }
         }
@@ -256,6 +337,6 @@ private fun TaskOverviewCard(task: Task) {
 @Composable
 fun OwnerTaskDetailsScreenPreview() {
     FieldFlowTheme {
-        OwnerTaskDetailsScreen(taskId = "1", onBackClick = {}, onTrackClick = {}, onViewReportClick = {})
+        OwnerTaskDetailsScreen(taskId = "1", onBackClick = {}, onViewReportClick = {})
     }
 }

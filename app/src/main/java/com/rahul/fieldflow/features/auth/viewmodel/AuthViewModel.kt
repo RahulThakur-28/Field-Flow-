@@ -68,8 +68,10 @@ class AuthViewModel @Inject constructor(
     }
 
     private suspend fun processAuthenticatedUser(user: UserProfile) {
-        Log.d("FIELD_FLOW_STARTUP", "processAuthenticatedUser for: ${user.email}")
-        if (!authRepository.isEmailVerified()) {
+        val isVerified = authRepository.isEmailVerified()
+        Log.d("FIELD_FLOW_STARTUP", "processAuthenticatedUser for: ${user.email}, isVerified=$isVerified")
+        
+        if (!isVerified) {
             _authState.value = AuthState.EmailUnverified(user)
             Log.d("FIELD_FLOW_STARTUP", "AuthState -> EmailUnverified")
             return
@@ -125,6 +127,18 @@ class AuthViewModel @Inject constructor(
         viewModelScope.launch {
             Log.d("FIELD_FLOW_STARTUP", "checkSession started")
             _authState.value = AuthState.Checking
+            
+            // Wait if a deep link is being processed
+            Log.d("FIELD_FLOW_STARTUP", "Checking if deep link is being processed...")
+            authRepository.isProcessingDeepLink
+                .filter { isProcessing -> 
+                    Log.d("FIELD_FLOW_STARTUP", "isProcessingDeepLink emission: $isProcessing")
+                    !isProcessing 
+                }
+                .first()
+            
+            Log.d("FIELD_FLOW_STARTUP", "Deep link processing finished or not active, continuing checkSession")
+
             try {
                 val userId = getSessionUseCase()
                 Log.d("FIELD_FLOW_STARTUP", "getSessionUseCase returned userId: $userId")
@@ -167,12 +181,15 @@ class AuthViewModel @Inject constructor(
 
     fun refreshStatus() {
         viewModelScope.launch {
+            Log.d("AUTH_DEBUG", "refreshStatus started")
             _authState.value = AuthState.Checking
             authRepository.refreshProfile()
                 .onSuccess { user ->
+                    Log.d("AUTH_DEBUG", "refreshProfile success for ${user.email}")
                     processAuthenticatedUser(user)
                 }
                 .onFailure {
+                    Log.e("AUTH_DEBUG", "refreshProfile failed", it)
                     checkSession()
                 }
         }

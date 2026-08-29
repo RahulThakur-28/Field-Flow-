@@ -6,6 +6,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -19,7 +20,7 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.rahul.fieldflow.features.bottomnavigation.components.FieldFlowBottomNavigation
 import com.rahul.fieldflow.features.bottomnavigation.navigation.BottomNavigationConfig
-import com.rahul.fieldflow.features.tasks.components.TaskCard
+import com.rahul.fieldflow.features.tasks.components.PremiumTaskCard
 import com.rahul.fieldflow.features.tasks.components.TaskFilterTabs
 import com.rahul.fieldflow.features.tasks.employee.state.EmployeeTasksUiState
 import com.rahul.fieldflow.features.tasks.employee.viewmodel.EmployeeTasksViewModel
@@ -38,9 +39,29 @@ fun EmployeeTasksScreen(
     val uiState by viewModel.uiState.collectAsState()
 
     Scaffold(
+        containerColor = MaterialTheme.colorScheme.background,
         topBar = {
             TopAppBar(
-                title = { Text("My Tasks", fontWeight = FontWeight.Bold) }
+                title = { 
+                    Text(
+                        text = "My Tasks", 
+                        style = MaterialTheme.typography.titleLarge,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.onBackground
+                    ) 
+                },
+                actions = {
+                    IconButton(onClick = viewModel::loadTasks) {
+                        Icon(
+                            imageVector = Icons.Default.Refresh,
+                            contentDescription = "Refresh",
+                            tint = MaterialTheme.colorScheme.onBackground
+                        )
+                    }
+                },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = androidx.compose.ui.graphics.Color.Transparent
+                )
             )
         },
         bottomBar = {
@@ -50,51 +71,55 @@ fun EmployeeTasksScreen(
             )
         }
     ) { padding ->
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(padding)
-                .padding(horizontal = 16.dp)
+        PullToRefreshBox(
+            isRefreshing = uiState.isLoading,
+            onRefresh = viewModel::loadTasks,
+            modifier = Modifier.padding(padding)
         ) {
-            TaskFilterTabs(
-                tabs = listOf("Upcoming", "Active", "Completed"),
-                selectedTab = uiState.selectedTab,
-                onTabSelected = viewModel::onTabSelected
-            )
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            if (uiState.isLoading) {
-                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                    CircularProgressIndicator(color = PrimaryBlue)
-                }
-            } else if (uiState.error != null) {
-                ErrorState(
-                    message = uiState.error!!,
-                    onRetry = viewModel::loadTasks
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(horizontal = 16.dp)
+            ) {
+                Spacer(modifier = Modifier.height(8.dp))
+                
+                TaskFilterTabs(
+                    tabs = listOf("Upcoming", "Active", "Completed"),
+                    selectedTab = uiState.selectedTab,
+                    onTabSelected = viewModel::onTabSelected
                 )
-            } else {
-                val filteredTasks = when (uiState.selectedTab) {
-                    0 -> uiState.tasks.filter { 
-                        it.status == TaskStatus.PENDING || it.status == TaskStatus.ASSIGNED 
-                    }
-                    1 -> uiState.tasks.filter { it.status == TaskStatus.IN_PROGRESS }
-                    2 -> uiState.tasks.filter { it.status == TaskStatus.COMPLETED }
-                    else -> uiState.tasks
-                }
 
-                if (filteredTasks.isEmpty()) {
-                    EmptyState(tabIndex = uiState.selectedTab)
+                Spacer(modifier = Modifier.height(16.dp))
+
+                if (uiState.error != null && uiState.tasks.isEmpty()) {
+                    ErrorState(
+                        message = uiState.error!!,
+                        onRetry = viewModel::loadTasks
+                    )
                 } else {
-                    LazyColumn(
-                        modifier = Modifier.fillMaxSize(),
-                        contentPadding = PaddingValues(bottom = 16.dp)
-                    ) {
-                        items(filteredTasks) { task ->
-                            TaskCard(
-                                task = task,
-                                onClick = { onTaskClick(task.id) }
-                            )
+                    val filteredTasks = when (uiState.selectedTab) {
+                        0 -> uiState.tasks.filter { 
+                            it.status == TaskStatus.PENDING || it.status == TaskStatus.ASSIGNED 
+                        }
+                        1 -> uiState.tasks.filter { it.status == TaskStatus.IN_PROGRESS }
+                        2 -> uiState.tasks.filter { it.status == TaskStatus.COMPLETED }
+                        else -> uiState.tasks
+                    }
+
+                    if (filteredTasks.isEmpty() && !uiState.isLoading) {
+                        EmptyState(tabIndex = uiState.selectedTab)
+                    } else {
+                        LazyColumn(
+                            modifier = Modifier.fillMaxSize(),
+                            contentPadding = PaddingValues(bottom = 80.dp),
+                            verticalArrangement = Arrangement.spacedBy(12.dp)
+                        ) {
+                            items(filteredTasks, key = { it.id }) { task ->
+                                PremiumTaskCard(
+                                    task = task,
+                                    onClick = { onTaskClick(task.id) }
+                                )
+                            }
                         }
                     }
                 }
@@ -123,12 +148,13 @@ private fun ErrorState(
         Text(
             text = "Something went wrong",
             style = MaterialTheme.typography.titleLarge,
-            fontWeight = FontWeight.Bold
+            fontWeight = FontWeight.Bold,
+            color = MaterialTheme.colorScheme.onBackground
         )
         Text(
             text = message,
             style = MaterialTheme.typography.bodyMedium,
-            color = TextSecondary,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
             textAlign = TextAlign.Center,
             modifier = Modifier.padding(horizontal = 32.dp)
         )
@@ -164,12 +190,13 @@ private fun EmptyState(tabIndex: Int) {
         Text(
             text = message,
             style = MaterialTheme.typography.titleLarge,
-            fontWeight = FontWeight.Bold
+            fontWeight = FontWeight.Bold,
+            color = MaterialTheme.colorScheme.onBackground
         )
         Text(
             text = "You're all caught up!",
             style = MaterialTheme.typography.bodyMedium,
-            color = TextSecondary,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
             textAlign = TextAlign.Center
         )
     }

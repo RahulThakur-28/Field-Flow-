@@ -8,13 +8,9 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.Notes
-import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.filled.Email
-import androidx.compose.material.icons.filled.LocationOn
-import androidx.compose.material.icons.filled.Mic
-import androidx.compose.material.icons.filled.Phone
-import androidx.compose.material.icons.filled.Star
+import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -38,8 +34,6 @@ import com.rahul.fieldflow.features.team.viewmodel.TeamViewModel
 import com.rahul.fieldflow.core.utils.DateUtils
 import com.rahul.fieldflow.ui.theme.FieldFlowTheme
 import com.rahul.fieldflow.ui.theme.PrimaryBlue
-import com.rahul.fieldflow.ui.theme.TextDark
-import com.rahul.fieldflow.ui.theme.TextSecondary
 import java.time.format.DateTimeFormatter
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -58,16 +52,19 @@ fun EmployeeDetailsScreen(
     }
 
     Scaffold(
-        containerColor = Color(0xFFF8F9FB),
+        containerColor = MaterialTheme.colorScheme.background,
         topBar = {
             TopAppBar(
                 title = { Text(uiState.profile?.fullName ?: "Employee Details", fontWeight = FontWeight.Bold) },
                 navigationIcon = {
                     IconButton(onClick = onBackClick) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "Back")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
                     }
                 },
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = Color(0xFFF8F9FB))
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = Color.Transparent,
+                    titleContentColor = MaterialTheme.colorScheme.onBackground
+                )
             )
         }
     ) { padding ->
@@ -87,10 +84,10 @@ fun EmployeeDetailsScreen(
                 // Profile Card
                 Card(
                     modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(20.dp),
-                    colors = CardDefaults.cardColors(containerColor = Color.White),
-                    elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
-                    border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFFF0F2F5))
+                    shape = RoundedCornerShape(24.dp),
+                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+                    elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
+                    border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f))
                 ) {
                     Column(modifier = Modifier.padding(20.dp)) {
                         Row(verticalAlignment = Alignment.CenterVertically) {
@@ -104,31 +101,31 @@ fun EmployeeDetailsScreen(
                                     text = profile.fullName,
                                     style = MaterialTheme.typography.headlineSmall,
                                     fontWeight = FontWeight.ExtraBold,
-                                    color = TextDark
+                                    color = MaterialTheme.colorScheme.onSurface
                                 )
                                 Text(
                                     text = profile.role.name.lowercase().replaceFirstChar { it.uppercase() } + " Employee",
                                     style = MaterialTheme.typography.bodyMedium,
-                                    color = TextSecondary
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
                                 )
-                                Spacer(modifier = Modifier.height(6.dp))
+                                Spacer(modifier = Modifier.height(8.dp))
                                 StatusIndicator(status = if (uiState.currentTask != null) "Active" else "Idle")
                             }
                         }
 
                         Spacer(modifier = Modifier.height(24.dp))
-                        HorizontalDivider(color = Color(0xFFF0F2F5))
+                        HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.3f))
                         Spacer(modifier = Modifier.height(24.dp))
 
                         ContactDetailItem(icon = Icons.Default.Email, value = profile.email)
                         Spacer(modifier = Modifier.height(12.dp))
                         ContactDetailItem(icon = Icons.Default.Phone, value = profile.phone ?: "No phone number")
                         
-                        Spacer(modifier = Modifier.height(16.dp))
+                        Spacer(modifier = Modifier.height(20.dp))
                         Text(
                             text = DateUtils.formatMemberSince(profile.createdAt),
                             style = MaterialTheme.typography.labelSmall,
-                            color = TextSecondary
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                     }
                 }
@@ -140,7 +137,7 @@ fun EmployeeDetailsScreen(
                     text = "CURRENT TASK",
                     style = MaterialTheme.typography.labelMedium,
                     fontWeight = FontWeight.Bold,
-                    color = TextSecondary,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                     letterSpacing = 1.sp
                 )
                 Spacer(modifier = Modifier.height(16.dp))
@@ -149,21 +146,21 @@ fun EmployeeDetailsScreen(
                     val task = uiState.currentTask!!
                     Card(
                         modifier = Modifier.fillMaxWidth(),
-                        shape = RoundedCornerShape(16.dp),
-                        colors = CardDefaults.cardColors(containerColor = Color.White),
-                        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
-                        border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFFF0F2F5))
+                        shape = RoundedCornerShape(20.dp),
+                        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+                        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
+                        border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f))
                     ) {
                         Column(modifier = Modifier.padding(16.dp)) {
                             Text(
                                 text = task.title,
                                 style = MaterialTheme.typography.titleMedium,
                                 fontWeight = FontWeight.Bold,
-                                color = TextDark
+                                color = MaterialTheme.colorScheme.onSurface
                             )
                             task.location?.let {
                                 Spacer(modifier = Modifier.height(4.dp))
-                                Text(text = it, style = MaterialTheme.typography.bodySmall, color = TextSecondary)
+                                Text(text = it, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                             }
                             Spacer(modifier = Modifier.height(12.dp))
                             Row(
@@ -175,14 +172,14 @@ fun EmployeeDetailsScreen(
                                 Text(
                                     text = "Assigned: ${task.createdAt.format(DateTimeFormatter.ofPattern("MMM dd, yyyy"))}",
                                     style = MaterialTheme.typography.labelSmall,
-                                    color = TextSecondary
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
                                 )
                             }
                             
                             Spacer(modifier = Modifier.height(16.dp))
                             Button(
                                 onClick = { onTaskClick(task.id) },
-                                modifier = Modifier.fillMaxWidth(),
+                                modifier = Modifier.fillMaxWidth().height(48.dp),
                                 shape = RoundedCornerShape(12.dp),
                                 colors = ButtonDefaults.buttonColors(containerColor = PrimaryBlue)
                             ) {
@@ -194,10 +191,14 @@ fun EmployeeDetailsScreen(
                     Box(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(vertical = 20.dp),
+                            .padding(vertical = 24.dp),
                         contentAlignment = Alignment.Center
                     ) {
-                        Text("No task currently assigned", color = TextSecondary, style = MaterialTheme.typography.bodyMedium)
+                        Text(
+                            "No task currently assigned", 
+                            color = MaterialTheme.colorScheme.onSurfaceVariant, 
+                            style = MaterialTheme.typography.bodyMedium
+                        )
                     }
                 }
 
@@ -208,7 +209,7 @@ fun EmployeeDetailsScreen(
                     text = "PAST TASKS & REPORTS",
                     style = MaterialTheme.typography.labelMedium,
                     fontWeight = FontWeight.Bold,
-                    color = TextSecondary,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                     letterSpacing = 1.sp
                 )
                 Spacer(modifier = Modifier.height(16.dp))
@@ -217,13 +218,17 @@ fun EmployeeDetailsScreen(
                     Box(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(vertical = 20.dp),
+                            .padding(vertical = 24.dp),
                         contentAlignment = Alignment.Center
                     ) {
-                        Text("No past tasks found", color = TextSecondary, style = MaterialTheme.typography.bodyMedium)
+                        Text(
+                            "No past tasks found", 
+                            color = MaterialTheme.colorScheme.onSurfaceVariant, 
+                            style = MaterialTheme.typography.bodyMedium
+                        )
                     }
                 } else {
-                    Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                    Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
                         uiState.pastTasks.forEach { task ->
                             PastTaskCard(
                                 task = task,
@@ -233,7 +238,7 @@ fun EmployeeDetailsScreen(
                     }
                 }
                 
-                Spacer(modifier = Modifier.height(40.dp))
+                Spacer(modifier = Modifier.height(48.dp))
             }
         }
     }
@@ -243,10 +248,10 @@ fun EmployeeDetailsScreen(
 fun PastTaskCard(task: Task, onViewReport: () -> Unit) {
     Card(
         modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(containerColor = Color.White),
-        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
-        border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFFF0F2F5))
+        shape = RoundedCornerShape(20.dp),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
+        border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f))
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
             Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
@@ -255,19 +260,19 @@ fun PastTaskCard(task: Task, onViewReport: () -> Unit) {
                         text = task.title,
                         style = MaterialTheme.typography.bodyLarge,
                         fontWeight = FontWeight.Bold,
-                        color = TextDark
+                        color = MaterialTheme.colorScheme.onSurface
                     )
                     Text(
                         text = task.completedAt?.format(DateTimeFormatter.ofPattern("MMM dd, yyyy")) ?: "Completed",
                         style = MaterialTheme.typography.labelSmall,
-                        color = TextSecondary
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                     task.location?.let {
                         Spacer(modifier = Modifier.height(4.dp))
                         Row(verticalAlignment = Alignment.CenterVertically) {
-                            Icon(Icons.Default.LocationOn, contentDescription = null, modifier = Modifier.size(12.dp), tint = TextSecondary)
+                            Icon(Icons.Default.LocationOn, contentDescription = null, modifier = Modifier.size(12.dp), tint = MaterialTheme.colorScheme.onSurfaceVariant)
                             Spacer(modifier = Modifier.width(4.dp))
-                            Text(text = it, style = MaterialTheme.typography.bodySmall, color = TextSecondary)
+                            Text(text = it, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                         }
                     }
                 }
@@ -309,11 +314,11 @@ fun PastTaskCard(task: Task, onViewReport: () -> Unit) {
                 }
                 
                 if (task.totalRecordingDurationSeconds > 0) {
-                    Icon(Icons.Default.Mic, contentDescription = null, modifier = Modifier.size(16.dp), tint = TextSecondary)
+                    Icon(Icons.Default.Mic, contentDescription = null, modifier = Modifier.size(16.dp), tint = MaterialTheme.colorScheme.onSurfaceVariant)
                     Text(
                         text = DateUtils.formatDuration(task.totalRecordingDurationSeconds),
                         style = MaterialTheme.typography.labelSmall,
-                        color = TextSecondary
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }
             }
@@ -336,21 +341,26 @@ fun PastTaskCard(task: Task, onViewReport: () -> Unit) {
 fun ContactDetailItem(icon: androidx.compose.ui.graphics.vector.ImageVector, value: String) {
     Row(verticalAlignment = Alignment.CenterVertically) {
         Surface(
-            modifier = Modifier.size(32.dp),
+            modifier = Modifier.size(36.dp),
             shape = CircleShape,
-            color = Color(0xFFF8F9FB)
+            color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
         ) {
             Box(contentAlignment = Alignment.Center) {
                 Icon(
                     imageVector = icon,
                     contentDescription = null,
-                    modifier = Modifier.size(16.dp),
-                    tint = TextSecondary
+                    modifier = Modifier.size(18.dp),
+                    tint = MaterialTheme.colorScheme.primary
                 )
             }
         }
-        Spacer(modifier = Modifier.width(12.dp))
-        Text(text = value, style = MaterialTheme.typography.bodyMedium, color = TextDark)
+        Spacer(modifier = Modifier.width(16.dp))
+        Text(
+            text = value, 
+            style = MaterialTheme.typography.bodyLarge, 
+            color = MaterialTheme.colorScheme.onSurface,
+            fontWeight = FontWeight.Medium
+        )
     }
 }
 

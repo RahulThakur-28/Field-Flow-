@@ -6,7 +6,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.toRoute
 import com.rahul.fieldflow.core.navigation.AppRoutes
-import com.rahul.fieldflow.domain.repository.AuthRepository
 import com.rahul.fieldflow.domain.repository.TaskRepository
 import com.rahul.fieldflow.features.tasks.model.Employee
 import com.rahul.fieldflow.features.tasks.owner.state.OwnerTasksUiState
@@ -20,7 +19,6 @@ import java.time.OffsetDateTime
 @HiltViewModel
 class OwnerTasksViewModel @Inject constructor(
     private val taskRepository: TaskRepository,
-    private val authRepository: AuthRepository,
     savedStateHandle: SavedStateHandle
 ) : ViewModel() {
     private val initialFilter = try {
@@ -41,36 +39,32 @@ class OwnerTasksViewModel @Inject constructor(
     fun loadTasks() {
         viewModelScope.launch {
             Log.d("OWNER_TASK_TRACE", "loadTasks: started")
-            _uiState.update { it.copy(isLoading = true) }
-
-            val currentUser = authRepository.currentUser.first()
-            Log.d("OWNER_TASK_TRACE", "loadTasks: authenticatedUserId = ${currentUser?.id}")
-            Log.d("OWNER_TASK_TRACE", "loadTasks: owner workspaceId = ${currentUser?.workspaceId}")
+            _uiState.update { it.copy(isLoading = true, error = null) }
 
             taskRepository.getOwnerTasks()
                 .onSuccess { tasks ->
-                    Log.d("OWNER_TASK_TRACE", "loadTasks: Domain Task count = ${tasks.size}")
                     val uiTasks = tasks.map { it.toUiTask() }
-                    Log.d("OWNER_TASK_TRACE", "loadTasks: Owner UI task count = ${uiTasks.size}")
                     _uiState.update {
                         it.copy(
                             tasks = uiTasks,
-                            isLoading = false,
-                            error = null
+                            isLoading = false
                         )
                     }
                     applyFilters()
                 }
                 .onFailure { error ->
-                    Log.e("OWNER_TASK_TRACE", "loadTasks: exception = ${error.javaClass.simpleName}, message = ${error.message}")
                     _uiState.update {
                         it.copy(
                             isLoading = false,
-                            error = error.message
+                            error = error.message ?: "Failed to load tasks"
                         )
                     }
                 }
         }
+    }
+
+    fun refresh() {
+        loadTasks()
     }
 
     fun onSearchQueryChange(query: String) {
@@ -87,7 +81,17 @@ class OwnerTasksViewModel @Inject constructor(
 
     private fun applyFilters() {
         val state = _uiState.value
-        val filtered = state.tasks.filter { task ->
+        val allTasks = state.tasks
+        
+        val allCount = allTasks.size
+        val activeCount = allTasks.count { 
+            it.status == com.rahul.fieldflow.features.tasks.model.TaskStatus.PENDING || 
+            it.status == com.rahul.fieldflow.features.tasks.model.TaskStatus.IN_PROGRESS 
+        }
+        val completedCount = allTasks.count { it.status == com.rahul.fieldflow.features.tasks.model.TaskStatus.COMPLETED }
+        val overdueCount = allTasks.count { it.status == com.rahul.fieldflow.features.tasks.model.TaskStatus.OVERDUE }
+
+        val filtered = allTasks.filter { task ->
             val matchesSearch = task.title.contains(state.searchQuery, ignoreCase = true) ||
                     task.assignedTo.name.contains(state.searchQuery, ignoreCase = true) ||
                     task.location.contains(state.searchQuery, ignoreCase = true)
@@ -104,8 +108,16 @@ class OwnerTasksViewModel @Inject constructor(
 
             matchesSearch && matchesFilter
         }
-        Log.d("OWNER_TASK_TRACE", "applyFilters: filtered task count = ${filtered.size}")
-        _uiState.update { it.copy(filteredTasks = filtered) }
+        
+        _uiState.update { 
+            it.copy(
+                filteredTasks = filtered,
+                allCount = allCount,
+                activeCount = activeCount,
+                completedCount = completedCount,
+                overdueCount = overdueCount
+            ) 
+        }
     }
 
     private fun com.rahul.fieldflow.domain.model.Task.toUiTask(): com.rahul.fieldflow.features.tasks.model.Task {
@@ -119,7 +131,6 @@ class OwnerTasksViewModel @Inject constructor(
                 com.rahul.fieldflow.domain.model.TaskStatus.IN_PROGRESS -> com.rahul.fieldflow.features.tasks.model.TaskStatus.IN_PROGRESS
                 com.rahul.fieldflow.domain.model.TaskStatus.COMPLETED -> com.rahul.fieldflow.features.tasks.model.TaskStatus.COMPLETED
                 com.rahul.fieldflow.domain.model.TaskStatus.CANCELLED -> com.rahul.fieldflow.features.tasks.model.TaskStatus.CANCELLED
-                else -> com.rahul.fieldflow.features.tasks.model.TaskStatus.PENDING
             }
         }
 

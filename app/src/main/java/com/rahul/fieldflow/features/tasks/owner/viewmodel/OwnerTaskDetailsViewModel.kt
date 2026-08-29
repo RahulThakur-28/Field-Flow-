@@ -11,6 +11,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import java.time.OffsetDateTime
 import javax.inject.Inject
 
 @HiltViewModel
@@ -65,11 +66,11 @@ class OwnerTaskDetailsViewModel @Inject constructor(
     private fun com.rahul.fieldflow.domain.model.Task.toUiTask():
             com.rahul.fieldflow.features.tasks.model.Task {
 
-        return com.rahul.fieldflow.features.tasks.model.Task(
-            id = id,
-            title = title,
-            description = description ?: "",
-            status = when (status) {
+        val uiStatus = if (status != com.rahul.fieldflow.domain.model.TaskStatus.COMPLETED && 
+            dueDate?.isBefore(OffsetDateTime.now()) == true) {
+            com.rahul.fieldflow.features.tasks.model.TaskStatus.OVERDUE
+        } else {
+            when (status) {
                 com.rahul.fieldflow.domain.model.TaskStatus.PENDING,
                 com.rahul.fieldflow.domain.model.TaskStatus.ASSIGNED ->
                     com.rahul.fieldflow.features.tasks.model.TaskStatus.PENDING
@@ -85,7 +86,14 @@ class OwnerTaskDetailsViewModel @Inject constructor(
 
                 else ->
                     com.rahul.fieldflow.features.tasks.model.TaskStatus.PENDING
-            },
+            }
+        }
+
+        return com.rahul.fieldflow.features.tasks.model.Task(
+            id = id,
+            title = title,
+            description = description ?: "",
+            status = uiStatus,
             priority = when (priority) {
                 com.rahul.fieldflow.domain.model.TaskPriority.LOW ->
                     com.rahul.fieldflow.features.tasks.model.TaskPriority.LOW
