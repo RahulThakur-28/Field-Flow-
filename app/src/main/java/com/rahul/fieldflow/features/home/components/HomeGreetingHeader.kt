@@ -1,4 +1,4 @@
-package com.rahul.fieldflow.features.home.owner.components
+package com.rahul.fieldflow.features.home.components
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons

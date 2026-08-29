@@ -37,7 +37,7 @@ sealed class AppRoutes {
     data class OwnerTasks(val filter: String? = null) : AppRoutes()
 
     @Serializable
-    data object EmployeeTasks : AppRoutes()
+    data class EmployeeTasks(val filter: String? = null) : AppRoutes()
 
     @Serializable
     data object CreateTask : AppRoutes()

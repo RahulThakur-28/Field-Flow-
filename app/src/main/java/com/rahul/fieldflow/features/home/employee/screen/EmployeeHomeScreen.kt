@@ -4,38 +4,36 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.rahul.fieldflow.core.navigation.AppRoutes
 import com.rahul.fieldflow.features.bottomnavigation.components.FieldFlowBottomNavigation
 import com.rahul.fieldflow.features.bottomnavigation.navigation.BottomNavigationConfig
-import com.rahul.fieldflow.features.home.components.FieldFlowHeader
-import com.rahul.fieldflow.features.home.components.SectionHeader
-import com.rahul.fieldflow.features.home.components.SummaryStatCard
-import com.rahul.fieldflow.features.home.employee.components.NextTaskCard
-import com.rahul.fieldflow.features.home.employee.components.QuickAccessCard
-import com.rahul.fieldflow.features.home.employee.components.ScheduleTaskCard
+import com.rahul.fieldflow.features.home.components.*
+import com.rahul.fieldflow.features.home.employee.components.*
 import com.rahul.fieldflow.features.home.employee.state.EmployeeHomeUiState
 import com.rahul.fieldflow.features.home.employee.viewmodel.EmployeeHomeViewModel
-import com.rahul.fieldflow.features.home.model.dummyEmployeeHomeUiState
 import com.rahul.fieldflow.ui.theme.*
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun EmployeeHomeScreen(
     navController: NavController,
-    viewModel: EmployeeHomeViewModel = viewModel()
+    viewModel: EmployeeHomeViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
 
@@ -63,13 +61,12 @@ fun EmployeeHomeContent(
                 navController = navController
             )
         }
-    ) { innerPadding ->
-
+    ) { paddingValues ->
         LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(innerPadding),
-            verticalArrangement = Arrangement.spacedBy(0.dp)
+                .padding(paddingValues),
+            contentPadding = PaddingValues(bottom = 24.dp)
         ) {
             item {
                 Column(
@@ -85,92 +82,124 @@ fun EmployeeHomeContent(
                         )
                         .padding(horizontal = 20.dp)
                 ) {
-                    FieldFlowHeader(
-                        date = uiState.date,
+                    HomeGreetingHeader(
                         userName = uiState.userName,
-                        subtitle = "Ready for today's work?",
                         initials = uiState.initials,
-                        notificationCount = uiState.notificationCount,
+                        unreadNotificationsCount = uiState.unreadNotificationsCount,
                         onProfileClick = { navController.navigate(AppRoutes.EmployeeProfile) },
-                        onNotificationClick = { /* Handle notifications */ }
+                        onNotificationClick = { navController.navigate(AppRoutes.Notifications) }
                     )
 
+                    Spacer(modifier = Modifier.height(8.dp))
+
+                    // Stats Row
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.spacedBy(10.dp)
                     ) {
-                        uiState.stats.forEach { stat ->
-                            SummaryStatCard(
-                                stat = stat,
-                                modifier = Modifier.weight(1f),
-                                onClick = { navController.navigate(AppRoutes.EmployeeTasks) }
-                            )
-                        }
-                    }
-
-                    Spacer(modifier = Modifier.height(20.dp))
-                }
-            }
-
-            item {
-                uiState.nextTask?.let { task ->
-                    Box(modifier = Modifier.padding(horizontal = 20.dp, vertical = 8.dp)) {
-                        NextTaskCard(
-                            task = task,
-                            onClick = {
-                                navController.navigate(AppRoutes.EmployeeTasks)
-                            }
+                        CompactStatCard(
+                            value = "${uiState.allTasksCount}",
+                            label = "All Tasks",
+                            color = PrimaryBlue,
+                            onClick = { navController.navigate(AppRoutes.EmployeeTasks(filter = "all")) },
+                            modifier = Modifier.weight(1f)
+                        )
+                        CompactStatCard(
+                            value = "${uiState.activeTasksCount}",
+                            label = "Active",
+                            color = Color(0xFF2196F3),
+                            onClick = { navController.navigate(AppRoutes.EmployeeTasks(filter = "active")) },
+                            modifier = Modifier.weight(1f)
+                        )
+                        CompactStatCard(
+                            value = "${uiState.completedTasksCount}",
+                            label = "Completed",
+                            color = Color(0xFF4CAF50),
+                            onClick = { navController.navigate(AppRoutes.EmployeeTasks(filter = "completed")) },
+                            modifier = Modifier.weight(1f)
                         )
                     }
-                    Spacer(modifier = Modifier.height(12.dp))
+
+                    Spacer(modifier = Modifier.height(24.dp))
                 }
             }
 
+            // Next Task Card
             item {
-                SectionHeader(
-                    title = "Today's Schedule",
-                    actionText = "All Tasks",
-                    modifier = Modifier.padding(horizontal = 20.dp, vertical = 8.dp),
-                    onActionClick = { navController.navigate(AppRoutes.EmployeeTasks) }
-                )
-            }
-
-            items(
-                items = uiState.schedule
-            ) { task ->
-                Box(modifier = Modifier.padding(horizontal = 20.dp)) {
-                    ScheduleTaskCard(
-                        task = task,
-                        onClick = {
-                            navController.navigate(AppRoutes.EmployeeTasks)
+                Box(modifier = Modifier.padding(horizontal = 20.dp, vertical = 8.dp)) {
+                    EmployeeNextTaskCard(
+                        task = uiState.nextTask,
+                        onViewTask = { taskId ->
+                            navController.navigate(AppRoutes.EmployeeTaskDetails(taskId))
                         }
                     )
                 }
-                Spacer(modifier = Modifier.height(10.dp))
             }
 
+            // Upcoming/Today's Tasks Section
             item {
                 SectionHeader(
-                    title = "Quick Access",
-                    modifier = Modifier.padding(horizontal = 20.dp, vertical = 12.dp)
+                    title = "Upcoming Tasks",
+                    actionText = "See All →",
+                    onActionClick = { navController.navigate(AppRoutes.EmployeeTasks()) },
+                    modifier = Modifier.padding(horizontal = 20.dp, vertical = 8.dp)
                 )
             }
 
-            items(
-                items = uiState.quickAccess
-            ) { quickAccessItem ->
-                Box(modifier = Modifier.padding(horizontal = 20.dp)) {
-                    QuickAccessCard(
-                        item = quickAccessItem,
-                        onClick = {
-                            when (quickAccessItem.title) {
-                                "My Tasks" -> navController.navigate(AppRoutes.EmployeeTasks)
-                                "Reports" -> navController.navigate(AppRoutes.EmployeeReports)
-                            }
-                        }
-                    )
+            if (uiState.upcomingTasks.isEmpty()) {
+                item {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 20.dp)
+                            .height(80.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(text = "No upcoming tasks", color = Color.Gray)
+                    }
                 }
-                Spacer(modifier = Modifier.height(10.dp))
+            } else {
+                items(uiState.upcomingTasks) { task ->
+                    Box(modifier = Modifier.padding(horizontal = 20.dp, vertical = 4.dp)) {
+                        EmployeeHomeTaskCard(
+                            task = task,
+                            onClick = { navController.navigate(AppRoutes.EmployeeTaskDetails(task.id)) }
+                        )
+                    }
+                }
+            }
+
+            // Recent Reports Section
+            item {
+                SectionHeader(
+                    title = "Recent Reports",
+                    actionText = "See All →",
+                    onActionClick = { navController.navigate(AppRoutes.EmployeeReports) },
+                    modifier = Modifier.padding(horizontal = 20.dp, vertical = 8.dp)
+                )
+            }
+
+            if (uiState.recentReports.isEmpty()) {
+                item {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 20.dp)
+                            .height(80.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(text = "No reports submitted yet", color = Color.Gray)
+                    }
+                }
+            } else {
+                items(uiState.recentReports) { report ->
+                    Box(modifier = Modifier.padding(horizontal = 20.dp, vertical = 6.dp)) {
+                        HomeReportCard(
+                            reportContext = report,
+                            onViewReport = { navController.navigate(AppRoutes.TaskReport(report.task.id)) }
+                        )
+                    }
+                }
             }
 
             item {
@@ -178,16 +207,12 @@ fun EmployeeHomeContent(
             }
         }
     }
-}@Preview(
-    showBackground = true,
-    showSystemUi = true
-)
+}
+
+@Preview(showBackground = true)
 @Composable
-private fun EmployeeHomeScreenPreview() {
+fun EmployeeHomeScreenPreview() {
     FieldFlowTheme {
-        EmployeeHomeContent(
-            uiState = dummyEmployeeHomeUiState(),
-            navController = rememberNavController()
-        )
+        EmployeeHomeScreen(navController = rememberNavController())
     }
 }
