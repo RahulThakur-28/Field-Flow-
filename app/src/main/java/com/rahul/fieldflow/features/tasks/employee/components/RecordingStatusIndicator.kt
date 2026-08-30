@@ -21,6 +21,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.rahul.fieldflow.core.audio.ActiveRecordingState
 import com.rahul.fieldflow.core.audio.RecordingStatus
+import com.rahul.fieldflow.ui.theme.ErrorRed
+import com.rahul.fieldflow.ui.theme.WarningOrange
 import java.time.Duration
 import java.time.OffsetDateTime
 import java.util.*
@@ -36,16 +38,16 @@ fun RecordingStatusIndicator(
     }
 
     val backgroundColor = when (state.status) {
-        RecordingStatus.RECORDING -> Color(0xFFFDECEA)
-        RecordingStatus.INTERRUPTED -> Color(0xFFFFF4E5)
-        RecordingStatus.FAILED -> Color(0xFFFFEBEE)
+        RecordingStatus.RECORDING -> ErrorRed.copy(alpha = 0.1f)
+        RecordingStatus.INTERRUPTED -> WarningOrange.copy(alpha = 0.1f)
+        RecordingStatus.FAILED -> ErrorRed.copy(alpha = 0.15f)
         else -> MaterialTheme.colorScheme.surfaceVariant
     }
 
     val contentColor = when (state.status) {
-        RecordingStatus.RECORDING -> Color(0xFFD32F2F)
-        RecordingStatus.INTERRUPTED -> Color(0xFFED6C02)
-        RecordingStatus.FAILED -> Color(0xFFC62828)
+        RecordingStatus.RECORDING -> ErrorRed
+        RecordingStatus.INTERRUPTED -> WarningOrange
+        RecordingStatus.FAILED -> ErrorRed
         else -> MaterialTheme.colorScheme.onSurfaceVariant
     }
 
