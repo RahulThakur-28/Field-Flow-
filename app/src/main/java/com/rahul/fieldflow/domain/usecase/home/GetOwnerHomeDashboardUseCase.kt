@@ -30,7 +30,7 @@ class GetOwnerHomeDashboardUseCase @Inject constructor(
         
         val workspaceResult = workspaceRepository.getWorkspaceById(workspaceId)
         val tasksResult = taskRepository.getOwnerTasks()
-        val reportsResult = reportRepository.getOwnerReports(user.id)
+        val reportsResult = reportRepository.getOwnerReports(workspaceId)
         val employeesResult = authRepository.getTeamMembers(workspaceId)
         val notificationsResult = notificationRepository.getUnreadCount()
 

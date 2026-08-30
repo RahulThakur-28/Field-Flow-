@@ -96,12 +96,15 @@ fun OwnerProfileScreen(
             item {
                 Spacer(modifier = Modifier.height(24.dp))
                 
-                // Profile Header Card
+                // Profile Header Card - Premium Blue
                 Card(
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(24.dp),
-                    colors = CardDefaults.cardColors(containerColor = Color.White),
-                    elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+                    colors = CardDefaults.cardColors(
+                        containerColor = MaterialTheme.colorScheme.primary,
+                        contentColor = MaterialTheme.colorScheme.onPrimary
+                    ),
+                    elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
                 ) {
                     Column(
                         modifier = Modifier.padding(24.dp),
@@ -110,19 +113,21 @@ fun OwnerProfileScreen(
                         Box(contentAlignment = Alignment.BottomEnd) {
                             ProfileAvatar(
                                 initials = uiState.initials,
-                                modifier = Modifier.size(100.dp)
+                                modifier = Modifier.size(100.dp),
+                                containerColor = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.2f),
+                                contentColor = MaterialTheme.colorScheme.onPrimary
                             )
                             Surface(
                                 modifier = Modifier.size(32.dp),
                                 shape = CircleShape,
-                                color = PrimaryBlue,
+                                color = MaterialTheme.colorScheme.onPrimary,
                                 shadowElevation = 4.dp
                             ) {
                                 IconButton(onClick = { navController.navigate(AppRoutes.OwnerEditProfile) }) {
                                     Icon(
                                         Icons.Default.Edit,
                                         contentDescription = "Edit",
-                                        tint = Color.White,
+                                        tint = MaterialTheme.colorScheme.primary,
                                         modifier = Modifier.size(16.dp)
                                     )
                                 }
@@ -135,24 +140,61 @@ fun OwnerProfileScreen(
                             text = uiState.userName,
                             style = MaterialTheme.typography.headlineSmall,
                             fontWeight = FontWeight.Bold,
-                            color = TextDark
+                            color = MaterialTheme.colorScheme.onPrimary
                         )
 
                         Text(
-                            text = "${uiState.role} • ${uiState.company}",
+                            text = "Owner • ${uiState.company}",
                             style = MaterialTheme.typography.bodyMedium,
-                            color = TextSecondary
+                            color = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.8f)
                         )
 
                         Spacer(modifier = Modifier.height(24.dp))
 
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.SpaceEvenly
+                        Surface(
+                            color = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.1f),
+                            shape = RoundedCornerShape(16.dp)
                         ) {
-                            ProfileStatCard(value = "${uiState.totalTasks}", label = "Total Tasks")
-                            ProfileVerticalDivider()
-                            ProfileStatCard(value = "${uiState.teamSize}", label = "Team Size")
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(vertical = 16.dp),
+                                horizontalArrangement = Arrangement.SpaceEvenly,
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                    Text(
+                                        text = "${uiState.totalTasks}",
+                                        style = MaterialTheme.typography.titleLarge,
+                                        fontWeight = FontWeight.Bold,
+                                        color = MaterialTheme.colorScheme.onPrimary
+                                    )
+                                    Text(
+                                        text = "Total Tasks",
+                                        style = MaterialTheme.typography.labelSmall,
+                                        color = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.7f)
+                                    )
+                                }
+                                Box(
+                                    modifier = Modifier
+                                        .width(1.dp)
+                                        .height(30.dp)
+                                        .background(MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.2f))
+                                )
+                                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                    Text(
+                                        text = "${uiState.teamSize}",
+                                        style = MaterialTheme.typography.titleLarge,
+                                        fontWeight = FontWeight.Bold,
+                                        color = MaterialTheme.colorScheme.onPrimary
+                                    )
+                                    Text(
+                                        text = "Team Size",
+                                        style = MaterialTheme.typography.labelSmall,
+                                        color = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.7f)
+                                    )
+                                }
+                            }
                         }
                     }
                 }
@@ -163,14 +205,17 @@ fun OwnerProfileScreen(
                 Card(
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(16.dp),
-                    colors = CardDefaults.cardColors(containerColor = Color.White),
+                    colors = CardDefaults.cardColors(
+                        containerColor = MaterialTheme.colorScheme.surface,
+                        contentColor = MaterialTheme.colorScheme.onSurface
+                    ),
                     elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
                 ) {
                     Column(modifier = Modifier.padding(16.dp)) {
                         ProfileContactItem(icon = Icons.Default.Email, label = "Email", value = uiState.email)
-                        HorizontalDivider(modifier = Modifier.padding(vertical = 12.dp), color = Color.LightGray.copy(alpha = 0.3f))
+                        HorizontalDivider(modifier = Modifier.padding(vertical = 12.dp), color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f))
                         ProfileContactItem(icon = Icons.Default.Phone, label = "Phone", value = uiState.phone ?: "Not added")
-                        HorizontalDivider(modifier = Modifier.padding(vertical = 12.dp), color = Color.LightGray.copy(alpha = 0.3f))
+                        HorizontalDivider(modifier = Modifier.padding(vertical = 12.dp), color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f))
                         ProfileContactItem(icon = Icons.Default.Business, label = "Company", value = uiState.company.ifEmpty { "Company not available" })
                     }
                 }
@@ -181,7 +226,10 @@ fun OwnerProfileScreen(
                 Card(
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(16.dp),
-                    colors = CardDefaults.cardColors(containerColor = Color.White),
+                    colors = CardDefaults.cardColors(
+                        containerColor = MaterialTheme.colorScheme.surface,
+                        contentColor = MaterialTheme.colorScheme.onSurface
+                    ),
                     elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
                 ) {
                     Column {
@@ -189,12 +237,12 @@ fun OwnerProfileScreen(
                             title = "Edit Profile",
                             onClick = { navController.navigate(AppRoutes.OwnerEditProfile) }
                         )
-                        HorizontalDivider(color = Color.LightGray.copy(alpha = 0.3f))
+                        HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f))
                         ProfileSettingItem(
                             title = "Notifications",
                             onClick = { navController.navigate(AppRoutes.Notifications) }
                         )
-                        HorizontalDivider(color = Color.LightGray.copy(alpha = 0.3f))
+                        HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f))
                         ProfileSettingItem(
                             title = "Dark Theme",
                             trailingSwitch = uiState.appTheme == AppTheme.DARK,
@@ -202,17 +250,17 @@ fun OwnerProfileScreen(
                                 viewModel.setTheme(if (isDark) AppTheme.DARK else AppTheme.LIGHT)
                             }
                         )
-                        HorizontalDivider(color = Color.LightGray.copy(alpha = 0.3f))
+                        HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f))
                         ProfileSettingItem(
                             title = "Privacy Policy",
                             onClick = { navController.navigate(AppRoutes.PrivacyPolicy) }
                         )
-                        HorizontalDivider(color = Color.LightGray.copy(alpha = 0.3f))
+                        HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f))
                         ProfileSettingItem(
                             title = "About Us",
                             onClick = { navController.navigate(AppRoutes.AboutUs) }
                         )
-                        HorizontalDivider(color = Color.LightGray.copy(alpha = 0.3f))
+                        HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f))
                         ProfileSettingItem(
                             title = "Account Settings",
                             onClick = { navController.navigate(AppRoutes.OwnerAccountSettings) }
@@ -225,7 +273,7 @@ fun OwnerProfileScreen(
                 TextButton(
                     onClick = { showSignOutDialog = true },
                     modifier = Modifier.fillMaxWidth(),
-                    colors = ButtonDefaults.textButtonColors(contentColor = Color.Red)
+                    colors = ButtonDefaults.textButtonColors(contentColor = com.rahul.fieldflow.ui.theme.ErrorRed)
                 ) {
                     Text("Sign Out", fontWeight = FontWeight.Bold, fontSize = 16.sp)
                 }

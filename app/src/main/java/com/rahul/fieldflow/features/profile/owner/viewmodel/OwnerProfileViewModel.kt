@@ -38,6 +38,7 @@ class OwnerProfileViewModel @Inject constructor(
                             isLoading = false,
                             userName = dashboard.profile.fullName,
                             initials = dashboard.profile.fullName.take(1) + (dashboard.profile.fullName.split(" ").getOrNull(1)?.take(1) ?: ""),
+                            role = "Owner",
                             email = dashboard.profile.email,
                             phone = dashboard.profile.phone,
                             company = dashboard.workspace.name,

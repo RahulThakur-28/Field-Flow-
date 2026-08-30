@@ -1,8 +1,8 @@
 package com.rahul.fieldflow.features.profile.employee.screen
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
@@ -31,7 +31,7 @@ import com.rahul.fieldflow.ui.theme.*
 @Composable
 fun EmployeeProfileScreen(
     navController: NavController,
-    viewModel: EmployeeProfileViewModel = viewModel(),
+    viewModel: EmployeeProfileViewModel = hiltViewModel(),
     authViewModel: AuthViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
@@ -78,7 +78,11 @@ fun EmployeeProfileScreen(
                 actions = {
                     // Spacer to balance the back button for centered title
                     Spacer(modifier = Modifier.width(48.dp))
-                }
+                },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.background,
+                    titleContentColor = MaterialTheme.colorScheme.onBackground
+                )
             )
         },
         bottomBar = {
@@ -87,7 +91,7 @@ fun EmployeeProfileScreen(
                 navController = navController
             )
         },
-        containerColor = BackgroundLight
+        containerColor = MaterialTheme.colorScheme.background
     ) { padding ->
         LazyColumn(
             modifier = Modifier
@@ -99,12 +103,15 @@ fun EmployeeProfileScreen(
             item {
                 Spacer(modifier = Modifier.height(24.dp))
 
-                // Profile Header Card
+                // Profile Header Card - Premium Blue
                 Card(
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(24.dp),
-                    colors = CardDefaults.cardColors(containerColor = Color.White),
-                    elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+                    colors = CardDefaults.cardColors(
+                        containerColor = PrimaryBlue,
+                        contentColor = Color.White
+                    ),
+                    elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
                 ) {
                     Column(
                         modifier = Modifier.padding(24.dp),
@@ -113,23 +120,10 @@ fun EmployeeProfileScreen(
                         Box(contentAlignment = Alignment.BottomEnd) {
                             ProfileAvatar(
                                 initials = uiState.initials,
-                                modifier = Modifier.size(100.dp)
+                                modifier = Modifier.size(100.dp),
+                                containerColor = Color.White.copy(alpha = 0.2f),
+                                contentColor = Color.White
                             )
-                            Surface(
-                                modifier = Modifier.size(32.dp),
-                                shape = CircleShape,
-                                color = PrimaryBlue,
-                                shadowElevation = 4.dp
-                            ) {
-                                Box(contentAlignment = Alignment.Center) {
-                                    Icon(
-                                        Icons.Default.CameraAlt,
-                                        contentDescription = "Change Avatar",
-                                        tint = Color.White,
-                                        modifier = Modifier.size(16.dp)
-                                    )
-                                }
-                            }
                         }
 
                         Spacer(modifier = Modifier.height(16.dp))
@@ -138,26 +132,61 @@ fun EmployeeProfileScreen(
                             text = uiState.userName,
                             style = MaterialTheme.typography.headlineSmall,
                             fontWeight = FontWeight.Bold,
-                            color = TextDark
+                            color = Color.White
                         )
 
                         Text(
-                            text = "${uiState.role} · ${uiState.company}",
+                            text = "${uiState.role} • ${uiState.company}",
                             style = MaterialTheme.typography.bodyMedium,
-                            color = TextSecondary
+                            color = Color.White.copy(alpha = 0.8f)
                         )
 
                         Spacer(modifier = Modifier.height(24.dp))
 
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.SpaceEvenly
+                        Surface(
+                            color = Color.White.copy(alpha = 0.1f),
+                            shape = RoundedCornerShape(16.dp)
                         ) {
-                            ProfileStatCard(value = "${uiState.completedTasks}", label = "Completed")
-                            ProfileVerticalDivider()
-                            ProfileStatCard(value = "${uiState.onTimePercentage}%", label = "On Time")
-                            ProfileVerticalDivider()
-                            ProfileStatCard(value = "${uiState.activeTasks}", label = "Active")
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(vertical = 16.dp),
+                                horizontalArrangement = Arrangement.SpaceEvenly,
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                    Text(
+                                        text = "${uiState.completedTasks}",
+                                        style = MaterialTheme.typography.titleLarge,
+                                        fontWeight = FontWeight.Bold,
+                                        color = Color.White
+                                    )
+                                    Text(
+                                        text = "Completed",
+                                        style = MaterialTheme.typography.labelSmall,
+                                        color = Color.White.copy(alpha = 0.7f)
+                                    )
+                                }
+                                Box(
+                                    modifier = Modifier
+                                        .width(1.dp)
+                                        .height(30.dp)
+                                        .background(Color.White.copy(alpha = 0.2f))
+                                )
+                                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                    Text(
+                                        text = "${uiState.activeTasks}",
+                                        style = MaterialTheme.typography.titleLarge,
+                                        fontWeight = FontWeight.Bold,
+                                        color = Color.White
+                                    )
+                                    Text(
+                                        text = "Active",
+                                        style = MaterialTheme.typography.labelSmall,
+                                        color = Color.White.copy(alpha = 0.7f)
+                                    )
+                                }
+                            }
                         }
                     }
                 }
@@ -167,8 +196,8 @@ fun EmployeeProfileScreen(
                 // Contact Information
                 ProfileInfoCard {
                     ProfileContactItem(icon = Icons.Default.Email, label = "Email", value = uiState.email)
-                    HorizontalDivider(modifier = Modifier.padding(vertical = 12.dp), color = Color.LightGray.copy(alpha = 0.3f))
-                    ProfileContactItem(icon = Icons.Default.Phone, label = "Phone", value = uiState.phone)
+                    HorizontalDivider(modifier = Modifier.padding(vertical = 12.dp), color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f))
+                    ProfileContactItem(icon = Icons.Default.Phone, label = "Phone", value = uiState.phone.ifEmpty { "Not added" })
                 }
 
                 Spacer(modifier = Modifier.height(24.dp))
@@ -177,7 +206,10 @@ fun EmployeeProfileScreen(
                 Card(
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(16.dp),
-                    colors = CardDefaults.cardColors(containerColor = Color.White),
+                    colors = CardDefaults.cardColors(
+                        containerColor = MaterialTheme.colorScheme.surface,
+                        contentColor = MaterialTheme.colorScheme.onSurface
+                    ),
                     elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
                 ) {
                     Column {
@@ -185,15 +217,18 @@ fun EmployeeProfileScreen(
                             title = "Change Password",
                             onClick = { navController.navigate(AppRoutes.ChangePassword) }
                         )
-                        HorizontalDivider(color = Color.LightGray.copy(alpha = 0.3f))
+                        HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f))
                         ProfileSettingItem(
-                            title = "Notification Settings",
-                            onClick = { navController.navigate(AppRoutes.NotificationSettings) }
+                            title = "Notifications",
+                            onClick = { navController.navigate(AppRoutes.Notifications) }
                         )
-                        HorizontalDivider(color = Color.LightGray.copy(alpha = 0.3f))
+                        HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f))
                         ProfileSettingItem(
-                            title = "App Settings",
-                            onClick = { navController.navigate(AppRoutes.AppSettings) }
+                            title = "Dark Theme",
+                            trailingSwitch = uiState.appTheme == com.rahul.fieldflow.domain.model.AppTheme.DARK,
+                            onSwitchChange = { isDark ->
+                                viewModel.setTheme(if (isDark) com.rahul.fieldflow.domain.model.AppTheme.DARK else com.rahul.fieldflow.domain.model.AppTheme.LIGHT)
+                            }
                         )
                     }
                 }

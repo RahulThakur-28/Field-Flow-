@@ -19,8 +19,8 @@ fun ReportStatusBadge(status: ReportStatus) {
         ReportStatus.PROCESSING -> Color(0xFF2196F3)
         ReportStatus.COMPLETED -> Color(0xFF4CAF50)
         ReportStatus.FAILED -> Color(0xFFF44336)
-        ReportStatus.NEEDS_REVIEW -> Color(0xFFFF9800)
-        ReportStatus.REVIEWED -> Color(0xFF4CAF50)
+        ReportStatus.NEEDS_REVIEW -> Color(0xFFF44336) // Red as per plan
+        ReportStatus.REVIEWED -> Color(0xFF4CAF50) // Green as per plan
     }
     Surface(
         color = color.copy(alpha = 0.1f),

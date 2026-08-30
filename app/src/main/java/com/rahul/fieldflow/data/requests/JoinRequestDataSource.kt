@@ -23,7 +23,7 @@ class JoinRequestDataSource @Inject constructor(
 
     suspend fun getMyRequests(employeeId: String): List<JoinRequestDto> {
         return supabaseClient.postgrest["join_requests"]
-            .select(Columns.raw("*, workspaces(name)")) {
+            .select(Columns.raw("*, workspaces:workspaces(name)")) {
                 filter {
                     eq("employee_id", employeeId)
                 }
@@ -33,7 +33,7 @@ class JoinRequestDataSource @Inject constructor(
 
     suspend fun getPendingRequests(workspaceId: String): List<JoinRequestDto> {
         return supabaseClient.postgrest["join_requests"]
-            .select(Columns.raw("*, profiles!join_requests_employee_id_fkey(full_name, email, phone, role)")) {
+            .select(Columns.raw("*, profiles:profiles!join_requests_employee_id_fkey(full_name, email, phone, role)")) {
                 filter {
                     eq("workspace_id", workspaceId)
                     eq("status", "pending")

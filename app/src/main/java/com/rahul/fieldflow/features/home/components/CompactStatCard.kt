@@ -31,13 +31,16 @@ fun CompactStatCard(
             .height(72.dp)
             .clickable(onClick = onClick),
         shape = RoundedCornerShape(16.dp),
-        color = Color.White,
-        border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFFF0F2F5))
+        color = MaterialTheme.colorScheme.surface,
+        border = androidx.compose.foundation.BorderStroke(
+            1.dp, 
+            MaterialTheme.colorScheme.outline.copy(alpha = 0.1f)
+        )
     ) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .background(color.copy(alpha = 0.04f))
+                .background(color.copy(alpha = 0.1f))
                 .padding(8.dp),
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
@@ -45,7 +48,7 @@ fun CompactStatCard(
             Text(
                 text = value,
                 style = MaterialTheme.typography.titleLarge,
-                color = color,
+                color = if (MaterialTheme.colorScheme.surface == Color(0xFF161C2C)) color.copy(alpha = 0.9f) else color,
                 fontWeight = FontWeight.ExtraBold,
                 fontSize = 18.sp,
                 lineHeight = 18.sp
@@ -56,7 +59,7 @@ fun CompactStatCard(
             Text(
                 text = label,
                 style = MaterialTheme.typography.labelSmall,
-                color = TextSecondary,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
                 fontWeight = FontWeight.Bold,
                 fontSize = 10.sp,
                 textAlign = TextAlign.Center,

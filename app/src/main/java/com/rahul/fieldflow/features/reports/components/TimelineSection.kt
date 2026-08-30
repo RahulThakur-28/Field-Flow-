@@ -16,7 +16,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.rahul.fieldflow.domain.model.RecordingSession
 import com.rahul.fieldflow.domain.model.Transcript
-import com.rahul.fieldflow.ui.theme.PrimaryBlue
+import com.rahul.fieldflow.ui.theme.*
 import java.time.format.DateTimeFormatter
 
 @Composable
@@ -44,7 +44,7 @@ fun TimelineSection(
                 Text(
                     text = "Session transcript unavailable (${session.status})",
                     style = MaterialTheme.typography.bodySmall,
-                    color = Color.Gray,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f),
                     modifier = Modifier.padding(start = 16.dp, top = 8.dp, bottom = 8.dp)
                 )
             }
@@ -63,13 +63,31 @@ fun TimelineSection(
 private fun TranscriptSegmentItem(time: String, speaker: String, text: String) {
     Row(modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp)) {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
-            Text(text = time, style = MaterialTheme.typography.labelSmall, color = Color.Gray)
-            Box(modifier = Modifier.width(2.dp).height(24.dp).background(Color.LightGray))
+            Text(
+                text = time, 
+                style = MaterialTheme.typography.labelSmall, 
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+            Box(
+                modifier = Modifier
+                    .width(2.dp)
+                    .height(24.dp)
+                    .background(MaterialTheme.colorScheme.outlineVariant)
+            )
         }
         Spacer(modifier = Modifier.width(12.dp))
         Column {
-            Text(text = speaker, style = MaterialTheme.typography.labelMedium, fontWeight = FontWeight.Bold, color = PrimaryBlue)
-            Text(text = text, style = MaterialTheme.typography.bodyMedium)
+            Text(
+                text = speaker, 
+                style = MaterialTheme.typography.labelMedium, 
+                fontWeight = FontWeight.Bold, 
+                color = PrimaryBlue
+            )
+            Text(
+                text = text, 
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurface
+            )
         }
     }
 }
@@ -78,15 +96,29 @@ private fun TranscriptSegmentItem(time: String, speaker: String, text: String) {
 private fun InterruptionMarker(time: String) {
     Surface(
         modifier = Modifier.fillMaxWidth().padding(vertical = 16.dp),
-        color = Color.Red.copy(alpha = 0.05f),
+        color = ErrorRed.copy(alpha = 0.1f),
         shape = RoundedCornerShape(8.dp)
     ) {
         Row(modifier = Modifier.padding(12.dp), verticalAlignment = Alignment.CenterVertically) {
-            Icon(Icons.Default.Warning, contentDescription = null, tint = Color.Red, modifier = Modifier.size(16.dp))
+            Icon(
+                Icons.Default.Warning, 
+                contentDescription = null, 
+                tint = ErrorRed, 
+                modifier = Modifier.size(16.dp)
+            )
             Spacer(modifier = Modifier.width(8.dp))
             Column {
-                Text(text = "RECORDING INTERRUPTED", color = Color.Red, fontWeight = FontWeight.Bold, fontSize = 12.sp)
-                Text(text = "at $time", color = Color.Red.copy(alpha = 0.7f), fontSize = 10.sp)
+                Text(
+                    text = "RECORDING INTERRUPTED", 
+                    color = ErrorRed, 
+                    fontWeight = FontWeight.Bold, 
+                    fontSize = 12.sp
+                )
+                Text(
+                    text = "at $time", 
+                    color = ErrorRed.copy(alpha = 0.7f), 
+                    fontSize = 10.sp
+                )
             }
         }
     }

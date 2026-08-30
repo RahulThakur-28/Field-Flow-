@@ -28,6 +28,10 @@ import com.rahul.fieldflow.ui.theme.FieldFlowTheme
 import com.rahul.fieldflow.ui.theme.PrimaryBlue
 import com.rahul.fieldflow.ui.theme.TextSecondary
 
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
+import com.rahul.fieldflow.features.reports.owner.components.ReportFilterTabs
+import com.rahul.fieldflow.features.reports.owner.state.ReportFilter
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun OwnerReportsScreen(
@@ -38,21 +42,30 @@ fun OwnerReportsScreen(
     val uiState by viewModel.uiState.collectAsState()
 
     Scaffold(
+        containerColor = MaterialTheme.colorScheme.background,
         topBar = {
             TopAppBar(
                 title = {
                     Column {
-                        Text("Reports", fontWeight = FontWeight.Bold)
+                        Text(
+                            text = "Reports", 
+                            style = MaterialTheme.typography.titleLarge,
+                            fontWeight = FontWeight.Bold,
+                            color = MaterialTheme.colorScheme.onBackground
+                        )
                         Text(
                             text = "${uiState.reports.size} reports • ${uiState.needsReviewCount} need review",
                             style = MaterialTheme.typography.labelMedium,
-                            color = TextSecondary
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                     }
                 },
                 actions = {
                     PendingBadge(count = uiState.needsReviewCount)
-                }
+                },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = Color.Transparent
+                )
             )
         },
         bottomBar = {
@@ -62,59 +75,66 @@ fun OwnerReportsScreen(
             )
         }
     ) { padding ->
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(padding)
-                .padding(horizontal = 16.dp)
+        PullToRefreshBox(
+            isRefreshing = uiState.isLoading,
+            onRefresh = viewModel::onRefresh,
+            modifier = Modifier.padding(padding)
         ) {
-            TaskSearchBar(
-                query = uiState.searchQuery,
-                onQueryChange = viewModel::onSearchQueryChange
-            )
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(horizontal = 16.dp)
+            ) {
+                Spacer(modifier = Modifier.height(8.dp))
 
-            Spacer(modifier = Modifier.height(16.dp))
+                TaskSearchBar(
+                    query = uiState.searchQuery,
+                    onQueryChange = viewModel::onSearchQueryChange
+                )
 
-            TaskFilterTabs(
-                tabs = listOf("All", "Needs Review", "Reviewed"),
-                selectedTab = uiState.selectedTab,
-                onTabSelected = viewModel::onTabSelected
-            )
+                Spacer(modifier = Modifier.height(16.dp))
 
-            Spacer(modifier = Modifier.height(8.dp))
+                ReportFilterTabs(
+                    selectedFilter = uiState.selectedFilter,
+                    onFilterSelected = viewModel::onFilterSelected,
+                    allCount = uiState.reports.size,
+                    needsReviewCount = uiState.needsReviewCount,
+                    reviewedCount = uiState.reviewedCount
+                )
 
-            if (uiState.isLoading) {
-                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                    CircularProgressIndicator(color = PrimaryBlue)
-                }
-            } else if (uiState.error != null) {
-                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                        Text(text = uiState.error!!, color = MaterialTheme.colorScheme.error)
-                        Button(onClick = { viewModel.loadReports() }) {
-                            Text("Retry")
+                Spacer(modifier = Modifier.height(20.dp))
+
+                if (uiState.reports.isEmpty() && !uiState.isLoading) {
+                    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                        Text(text = "No reports found", style = MaterialTheme.typography.bodyLarge)
+                    }
+                } else if (uiState.error != null) {
+                    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                            Text(text = uiState.error!!, color = MaterialTheme.colorScheme.error)
+                            Spacer(modifier = Modifier.height(8.dp))
+                            Button(onClick = { viewModel.loadReports() }) {
+                                Text("Retry")
+                            }
                         }
                     }
-                }
-            } else if (uiState.reports.isEmpty()) {
-                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                    Text(text = "No reports found", style = MaterialTheme.typography.bodyLarge)
-                }
-            } else {
-                LazyColumn(
-                    modifier = Modifier.fillMaxSize(),
-                    contentPadding = PaddingValues(bottom = 16.dp)
-                ) {
-                    items(uiState.filteredReports) { report ->
-                        ReportCard(
-                            report = report,
-                            onClick = { onReportClick(report.id) },
-                            onReviewClick = { 
-                                viewModel.markAsReviewed(report.reportId) {
-                                    // Success callback
+                } else {
+                    LazyColumn(
+                        modifier = Modifier.fillMaxSize(),
+                        contentPadding = PaddingValues(bottom = 16.dp),
+                        verticalArrangement = Arrangement.spacedBy(12.dp)
+                    ) {
+                        items(uiState.filteredReports, key = { it.reportId }) { report ->
+                            ReportCard(
+                                report = report,
+                                onClick = { onReportClick(report.id) },
+                                onReviewClick = { 
+                                    viewModel.markAsReviewed(report.reportId) {
+                                        // Success callback handled by ViewModel refresh
+                                    }
                                 }
-                            }
-                        )
+                            )
+                        }
                     }
                 }
             }
@@ -125,8 +145,9 @@ fun OwnerReportsScreen(
 @Composable
 fun PendingBadge(count: Int) {
     if (count > 0) {
+        val redColor = com.rahul.fieldflow.ui.theme.ErrorRed
         Surface(
-            color = Color(0xFFFF9800).copy(alpha = 0.1f),
+            color = redColor.copy(alpha = 0.15f),
             shape = CircleShape,
             modifier = Modifier.padding(end = 16.dp)
         ) {
@@ -137,12 +158,12 @@ fun PendingBadge(count: Int) {
                 Box(
                     modifier = Modifier
                         .size(8.dp)
-                        .background(Color(0xFFFF9800), CircleShape)
+                        .background(redColor, CircleShape)
                 )
                 Spacer(modifier = Modifier.width(8.dp))
                 Text(
                     text = "$count Pending",
-                    color = Color(0xFFFF9800),
+                    color = if (MaterialTheme.colorScheme.surface == Color(0xFF161C2C)) redColor.copy(alpha = 0.9f) else redColor,
                     style = MaterialTheme.typography.labelSmall,
                     fontWeight = FontWeight.Bold
                 )

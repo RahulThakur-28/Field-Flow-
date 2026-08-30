@@ -20,6 +20,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.rahul.fieldflow.features.profile.components.ProfileAvatar
 import com.rahul.fieldflow.features.tasks.model.Task
+import com.rahul.fieldflow.ui.theme.ErrorRed
 import com.rahul.fieldflow.ui.theme.PrimaryBlue
 import java.time.format.DateTimeFormatter
 import java.time.OffsetDateTime
@@ -130,13 +131,13 @@ fun PremiumTaskCard(
                             imageVector = Icons.Default.Schedule,
                             contentDescription = null,
                             modifier = Modifier.size(12.dp),
-                            tint = if (task.status == com.rahul.fieldflow.features.tasks.model.TaskStatus.OVERDUE) Color.Red else MaterialTheme.colorScheme.onSurfaceVariant
+                            tint = if (task.status == com.rahul.fieldflow.features.tasks.model.TaskStatus.OVERDUE) ErrorRed else MaterialTheme.colorScheme.onSurfaceVariant
                         )
                         Spacer(modifier = Modifier.width(2.dp))
                         Text(
                             text = formattedDeadline,
                             style = MaterialTheme.typography.labelSmall,
-                            color = if (task.status == com.rahul.fieldflow.features.tasks.model.TaskStatus.OVERDUE) Color.Red else MaterialTheme.colorScheme.onSurfaceVariant,
+                            color = if (task.status == com.rahul.fieldflow.features.tasks.model.TaskStatus.OVERDUE) ErrorRed else MaterialTheme.colorScheme.onSurfaceVariant,
                             fontWeight = FontWeight.Bold
                         )
                     }

@@ -55,7 +55,6 @@ fun OwnerHomeContent(
     navController: NavController
 ) {
     Scaffold(
-        containerColor = Color(0xFFF8F9FB),
         bottomBar = {
             FieldFlowBottomNavigation(
                 items = BottomNavigationConfig.ownerItems,
@@ -73,14 +72,6 @@ fun OwnerHomeContent(
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .background(
-                            brush = Brush.verticalGradient(
-                                colors = listOf(
-                                    PrimaryBlue.copy(alpha = 0.06f),
-                                    Color(0xFFF8F9FB)
-                                )
-                            )
-                        )
                         .padding(horizontal = 20.dp)
                 ) {
                     HomeGreetingHeader(
@@ -98,7 +89,7 @@ fun OwnerHomeContent(
 
                     Spacer(modifier = Modifier.height(24.dp))
 
-                    // Stats Row
+                    // Stats Row - Exactly 4 cards in one row
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.spacedBy(8.dp)
@@ -137,10 +128,10 @@ fun OwnerHomeContent(
                 }
             }
 
-            // Latest Tasks Section
+            // New Tasks Section (Recently updated tasks)
             item {
                 SectionHeader(
-                    title = "New Tasks",
+                    title = "NEW TASKS",
                     actionText = "See All →",
                     onActionClick = { navController.navigate(AppRoutes.OwnerTasks()) },
                     modifier = Modifier.padding(horizontal = 20.dp, vertical = 8.dp)
@@ -149,7 +140,7 @@ fun OwnerHomeContent(
             
             if (uiState.latestTasks.isEmpty()) {
                 item {
-                    EmptyStatePlaceholder("No new tasks", modifier = Modifier.padding(horizontal = 20.dp))
+                    EmptyStatePlaceholder("No tasks found", modifier = Modifier.padding(horizontal = 20.dp))
                 }
             } else {
                 items(uiState.latestTasks) { task ->
@@ -162,10 +153,10 @@ fun OwnerHomeContent(
                 }
             }
 
-            // Latest Reports Section
+            // New Reports Section
             item {
                 SectionHeader(
-                    title = "New Reports",
+                    title = "NEW REPORTS",
                     actionText = "See All →",
                     onActionClick = { navController.navigate(AppRoutes.OwnerReports) },
                     modifier = Modifier.padding(horizontal = 20.dp, vertical = 8.dp)
@@ -174,7 +165,7 @@ fun OwnerHomeContent(
             
             if (uiState.latestReports.isEmpty()) {
                 item {
-                    EmptyStatePlaceholder("No new reports", modifier = Modifier.padding(horizontal = 20.dp))
+                    EmptyStatePlaceholder("No reports yet", modifier = Modifier.padding(horizontal = 20.dp))
                 }
             } else {
                 items(uiState.latestReports) { report ->
@@ -187,10 +178,10 @@ fun OwnerHomeContent(
                 }
             }
 
-            // Team Preview Section
+            // Team Section
             item {
                 SectionHeader(
-                    title = "Team",
+                    title = "TEAM",
                     actionText = "View Team →",
                     onActionClick = { navController.navigate(AppRoutes.Team) },
                     modifier = Modifier.padding(horizontal = 20.dp, vertical = 8.dp)
@@ -199,7 +190,7 @@ fun OwnerHomeContent(
             
             if (uiState.teamPreview.isEmpty()) {
                 item {
-                    EmptyStatePlaceholder("No team members found", modifier = Modifier.padding(horizontal = 20.dp))
+                    EmptyStatePlaceholder("No team members yet", modifier = Modifier.padding(horizontal = 20.dp))
                 }
             } else {
                 items(uiState.teamPreview) { employee ->
@@ -226,11 +217,18 @@ fun EmptyStatePlaceholder(text: String, modifier: Modifier = Modifier) {
             .fillMaxWidth()
             .height(80.dp),
         shape = RoundedCornerShape(16.dp),
-        color = Color.White,
-        border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFFF0F2F5))
+        color = MaterialTheme.colorScheme.surfaceVariant,
+        border = androidx.compose.foundation.BorderStroke(
+            1.dp, 
+            MaterialTheme.colorScheme.outline.copy(alpha = 0.1f)
+        )
     ) {
         Box(contentAlignment = Alignment.Center) {
-            Text(text = text, style = MaterialTheme.typography.bodyMedium, color = TextSecondary)
+            Text(
+                text = text, 
+                style = MaterialTheme.typography.bodyMedium, 
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
         }
     }
 }

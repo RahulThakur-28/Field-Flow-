@@ -17,20 +17,22 @@ import com.rahul.fieldflow.ui.theme.PrimaryBlue
 fun ProfileAvatar(
     initials: String,
     modifier: Modifier = Modifier,
+    containerColor: androidx.compose.ui.graphics.Color = PrimaryBlue.copy(alpha = 0.1f),
+    contentColor: androidx.compose.ui.graphics.Color = PrimaryBlue,
     onClick: () -> Unit = {}
 ) {
     Surface(
         onClick = onClick,
         modifier = modifier.size(44.dp),
         shape = CircleShape,
-        color = PrimaryBlue.copy(alpha = 0.1f)
+        color = containerColor
     ) {
         Box(
             contentAlignment = Alignment.Center
         ) {
             Text(
                 text = initials,
-                color = PrimaryBlue,
+                color = contentColor,
                 fontWeight = FontWeight.Bold,
                 fontSize = 16.sp
             )

@@ -51,7 +51,11 @@ fun EmployeeReportsScreen(
                 actions = {
                     // Balance the back button for centering
                     Spacer(modifier = Modifier.width(48.dp))
-                }
+                },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.background,
+                    titleContentColor = MaterialTheme.colorScheme.onBackground
+                )
             )
         },
         bottomBar = {
@@ -60,7 +64,7 @@ fun EmployeeReportsScreen(
                 navController = navController
             )
         },
-        containerColor = BackgroundLight
+        containerColor = MaterialTheme.colorScheme.background
     ) { padding ->
         Column(
             modifier = Modifier
