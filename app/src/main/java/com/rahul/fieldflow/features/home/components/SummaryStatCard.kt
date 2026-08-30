@@ -34,19 +34,22 @@ fun SummaryStatCard(
         else -> TextDark
     }
 
-    val backgroundColor = contentColor.copy(alpha = 0.04f)
+    val backgroundColor = contentColor.copy(alpha = 0.1f)
 
     Card(
         modifier = modifier.height(84.dp),
         onClick = onClick,
         shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(
-            containerColor = Color.White
+            containerColor = MaterialTheme.colorScheme.surface
         ),
         elevation = CardDefaults.cardElevation(
-            defaultElevation = 0.dp
+            defaultElevation = 2.dp
         ),
-        border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFFF0F2F5))
+        border = androidx.compose.foundation.BorderStroke(
+            1.dp, 
+            MaterialTheme.colorScheme.outline.copy(alpha = 0.1f)
+        )
     ) {
         Column(
             modifier = Modifier
@@ -59,7 +62,7 @@ fun SummaryStatCard(
             Text(
                 text = stat.value,
                 style = MaterialTheme.typography.titleLarge,
-                color = contentColor,
+                color = if (MaterialTheme.colorScheme.surface == Color(0xFF161C2C)) contentColor.copy(alpha = 0.9f) else contentColor,
                 fontWeight = FontWeight.ExtraBold,
                 fontSize = 20.sp
             )
@@ -69,7 +72,7 @@ fun SummaryStatCard(
             Text(
                 text = stat.label,
                 style = MaterialTheme.typography.labelSmall,
-                color = TextSecondary,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
                 fontWeight = FontWeight.Medium,
                 textAlign = androidx.compose.ui.text.style.TextAlign.Center
             )

@@ -26,8 +26,8 @@ fun TeamStatusCard(
             .fillMaxWidth()
             .padding(vertical = 4.dp),
         shape = androidx.compose.foundation.shape.RoundedCornerShape(16.dp),
-        color = Color.White,
-        border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFFF0F2F5))
+        color = MaterialTheme.colorScheme.surface,
+        border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.1f))
     ) {
         Row(
             modifier = Modifier.padding(12.dp),
@@ -43,12 +43,12 @@ fun TeamStatusCard(
                     text = member.name, 
                     style = MaterialTheme.typography.bodyLarge,
                     fontWeight = FontWeight.Bold, 
-                    color = TextDark
+                    color = MaterialTheme.colorScheme.onSurface
                 )
                 Text(
                     text = member.taskName, 
-                    style = androidx.compose.material3.MaterialTheme.typography.labelSmall,
-                    color = TextSecondary
+                    style = MaterialTheme.typography.labelSmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
             StatusBadge(type = member.status)

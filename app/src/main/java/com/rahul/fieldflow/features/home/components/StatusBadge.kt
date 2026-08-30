@@ -2,6 +2,7 @@ package com.rahul.fieldflow.features.home.components
 
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -11,51 +12,49 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.text.font.FontWeight
 import com.rahul.fieldflow.features.home.model.StatusBadgeType
-import com.rahul.fieldflow.ui.theme.GrayLight
-import com.rahul.fieldflow.ui.theme.PrimaryBlue
-import com.rahul.fieldflow.ui.theme.SecondaryIndigo
-import com.rahul.fieldflow.ui.theme.TextSecondary
+import com.rahul.fieldflow.ui.theme.*
 
 @Composable
 fun StatusBadge(
     type: StatusBadgeType,
     modifier: Modifier = Modifier
 ) {
-    val (backgroundColor, textColor, label) = when (type) {
+    val isDark = MaterialTheme.colorScheme.surface == SurfaceDark
 
+    val (backgroundColor, textColor, label) = when (type) {
         StatusBadgeType.IN_PROGRESS -> Triple(
-            Color(0xFFE3F2FD),
-            PrimaryBlue,
+            if (isDark) InfoDark else Color(0xFFE3F2FD),
+            if (isDark) InfoBlue else PrimaryBlue,
             "In Progress"
         )
 
         StatusBadgeType.TRAVELING -> Triple(
-            Color(0xFFF3E5F5),
+            if (isDark) Color(0xFF2A1B3D) else Color(0xFFF3E5F5),
             SecondaryIndigo,
             "Traveling"
         )
 
         StatusBadgeType.PENDING -> Triple(
-            Color(0xFFFFF3E0),
-            Color(0xFFFF9800),
+            if (isDark) WarningDark else Color(0xFFFFF3E0),
+            WarningOrange,
             "Assigned"
         )
 
         StatusBadgeType.IDLE -> Triple(
-            GrayLight.copy(alpha = 0.3f),
-            TextSecondary,
+            if (isDark) MaterialTheme.colorScheme.surfaceVariant else GrayLight.copy(alpha = 0.3f),
+            if (isDark) TextMuted else TextSecondary,
             "Idle"
         )
 
         StatusBadgeType.DONE -> Triple(
-            Color(0xFFE8F5E9),
-            Color(0xFF4CAF50),
+            if (isDark) SuccessDark else Color(0xFFE8F5E9),
+            SuccessGreen,
             "Completed"
         )
 
         else -> Triple(
-            GrayLight.copy(alpha = 0.3f),
-            TextSecondary,
+            if (isDark) MaterialTheme.colorScheme.surfaceVariant else GrayLight.copy(alpha = 0.3f),
+            if (isDark) TextMuted else TextSecondary,
             "Unknown"
         )
     }

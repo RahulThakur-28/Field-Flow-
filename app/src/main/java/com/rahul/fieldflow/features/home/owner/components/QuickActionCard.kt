@@ -21,8 +21,8 @@ fun QuickActionCard(icon: ImageVector, title: String, accentColor: Color, onClic
             .width(104.dp)
             .height(116.dp),
         shape = RoundedCornerShape(20.dp),
-        color = Color.White,
-        border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFFF0F2F5))
+        color = MaterialTheme.colorScheme.surface,
+        border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.1f))
     ) {
         Column(
             modifier = Modifier.fillMaxSize().padding(12.dp),
@@ -32,7 +32,7 @@ fun QuickActionCard(icon: ImageVector, title: String, accentColor: Color, onClic
             Surface(
                 modifier = Modifier.size(44.dp),
                 shape = RoundedCornerShape(12.dp),
-                color = accentColor.copy(alpha = 0.08f)
+                color = accentColor.copy(alpha = 0.1f)
             ) {
                 Box(contentAlignment = Alignment.Center) {
                     Icon(
@@ -48,7 +48,7 @@ fun QuickActionCard(icon: ImageVector, title: String, accentColor: Color, onClic
                 text = title, 
                 style = MaterialTheme.typography.labelMedium,
                 fontWeight = FontWeight.Bold, 
-                color = TextDark,
+                color = MaterialTheme.colorScheme.onSurface,
                 textAlign = androidx.compose.ui.text.style.TextAlign.Center
             )
         }

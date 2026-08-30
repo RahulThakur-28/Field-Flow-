@@ -12,6 +12,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.rahul.fieldflow.ui.theme.PrimaryBlue
 import com.rahul.fieldflow.ui.theme.TextSecondary
@@ -22,7 +23,8 @@ fun ProfileSettingItem(
     subtitle: String? = null,
     onClick: (() -> Unit)? = null,
     trailingSwitch: Boolean? = null,
-    onSwitchChange: ((Boolean) -> Unit)? = null
+    onSwitchChange: ((Boolean) -> Unit)? = null,
+    trailingValue: String? = null
 ) {
     Row(
         modifier = Modifier
@@ -58,6 +60,22 @@ fun ProfileSettingItem(
                     uncheckedTrackColor = MaterialTheme.colorScheme.surfaceVariant
                 )
             )
+        } else if (trailingValue != null) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text(
+                    text = trailingValue,
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.primary,
+                    fontWeight = FontWeight.Medium
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                Icon(
+                    imageVector = Icons.Default.ChevronRight,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f),
+                    modifier = Modifier.size(20.dp)
+                )
+            }
         } else if (onClick != null) {
             Icon(
                 imageVector = Icons.Default.ChevronRight,

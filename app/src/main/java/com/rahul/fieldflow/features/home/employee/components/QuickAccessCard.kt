@@ -21,8 +21,8 @@ fun QuickAccessCard(item: QuickAccessUiModel, onClick: () -> Unit) {
         onClick = onClick,
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(16.dp),
-        color = Color.White,
-        border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFFF0F2F5))
+        color = MaterialTheme.colorScheme.surface,
+        border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.1f))
     ) {
         Row(
             modifier = Modifier.padding(16.dp),
@@ -31,7 +31,7 @@ fun QuickAccessCard(item: QuickAccessUiModel, onClick: () -> Unit) {
             Surface(
                 modifier = Modifier.size(44.dp),
                 shape = RoundedCornerShape(12.dp),
-                color = item.color.copy(alpha = 0.08f)
+                color = item.color.copy(alpha = 0.1f)
             ) {
                 Box(contentAlignment = Alignment.Center) {
                     Icon(item.icon, contentDescription = null, tint = item.color, modifier = Modifier.size(22.dp))
@@ -43,25 +43,25 @@ fun QuickAccessCard(item: QuickAccessUiModel, onClick: () -> Unit) {
                     text = item.title, 
                     style = MaterialTheme.typography.bodyLarge,
                     fontWeight = FontWeight.Bold, 
-                    color = TextDark
+                    color = MaterialTheme.colorScheme.onSurface
                 )
                 Text(
                     text = item.subtitle, 
                     style = MaterialTheme.typography.labelSmall, 
-                    color = TextSecondary
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
             
             Surface(
                 modifier = Modifier.size(28.dp),
                 shape = CircleShape,
-                color = Color(0xFFF8F9FB)
+                color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
             ) {
                 Box(contentAlignment = Alignment.Center) {
                     Icon(
                         Icons.Default.ChevronRight, 
                         contentDescription = null, 
-                        tint = TextSecondary,
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
                         modifier = Modifier.size(16.dp)
                     )
                 }

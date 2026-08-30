@@ -35,7 +35,8 @@ import com.rahul.fieldflow.ui.theme.PrimaryBlue
 fun EmployeeReportsScreen(
     navController: NavController,
     onReportClick: (String) -> Unit,
-    viewModel: EmployeeReportsViewModel = hiltViewModel()
+    viewModel: EmployeeReportsViewModel = hiltViewModel(),
+    paddingValues: PaddingValues = PaddingValues(0.dp)
 ) {
     val uiState by viewModel.uiState.collectAsState()
 
@@ -87,18 +88,13 @@ fun EmployeeReportsScreen(
                 )
             )
         },
-        bottomBar = {
-            FieldFlowBottomNavigation(
-                items = BottomNavigationConfig.employeeItems,
-                navController = navController
-            )
-        },
-        containerColor = MaterialTheme.colorScheme.background
+        containerColor = MaterialTheme.colorScheme.background,
+        modifier = Modifier.padding(bottom = paddingValues.calculateBottomPadding())
     ) { padding ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(padding)
+                .padding(top = padding.calculateTopPadding())
                 .padding(horizontal = 16.dp)
         ) {
             Spacer(modifier = Modifier.height(8.dp))
@@ -152,7 +148,7 @@ fun EmployeeReportsScreen(
             } else {
                 LazyColumn(
                     modifier = Modifier.fillMaxSize(),
-                    contentPadding = PaddingValues(bottom = 16.dp),
+                    contentPadding = PaddingValues(bottom = padding.calculateBottomPadding() + 24.dp),
                     verticalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
                     items(uiState.filteredReports, key = { it.reportId }) { report ->

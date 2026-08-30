@@ -17,6 +17,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
@@ -33,17 +34,20 @@ import com.rahul.fieldflow.ui.theme.*
 @Composable
 fun EmployeeHomeScreen(
     navController: NavController,
-    viewModel: EmployeeHomeViewModel = hiltViewModel()
+    viewModel: EmployeeHomeViewModel = hiltViewModel(),
+    paddingValues: PaddingValues = PaddingValues(0.dp)
 ) {
     val uiState by viewModel.uiState.collectAsState()
 
     PullToRefreshBox(
         isRefreshing = uiState.isLoading,
-        onRefresh = { viewModel.refresh() }
+        onRefresh = { viewModel.refresh() },
+        modifier = Modifier.padding(bottom = paddingValues.calculateBottomPadding())
     ) {
         EmployeeHomeContent(
             uiState = uiState,
-            navController = navController
+            navController = navController,
+            paddingValues = paddingValues
         )
     }
 }
@@ -51,22 +55,15 @@ fun EmployeeHomeScreen(
 @Composable
 fun EmployeeHomeContent(
     uiState: EmployeeHomeUiState,
-    navController: NavController
+    navController: NavController,
+    paddingValues: PaddingValues
 ) {
-    Scaffold(
-        bottomBar = {
-            FieldFlowBottomNavigation(
-                items = BottomNavigationConfig.employeeItems,
-                navController = navController
-            )
-        }
-    ) { paddingValues ->
-        LazyColumn(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(paddingValues),
-            contentPadding = PaddingValues(bottom = 24.dp)
-        ) {
+    LazyColumn(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(top = paddingValues.calculateTopPadding()),
+        contentPadding = PaddingValues(bottom = 24.dp)
+    ) {
             item {
                 Column(
                     modifier = Modifier
@@ -91,37 +88,30 @@ fun EmployeeHomeContent(
 
                     Spacer(modifier = Modifier.height(8.dp))
 
-                    // Stats Row - 4 compact cards
+                    // Stats Row - 3 cards: Today's (All), Completed, Pending
                     Row(
                         modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                        horizontalArrangement = Arrangement.spacedBy(10.dp)
                     ) {
                         CompactStatCard(
                             value = "${uiState.allTasksCount}",
-                            label = "All",
+                            label = "Today's",
                             color = PrimaryBlue,
                             onClick = { navController.navigate(AppRoutes.EmployeeTasks(filter = "all")) },
                             modifier = Modifier.weight(1f)
                         )
                         CompactStatCard(
-                            value = "${uiState.activeTasksCount}",
-                            label = "Active",
-                            color = InfoBlue,
-                            onClick = { navController.navigate(AppRoutes.EmployeeTasks(filter = "active")) },
-                            modifier = Modifier.weight(1f)
-                        )
-                        CompactStatCard(
                             value = "${uiState.completedTasksCount}",
-                            label = "Complete",
+                            label = "Completed",
                             color = SuccessGreen,
                             onClick = { navController.navigate(AppRoutes.EmployeeTasks(filter = "completed")) },
                             modifier = Modifier.weight(1f)
                         )
                         CompactStatCard(
-                            value = "${uiState.lateTasksCount}",
-                            label = "Overdue",
+                            value = "${uiState.allTasksCount - uiState.completedTasksCount}",
+                            label = "Pending",
                             color = ErrorRed,
-                            onClick = { navController.navigate(AppRoutes.EmployeeTasks(filter = "overdue")) },
+                            onClick = { navController.navigate(AppRoutes.EmployeeTasks(filter = "active")) },
                             modifier = Modifier.weight(1f)
                         )
                     }
@@ -130,9 +120,17 @@ fun EmployeeHomeContent(
                 }
             }
 
-            // Next Task Card
+            // Highlighted Next Task
             item {
-                Box(modifier = Modifier.padding(horizontal = 20.dp, vertical = 8.dp)) {
+                Column(modifier = Modifier.padding(horizontal = 20.dp)) {
+                    Text(
+                        text = "NEXT ASSIGNMENT",
+                        style = MaterialTheme.typography.labelLarge,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        letterSpacing = 1.sp
+                    )
+                    Spacer(modifier = Modifier.height(12.dp))
                     EmployeeNextTaskCard(
                         task = uiState.nextTask,
                         onViewTask = { taskId ->
@@ -142,33 +140,25 @@ fun EmployeeHomeContent(
                 }
             }
 
-            // Upcoming/Today's Tasks Section
+            // Upcoming Tasks Section
             item {
                 SectionHeader(
                     title = "Upcoming Tasks",
-                    actionText = "See All →",
+                    actionText = if (uiState.upcomingTasks.isNotEmpty()) "See All →" else null,
                     onActionClick = { navController.navigate(AppRoutes.EmployeeTasks()) },
-                    modifier = Modifier.padding(horizontal = 20.dp, vertical = 8.dp)
+                    modifier = Modifier.padding(horizontal = 20.dp, vertical = 12.dp)
                 )
             }
 
             if (uiState.upcomingTasks.isEmpty()) {
                 item {
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = 20.dp)
-                            .height(80.dp),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Text(
-                            text = "No upcoming tasks", 
-                            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
-                        )
-                    }
+                    EmptyStatePlaceholder(
+                        text = "No upcoming tasks", 
+                        modifier = Modifier.padding(horizontal = 20.dp)
+                    )
                 }
             } else {
-                items(uiState.upcomingTasks) { task ->
+                items(uiState.upcomingTasks.take(3)) { task ->
                     Box(modifier = Modifier.padding(horizontal = 20.dp, vertical = 4.dp)) {
                         EmployeeHomeTaskCard(
                             task = task,
@@ -182,29 +172,21 @@ fun EmployeeHomeContent(
             item {
                 SectionHeader(
                     title = "Recent Reports",
-                    actionText = "See All →",
+                    actionText = if (uiState.recentReports.isNotEmpty()) "See All →" else null,
                     onActionClick = { navController.navigate(AppRoutes.EmployeeReports) },
-                    modifier = Modifier.padding(horizontal = 20.dp, vertical = 8.dp)
+                    modifier = Modifier.padding(horizontal = 20.dp, vertical = 12.dp)
                 )
             }
 
             if (uiState.recentReports.isEmpty()) {
                 item {
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = 20.dp)
-                            .height(80.dp),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Text(
-                            text = "No reports submitted yet", 
-                            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
-                        )
-                    }
+                    EmptyStatePlaceholder(
+                        text = "No reports submitted yet", 
+                        modifier = Modifier.padding(horizontal = 20.dp)
+                    )
                 }
             } else {
-                items(uiState.recentReports) { report ->
+                items(uiState.recentReports.take(3)) { report ->
                     Box(modifier = Modifier.padding(horizontal = 20.dp, vertical = 6.dp)) {
                         HomeReportCard(
                             reportContext = report,
@@ -218,7 +200,6 @@ fun EmployeeHomeContent(
                 Spacer(modifier = Modifier.height(32.dp))
             }
         }
-    }
 }
 
 @Preview(showBackground = true)

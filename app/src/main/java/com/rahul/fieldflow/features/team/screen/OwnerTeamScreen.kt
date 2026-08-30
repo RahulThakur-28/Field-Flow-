@@ -34,12 +34,14 @@ fun OwnerTeamScreen(
     navController: NavController,
     onMemberClick: (String) -> Unit,
     onNavigateToRequests: () -> Unit,
-    viewModel: TeamViewModel = hiltViewModel()
+    viewModel: TeamViewModel = hiltViewModel(),
+    paddingValues: PaddingValues = PaddingValues(0.dp)
 ) {
     val uiState by viewModel.teamUiState.collectAsState()
 
     Scaffold(
         containerColor = MaterialTheme.colorScheme.background,
+        modifier = Modifier.padding(bottom = paddingValues.calculateBottomPadding()),
         topBar = {
             TopAppBar(
                 title = {
@@ -90,18 +92,12 @@ fun OwnerTeamScreen(
                     titleContentColor = MaterialTheme.colorScheme.onBackground
                 )
             )
-        },
-        bottomBar = {
-            FieldFlowBottomNavigation(
-                items = BottomNavigationConfig.ownerItems,
-                navController = navController
-            )
         }
     ) { padding ->
         PullToRefreshBox(
             isRefreshing = uiState.isLoading,
             onRefresh = viewModel::refreshTeam,
-            modifier = Modifier.padding(padding)
+            modifier = Modifier.padding(top = padding.calculateTopPadding())
         ) {
             Column(
                 modifier = Modifier.fillMaxSize()
@@ -135,7 +131,7 @@ fun OwnerTeamScreen(
                 } else {
                     LazyColumn(
                         modifier = Modifier.fillMaxSize(),
-                        contentPadding = PaddingValues(start = 20.dp, end = 20.dp, bottom = 40.dp),
+                        contentPadding = PaddingValues(start = 20.dp, end = 20.dp, bottom = padding.calculateBottomPadding() + 24.dp),
                         verticalArrangement = Arrangement.spacedBy(16.dp)
                     ) {
                         items(uiState.filteredMembers, key = { it.profile.id }) { member ->

@@ -10,6 +10,7 @@ import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material3.*
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -37,12 +38,25 @@ fun OwnerTasksScreen(
     navController: NavController,
     onTaskClick: (String) -> Unit,
     onCreateTaskClick: () -> Unit,
-    viewModel: OwnerTasksViewModel = hiltViewModel()
+    viewModel: OwnerTasksViewModel = hiltViewModel(),
+    paddingValues: PaddingValues = PaddingValues(0.dp),
+    taskFilter: String? = null
 ) {
     val uiState by viewModel.uiState.collectAsState()
 
+    LaunchedEffect(taskFilter) {
+        taskFilter?.let { filterStr ->
+            try {
+                viewModel.onFilterSelected(com.rahul.fieldflow.features.tasks.owner.state.TaskFilter.valueOf(filterStr.uppercase()))
+            } catch (e: Exception) {
+                // Ignore invalid filter
+            }
+        }
+    }
+
     Scaffold(
         containerColor = MaterialTheme.colorScheme.background,
+        modifier = Modifier.padding(bottom = paddingValues.calculateBottomPadding()),
         topBar = {
             TopAppBar(
                 title = { 
@@ -81,18 +95,12 @@ fun OwnerTasksScreen(
                     modifier = Modifier.size(24.dp)
                 )
             }
-        },
-        bottomBar = {
-            FieldFlowBottomNavigation(
-                items = BottomNavigationConfig.ownerItems,
-                navController = navController
-            )
         }
     ) { padding ->
         PullToRefreshBox(
             isRefreshing = uiState.isLoading,
             onRefresh = viewModel::refresh,
-            modifier = Modifier.padding(padding)
+            modifier = Modifier.padding(top = padding.calculateTopPadding())
         ) {
             Column(
                 modifier = Modifier
@@ -131,7 +139,7 @@ fun OwnerTasksScreen(
                 } else {
                     LazyColumn(
                         modifier = Modifier.fillMaxSize(),
-                        contentPadding = PaddingValues(bottom = 80.dp),
+                        contentPadding = PaddingValues(bottom = padding.calculateBottomPadding() + 24.dp),
                         verticalArrangement = Arrangement.spacedBy(12.dp)
                     ) {
                         items(uiState.filteredTasks, key = { it.id }) { task ->

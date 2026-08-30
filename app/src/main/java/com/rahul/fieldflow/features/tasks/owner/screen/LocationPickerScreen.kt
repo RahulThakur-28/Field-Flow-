@@ -184,7 +184,12 @@ fun LocationPickerScreen(
                         Icon(Icons.Default.MoreVert, contentDescription = "More")
                     }
                 },
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.White),
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.surface,
+                    titleContentColor = MaterialTheme.colorScheme.onSurface,
+                    navigationIconContentColor = MaterialTheme.colorScheme.onSurface,
+                    actionIconContentColor = MaterialTheme.colorScheme.onSurface
+                ),
                 modifier = Modifier.shadow(4.dp)
             )
         }
@@ -247,15 +252,15 @@ fun LocationPickerScreen(
                     .padding(end = 16.dp, bottom = 240.dp)
                     .size(52.dp),
                 shape = CircleShape,
-                containerColor = Color.White,
-                contentColor = PrimaryBlue,
+                containerColor = MaterialTheme.colorScheme.surface,
+                contentColor = MaterialTheme.colorScheme.primary,
                 elevation = FloatingActionButtonDefaults.elevation(defaultElevation = 6.dp)
             ) {
                 if (isLocating) {
                     CircularProgressIndicator(
                         modifier = Modifier.size(24.dp),
                         strokeWidth = 2.dp,
-                        color = PrimaryBlue
+                        color = MaterialTheme.colorScheme.primary
                     )
                 } else {
                     Icon(
@@ -266,11 +271,16 @@ fun LocationPickerScreen(
             }
 
             if (isMapLoading) {
-                Box(modifier = Modifier.fillMaxSize().background(Color.White.copy(alpha = 0.8f)), contentAlignment = Alignment.Center) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .background(MaterialTheme.colorScheme.background.copy(alpha = 0.8f)), 
+                    contentAlignment = Alignment.Center
+                ) {
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                        CircularProgressIndicator(color = PrimaryBlue)
+                        CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
                         Spacer(modifier = Modifier.height(16.dp))
-                        Text("Loading map...", color = TextSecondary)
+                        Text("Loading map...", color = MaterialTheme.colorScheme.onSurfaceVariant)
                     }
                 }
             }
@@ -340,18 +350,18 @@ private fun CenterMarker(modifier: Modifier = Modifier) {
         Surface(
             modifier = Modifier.size(48.dp).shadow(8.dp, CircleShape),
             shape = CircleShape,
-            color = Color.White
+            color = MaterialTheme.colorScheme.surface
         ) {
             Box(contentAlignment = Alignment.Center) {
                 Icon(
                     imageVector = Icons.Default.LocationOn,
                     contentDescription = null,
-                    tint = PrimaryBlue,
+                    tint = MaterialTheme.colorScheme.primary,
                     modifier = Modifier.size(32.dp)
                 )
             }
         }
-        Box(modifier = Modifier.size(4.dp).background(PrimaryBlue, CircleShape))
+        Box(modifier = Modifier.size(4.dp).background(MaterialTheme.colorScheme.primary, CircleShape))
     }
 }
 
@@ -365,7 +375,10 @@ private fun BottomLocationPanel(
     Card(
         modifier = modifier.fillMaxWidth(),
         shape = RoundedCornerShape(20.dp),
-        colors = CardDefaults.cardColors(containerColor = Color.White),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surface,
+            contentColor = MaterialTheme.colorScheme.onSurface
+        ),
         elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
     ) {
         Column(modifier = Modifier.padding(20.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
@@ -373,30 +386,34 @@ private fun BottomLocationPanel(
                 Surface(
                     modifier = Modifier.size(40.dp),
                     shape = RoundedCornerShape(10.dp),
-                    color = PrimaryBlue.copy(alpha = 0.1f)
+                    color = MaterialTheme.colorScheme.primary.copy(alpha = 0.1f)
                 ) {
                     Box(contentAlignment = Alignment.Center) {
-                        Icon(Icons.Default.LocationOn, contentDescription = null, tint = PrimaryBlue, modifier = Modifier.size(20.dp))
+                        Icon(Icons.Default.LocationOn, contentDescription = null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(20.dp))
                     }
                 }
                 Spacer(modifier = Modifier.width(12.dp))
                 Column {
-                    Text(text = "Select Task Location", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold, color = TextDark)
-                    Text(text = "Move the map to position the marker", style = MaterialTheme.typography.bodySmall, color = TextSecondary)
+                    Text(text = "Select Task Location", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onSurface)
+                    Text(text = "Move the map to position the marker", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 }
             }
 
             Column {
                 Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                    Text("Geofence Radius", style = MaterialTheme.typography.labelMedium, color = TextDark)
-                    Text("${radiusMeters.roundToInt()}m", style = MaterialTheme.typography.labelMedium, color = PrimaryBlue, fontWeight = FontWeight.Bold)
+                    Text("Geofence Radius", style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurface)
+                    Text("${radiusMeters.roundToInt()}m", style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.primary, fontWeight = FontWeight.Bold)
                 }
                 Slider(
                     value = radiusMeters,
                     onValueChange = { onRadiusChange(it.coerceIn(50f, 100f)) },
                     valueRange = 50f..100f,
                     steps = 9,
-                    colors = SliderDefaults.colors(thumbColor = PrimaryBlue, activeTrackColor = PrimaryBlue)
+                    colors = SliderDefaults.colors(
+                        thumbColor = MaterialTheme.colorScheme.primary, 
+                        activeTrackColor = MaterialTheme.colorScheme.primary,
+                        inactiveTrackColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.2f)
+                    )
                 )
             }
 
@@ -404,11 +421,11 @@ private fun BottomLocationPanel(
                 onClick = onConfirm,
                 modifier = Modifier.fillMaxWidth().height(50.dp),
                 shape = RoundedCornerShape(12.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = PrimaryBlue)
+                colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
             ) {
-                Icon(Icons.Default.Check, contentDescription = null, modifier = Modifier.size(20.dp))
+                Icon(Icons.Default.Check, contentDescription = null, modifier = Modifier.size(20.dp), tint = MaterialTheme.colorScheme.onPrimary)
                 Spacer(modifier = Modifier.width(8.dp))
-                Text("Confirm Location", fontWeight = FontWeight.Bold, fontSize = 16.sp)
+                Text("Confirm Location", fontWeight = FontWeight.Bold, fontSize = 16.sp, color = MaterialTheme.colorScheme.onPrimary)
             }
         }
     }

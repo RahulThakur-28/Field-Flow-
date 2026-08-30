@@ -25,7 +25,7 @@ fun CompletionTrendCard(data: List<LineChartData>) {
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(containerColor = Color.White),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
@@ -39,12 +39,12 @@ fun CompletionTrendCard(data: List<LineChartData>) {
                         text = "Completion Rate Trend",
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.Bold,
-                        color = TextDark
+                        color = MaterialTheme.colorScheme.onSurface
                     )
                     Text(
                         text = "↑ Improving",
                         fontSize = 12.sp,
-                        color = Color(0xFF4CAF50),
+                        color = com.rahul.fieldflow.ui.theme.SuccessGreen,
                         fontWeight = FontWeight.Medium
                     )
                 }
@@ -96,7 +96,7 @@ fun CompletionTrendCard(data: List<LineChartData>) {
                     Text(
                         text = item.label,
                         fontSize = 10.sp,
-                        color = TextSecondary
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }
             }

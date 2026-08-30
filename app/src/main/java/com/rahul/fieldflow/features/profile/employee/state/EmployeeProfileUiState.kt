@@ -14,5 +14,8 @@ data class EmployeeProfileUiState(
     val activeTasks: Int = 0,
     val appTheme: AppTheme = AppTheme.SYSTEM,
     val isLoading: Boolean = false,
-    val error: String? = null
+    val error: String? = null,
+    val pushNotificationsEnabled: Boolean = true,
+    val emailNotificationsEnabled: Boolean = true,
+    val taskUpdatesEnabled: Boolean = true
 )

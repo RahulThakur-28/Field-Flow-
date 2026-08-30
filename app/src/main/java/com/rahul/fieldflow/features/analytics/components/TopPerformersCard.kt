@@ -19,7 +19,7 @@ fun TopPerformersCard(performers: List<TopPerformer>) {
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(containerColor = Color.White),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
@@ -27,7 +27,7 @@ fun TopPerformersCard(performers: List<TopPerformer>) {
                 text = "Top Performers",
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.Bold,
-                color = TextDark
+                color = MaterialTheme.colorScheme.onSurface
             )
             
             Spacer(modifier = Modifier.height(16.dp))
@@ -37,7 +37,7 @@ fun TopPerformersCard(performers: List<TopPerformer>) {
                 if (performer.rank < performers.size) {
                     HorizontalDivider(
                         modifier = Modifier.padding(vertical = 12.dp),
-                        color = Color.LightGray.copy(alpha = 0.5f)
+                        color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.3f)
                     )
                 }
             }
@@ -55,7 +55,7 @@ private fun PerformerRow(performer: TopPerformer) {
             text = "#${performer.rank}",
             fontSize = 14.sp,
             fontWeight = FontWeight.Bold,
-            color = TextSecondary,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
             modifier = Modifier.width(32.dp)
         )
         
@@ -64,12 +64,12 @@ private fun PerformerRow(performer: TopPerformer) {
                 text = performer.name,
                 style = MaterialTheme.typography.bodyLarge,
                 fontWeight = FontWeight.Bold,
-                color = TextDark
+                color = MaterialTheme.colorScheme.onSurface
             )
             Text(
                 text = "${performer.taskCount} tasks",
                 style = MaterialTheme.typography.bodySmall,
-                color = TextSecondary
+                color = MaterialTheme.colorScheme.onSurfaceVariant
             )
         }
         
@@ -77,7 +77,7 @@ private fun PerformerRow(performer: TopPerformer) {
             text = "${performer.performance}%",
             style = MaterialTheme.typography.titleMedium,
             fontWeight = FontWeight.Bold,
-            color = if (performer.performance >= 95) Color(0xFF4CAF50) else Color(0xFF2196F3)
+            color = if (performer.performance >= 95) com.rahul.fieldflow.ui.theme.SuccessGreen else MaterialTheme.colorScheme.primary
         )
     }
 }

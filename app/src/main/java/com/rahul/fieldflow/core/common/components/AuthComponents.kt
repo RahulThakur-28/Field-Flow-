@@ -41,15 +41,15 @@ fun AppTextField(
         Text(
             text = label,
             style = MaterialTheme.typography.bodyMedium,
-            color = TextDark,
+            color = MaterialTheme.colorScheme.onBackground,
             fontWeight = FontWeight.SemiBold,
             modifier = Modifier.padding(bottom = 8.dp)
         )
         OutlinedTextField(
             value = value,
             onValueChange = onValueChange,
-            placeholder = { Text(placeholder, style = MaterialTheme.typography.bodyLarge, color = TextSecondary.copy(alpha = 0.6f)) },
-            leadingIcon = leadingIcon?.let { { Icon(it, contentDescription = null, tint = TextSecondary, modifier = Modifier.size(20.dp)) } },
+            placeholder = { Text(placeholder, style = MaterialTheme.typography.bodyLarge, color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)) },
+            leadingIcon = leadingIcon?.let { { Icon(it, contentDescription = null, tint = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.size(20.dp)) } },
             modifier = Modifier.fillMaxWidth(),
             shape = RoundedCornerShape(16.dp),
             keyboardOptions = keyboardOptions,
@@ -58,13 +58,15 @@ fun AppTextField(
             singleLine = true,
             textStyle = MaterialTheme.typography.bodyLarge,
             colors = OutlinedTextFieldDefaults.colors(
-                focusedBorderColor = PrimaryBlue,
-                unfocusedBorderColor = Color(0xFFE1E5EE),
+                focusedBorderColor = MaterialTheme.colorScheme.primary,
+                unfocusedBorderColor = MaterialTheme.colorScheme.outline.copy(alpha = 0.5f),
                 errorBorderColor = MaterialTheme.colorScheme.error,
-                focusedContainerColor = Color.White,
-                unfocusedContainerColor = Color.White,
-                errorContainerColor = Color.White,
-                cursorColor = PrimaryBlue
+                focusedContainerColor = MaterialTheme.colorScheme.surface,
+                unfocusedContainerColor = MaterialTheme.colorScheme.surface,
+                errorContainerColor = MaterialTheme.colorScheme.surface,
+                cursorColor = MaterialTheme.colorScheme.primary,
+                focusedTextColor = MaterialTheme.colorScheme.onSurface,
+                unfocusedTextColor = MaterialTheme.colorScheme.onSurface
             )
         )
         if (errorText != null) {
@@ -107,19 +109,19 @@ fun PasswordTextField(
         Text(
             text = label,
             style = MaterialTheme.typography.bodyMedium,
-            color = TextDark,
+            color = MaterialTheme.colorScheme.onBackground,
             fontWeight = FontWeight.SemiBold,
             modifier = Modifier.padding(bottom = 8.dp)
         )
         OutlinedTextField(
             value = value,
             onValueChange = onValueChange,
-            placeholder = { Text(placeholder, style = MaterialTheme.typography.bodyLarge, color = TextSecondary.copy(alpha = 0.6f)) },
-            leadingIcon = leadingIcon?.let { { Icon(it, contentDescription = null, tint = TextSecondary, modifier = Modifier.size(20.dp)) } },
+            placeholder = { Text(placeholder, style = MaterialTheme.typography.bodyLarge, color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)) },
+            leadingIcon = leadingIcon?.let { { Icon(it, contentDescription = null, tint = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.size(20.dp)) } },
             trailingIcon = {
                 val image = if (passwordVisible) Icons.Filled.Visibility else Icons.Filled.VisibilityOff
                 IconButton(onClick = { passwordVisible = !passwordVisible }) {
-                    Icon(image, contentDescription = null, tint = TextSecondary, modifier = Modifier.size(20.dp))
+                    Icon(image, contentDescription = null, tint = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.size(20.dp))
                 }
             },
             modifier = Modifier.fillMaxWidth(),
@@ -131,13 +133,15 @@ fun PasswordTextField(
             singleLine = true,
             textStyle = MaterialTheme.typography.bodyLarge,
             colors = OutlinedTextFieldDefaults.colors(
-                focusedBorderColor = PrimaryBlue,
-                unfocusedBorderColor = Color(0xFFE1E5EE),
+                focusedBorderColor = MaterialTheme.colorScheme.primary,
+                unfocusedBorderColor = MaterialTheme.colorScheme.outline.copy(alpha = 0.5f),
                 errorBorderColor = MaterialTheme.colorScheme.error,
-                focusedContainerColor = Color.White,
-                unfocusedContainerColor = Color.White,
-                errorContainerColor = Color.White,
-                cursorColor = PrimaryBlue
+                focusedContainerColor = MaterialTheme.colorScheme.surface,
+                unfocusedContainerColor = MaterialTheme.colorScheme.surface,
+                errorContainerColor = MaterialTheme.colorScheme.surface,
+                cursorColor = MaterialTheme.colorScheme.primary,
+                focusedTextColor = MaterialTheme.colorScheme.onSurface,
+                unfocusedTextColor = MaterialTheme.colorScheme.onSurface
             )
         )
         if (errorText != null) {
@@ -178,10 +182,10 @@ fun PrimaryButton(
         shape = RoundedCornerShape(16.dp),
         enabled = enabled && !isLoading,
         colors = ButtonDefaults.buttonColors(
-            containerColor = PrimaryBlue,
-            contentColor = Color.White,
-            disabledContainerColor = PrimaryBlue.copy(alpha = 0.5f),
-            disabledContentColor = Color.White.copy(alpha = 0.7f)
+            containerColor = MaterialTheme.colorScheme.primary,
+            contentColor = MaterialTheme.colorScheme.onPrimary,
+            disabledContainerColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.5f),
+            disabledContentColor = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.7f)
         ),
         elevation = ButtonDefaults.buttonElevation(
             defaultElevation = 2.dp,
@@ -219,20 +223,20 @@ fun HeaderSection(
                 onClick = onBack,
                 modifier = Modifier.padding(bottom = 16.dp).offset(x = (-12).dp)
             ) {
-                Icon(Icons.Default.ArrowBack, contentDescription = "Back", tint = TextDark)
+                Icon(Icons.Default.ArrowBack, contentDescription = "Back", tint = MaterialTheme.colorScheme.onBackground)
             }
         }
         Text(
             text = title,
             style = MaterialTheme.typography.headlineMedium,
-            color = TextDark,
+            color = MaterialTheme.colorScheme.onBackground,
             fontWeight = FontWeight.Bold
         )
         Spacer(modifier = Modifier.height(8.dp))
         Text(
             text = subtitle,
             style = MaterialTheme.typography.bodyLarge,
-            color = TextSecondary
+            color = MaterialTheme.colorScheme.onSurfaceVariant
         )
     }
 }

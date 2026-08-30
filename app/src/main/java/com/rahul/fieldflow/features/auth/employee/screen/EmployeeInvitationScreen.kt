@@ -23,7 +23,7 @@ fun EmployeeInvitationScreen(
 ) {
     Surface(
         modifier = Modifier.fillMaxSize(),
-        color = BackgroundLight
+        color = MaterialTheme.colorScheme.background
     ) {
         Column(
             modifier = Modifier
@@ -35,7 +35,7 @@ fun EmployeeInvitationScreen(
             Text(
                 text = "You're invited! 🎉",
                 style = MaterialTheme.typography.headlineMedium,
-                color = TextDark,
+                color = MaterialTheme.colorScheme.onBackground,
                 fontWeight = FontWeight.Bold,
                 textAlign = TextAlign.Center
             )
@@ -45,7 +45,7 @@ fun EmployeeInvitationScreen(
             Text(
                 text = "ABC Services has invited you to join their FieldFlow workspace.",
                 style = MaterialTheme.typography.bodyLarge,
-                color = TextSecondary,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
                 textAlign = TextAlign.Center,
                 lineHeight = 24.sp
             )
@@ -55,7 +55,7 @@ fun EmployeeInvitationScreen(
             Card(
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(20.dp),
-                colors = CardDefaults.cardColors(containerColor = Color.White),
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
                 elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
             ) {
                 Column(
@@ -65,10 +65,10 @@ fun EmployeeInvitationScreen(
                     Surface(
                         modifier = Modifier.size(64.dp),
                         shape = RoundedCornerShape(12.dp),
-                        color = BackgroundLight
+                        color = MaterialTheme.colorScheme.surfaceVariant
                     ) {
                         Box(contentAlignment = Alignment.Center) {
-                            Icon(Icons.Default.Business, contentDescription = null, tint = PrimaryBlue, modifier = Modifier.size(32.dp))
+                            Icon(Icons.Default.Business, contentDescription = null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(32.dp))
                         }
                     }
                     
@@ -77,15 +77,15 @@ fun EmployeeInvitationScreen(
                     Text(
                         text = "ABC Services",
                         style = MaterialTheme.typography.titleLarge,
-                        color = TextDark,
+                        color = MaterialTheme.colorScheme.onSurface,
                         fontWeight = FontWeight.Bold
                     )
                     
                     Spacer(modifier = Modifier.height(8.dp))
                     
                     Row(verticalAlignment = Alignment.CenterVertically) {
-                        Text(text = "Invited by: ", color = TextSecondary, fontSize = 14.sp)
-                        Text(text = "Rahul Thakur", color = TextDark, fontSize = 14.sp, fontWeight = FontWeight.SemiBold)
+                        Text(text = "Invited by: ", color = MaterialTheme.colorScheme.onSurfaceVariant, fontSize = 14.sp)
+                        Text(text = "Rahul Thakur", color = MaterialTheme.colorScheme.onSurface, fontSize = 14.sp, fontWeight = FontWeight.SemiBold)
                     }
                 }
             }
@@ -105,7 +105,7 @@ fun EmployeeInvitationScreen(
             ) {
                 Text(
                     text = "Decline",
-                    color = Color.Red.copy(alpha = 0.7f),
+                    color = MaterialTheme.colorScheme.error.copy(alpha = 0.7f),
                     fontWeight = FontWeight.Bold
                 )
             }

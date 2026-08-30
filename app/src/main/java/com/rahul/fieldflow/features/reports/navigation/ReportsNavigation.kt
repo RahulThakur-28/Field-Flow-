@@ -1,5 +1,6 @@
 package com.rahul.fieldflow.features.reports.navigation
 
+import androidx.compose.runtime.LaunchedEffect
 import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
@@ -19,20 +20,18 @@ fun NavGraphBuilder.reportsNavigation(navController: NavController) {
     }
 
     composable<AppRoutes.OwnerReports> {
-        OwnerReportsScreen(
-            navController = navController,
-            onReportClick = { taskId: String ->
-                navController.navigate(AppRoutes.TaskReport(taskId))
+        LaunchedEffect(Unit) {
+            navController.navigate(AppRoutes.OwnerHome(initialPage = 3)) {
+                popUpTo(AppRoutes.OwnerHome()) { inclusive = true }
             }
-        )
+        }
     }
 
     composable<AppRoutes.EmployeeReports> {
-        EmployeeReportsScreen(
-            navController = navController,
-            onReportClick = { taskId: String ->
-                navController.navigate(AppRoutes.TaskReport(taskId))
+        LaunchedEffect(Unit) {
+            navController.navigate(AppRoutes.EmployeeHome(initialPage = 2)) {
+                popUpTo(AppRoutes.EmployeeHome()) { inclusive = true }
             }
-        )
+        }
     }
 }

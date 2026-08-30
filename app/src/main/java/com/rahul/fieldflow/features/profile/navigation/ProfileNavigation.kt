@@ -1,5 +1,6 @@
 package com.rahul.fieldflow.features.profile.navigation
 
+import androidx.compose.runtime.LaunchedEffect
 import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
@@ -10,11 +11,19 @@ import com.rahul.fieldflow.features.profile.employee.screen.*
 
 fun NavGraphBuilder.profileNavigation(navController: NavController) {
     composable<AppRoutes.OwnerProfile> {
-        OwnerProfileScreen(navController = navController)
+        LaunchedEffect(Unit) {
+            navController.navigate(AppRoutes.OwnerHome(initialPage = 4)) {
+                popUpTo(AppRoutes.OwnerHome()) { inclusive = true }
+            }
+        }
     }
 
     composable<AppRoutes.EmployeeProfile> {
-        EmployeeProfileScreen(navController = navController)
+        LaunchedEffect(Unit) {
+            navController.navigate(AppRoutes.EmployeeHome(initialPage = 3)) {
+                popUpTo(AppRoutes.EmployeeHome()) { inclusive = true }
+            }
+        }
     }
 
     composable<AppRoutes.ChangePassword> {

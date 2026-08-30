@@ -29,9 +29,9 @@ fun LiveVisitCard(visit: FieldVisitUiModel, modifier: Modifier = Modifier, onCli
             .fillMaxWidth()
             .clickable { onClick() },
         shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(containerColor = Color.White),
-        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
-        border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFFF0F2F5))
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
+        border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.1f))
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
             Row(
@@ -43,7 +43,7 @@ fun LiveVisitCard(visit: FieldVisitUiModel, modifier: Modifier = Modifier, onCli
                     Text(
                         text = visit.title,
                         style = MaterialTheme.typography.titleMedium,
-                        color = TextDark,
+                        color = MaterialTheme.colorScheme.onSurface,
                         fontWeight = FontWeight.Bold
                     )
                     Spacer(modifier = Modifier.height(4.dp))
@@ -52,10 +52,10 @@ fun LiveVisitCard(visit: FieldVisitUiModel, modifier: Modifier = Modifier, onCli
                             imageVector = Icons.Default.LocationOn,
                             contentDescription = null,
                             modifier = Modifier.size(12.dp),
-                            tint = TextSecondary
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                         Spacer(modifier = Modifier.width(4.dp))
-                        Text(text = visit.location, fontSize = 11.sp, color = TextSecondary)
+                        Text(text = visit.location, fontSize = 11.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
                     }
                 }
                 StatusBadge(type = visit.status)
@@ -77,12 +77,12 @@ fun LiveVisitCard(visit: FieldVisitUiModel, modifier: Modifier = Modifier, onCli
                         text = visit.employeeName, 
                         style = MaterialTheme.typography.bodyMedium,
                         fontWeight = FontWeight.SemiBold, 
-                        color = TextDark
+                        color = MaterialTheme.colorScheme.onSurface
                     )
                     Text(
                         text = "Distance: ${visit.distance}", 
                         style = MaterialTheme.typography.labelSmall, 
-                        color = TextSecondary
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }
                 
@@ -91,7 +91,7 @@ fun LiveVisitCard(visit: FieldVisitUiModel, modifier: Modifier = Modifier, onCli
                         text = "${visit.completedTasks}/${visit.totalTasks} Tasks",
                         style = MaterialTheme.typography.labelSmall,
                         fontWeight = FontWeight.Bold,
-                        color = PrimaryBlue
+                        color = MaterialTheme.colorScheme.primary
                     )
                     Spacer(modifier = Modifier.height(4.dp))
                     Box(modifier = Modifier.width(64.dp)) {
@@ -101,8 +101,8 @@ fun LiveVisitCard(visit: FieldVisitUiModel, modifier: Modifier = Modifier, onCli
                                 .fillMaxWidth()
                                 .height(4.dp)
                                 .clip(CircleShape),
-                            color = PrimaryBlue,
-                            trackColor = PrimaryBlue.copy(alpha = 0.1f)
+                            color = MaterialTheme.colorScheme.primary,
+                            trackColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.1f)
                         )
                     }
                 }

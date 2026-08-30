@@ -26,9 +26,9 @@ fun NextTaskCard(task: NextTaskUiModel, onClick: () -> Unit, modifier: Modifier 
         onClick = onClick,
         modifier = modifier.fillMaxWidth(),
         shape = RoundedCornerShape(20.dp),
-        colors = CardDefaults.cardColors(containerColor = Color.White),
-        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
-        border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFFF0F2F5))
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
+        border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.1f))
     ) {
         Column(modifier = Modifier.padding(20.dp)) {
             Row(
@@ -40,14 +40,14 @@ fun NextTaskCard(task: NextTaskUiModel, onClick: () -> Unit, modifier: Modifier 
                     Text(
                         text = "Next Task", 
                         style = MaterialTheme.typography.labelMedium, 
-                        color = PrimaryBlue,
+                        color = MaterialTheme.colorScheme.primary,
                         fontWeight = FontWeight.Bold
                     )
                     Spacer(modifier = Modifier.height(2.dp))
                     Text(
                         text = task.scheduledTime, 
                         style = MaterialTheme.typography.headlineSmall, 
-                        color = TextDark, 
+                        color = MaterialTheme.colorScheme.onSurface, 
                         fontWeight = FontWeight.ExtraBold
                     )
                 }
@@ -59,7 +59,7 @@ fun NextTaskCard(task: NextTaskUiModel, onClick: () -> Unit, modifier: Modifier 
             Text(
                 text = task.title,
                 style = MaterialTheme.typography.titleLarge,
-                color = TextDark,
+                color = MaterialTheme.colorScheme.onSurface,
                 fontWeight = FontWeight.Bold,
                 lineHeight = 28.sp
             )
@@ -71,13 +71,13 @@ fun NextTaskCard(task: NextTaskUiModel, onClick: () -> Unit, modifier: Modifier 
                     Icons.Default.LocationOn, 
                     contentDescription = null, 
                     modifier = Modifier.size(16.dp), 
-                    tint = TextSecondary
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant
                 )
                 Spacer(modifier = Modifier.width(6.dp))
                 Text(
                     text = task.location, 
                     style = MaterialTheme.typography.bodyMedium, 
-                    color = TextSecondary
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
             
@@ -98,14 +98,14 @@ fun NextTaskCard(task: NextTaskUiModel, onClick: () -> Unit, modifier: Modifier 
                     modifier = Modifier
                         .size(44.dp),
                     shape = CircleShape,
-                    color = PrimaryBlue,
+                    color = MaterialTheme.colorScheme.primary,
                     shadowElevation = 4.dp
                 ) {
                     Box(contentAlignment = Alignment.Center) {
                         Icon(
                             Icons.AutoMirrored.Filled.ArrowForward, 
                             contentDescription = "Start", 
-                            tint = Color.White,
+                            tint = MaterialTheme.colorScheme.onPrimary,
                             modifier = Modifier.size(20.dp)
                         )
                     }
@@ -113,7 +113,7 @@ fun NextTaskCard(task: NextTaskUiModel, onClick: () -> Unit, modifier: Modifier 
             }
             
             Spacer(modifier = Modifier.height(20.dp))
-            HorizontalDivider(color = Color(0xFFF0F2F5))
+            HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.3f))
             Spacer(modifier = Modifier.height(16.dp))
             
             Row(
@@ -126,19 +126,19 @@ fun NextTaskCard(task: NextTaskUiModel, onClick: () -> Unit, modifier: Modifier 
                         Icons.Default.AccessTime, 
                         contentDescription = null, 
                         modifier = Modifier.size(14.dp), 
-                        tint = TextSecondary
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                     Spacer(modifier = Modifier.width(6.dp))
                     Text(
                         text = "Due by ${task.dueTime}", 
                         style = MaterialTheme.typography.labelMedium, 
-                        color = TextSecondary
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }
                 Text(
                     text = task.scheduleStatus, 
                     style = MaterialTheme.typography.labelMedium, 
-                    color = Color(0xFF2E7D32), 
+                    color = com.rahul.fieldflow.ui.theme.SuccessGreen, 
                     fontWeight = FontWeight.Bold
                 )
             }
@@ -149,7 +149,7 @@ fun NextTaskCard(task: NextTaskUiModel, onClick: () -> Unit, modifier: Modifier 
 @Composable
 private fun TaskInfoItem(label: String, value: String) {
     Column {
-        Text(text = label, fontSize = 12.sp, color = TextSecondary)
-        Text(text = value, fontSize = 14.sp, fontWeight = FontWeight.Bold, color = TextDark)
+        Text(text = label, fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+        Text(text = value, fontSize = 14.sp, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onSurface)
     }
 }

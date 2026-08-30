@@ -1,5 +1,6 @@
 package com.rahul.fieldflow.features.tasks.navigation
 
+import androidx.compose.runtime.LaunchedEffect
 import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
@@ -13,17 +14,14 @@ import org.maplibre.android.geometry.LatLng
 
 fun NavGraphBuilder.taskNavigation(navController: NavController) {
     navigation<AppRoutes.Tasks>(startDestination = AppRoutes.OwnerTasks()) {
-        // Owner Routes
-        composable<AppRoutes.OwnerTasks> {
-            OwnerTasksScreen(
-                navController = navController,
-                onTaskClick = { taskId ->
-                    navController.navigate(AppRoutes.TaskDetails(taskId))
-                },
-                onCreateTaskClick = {
-                    navController.navigate(AppRoutes.CreateTask)
+        // Owner Routes - Redirect to Pager
+        composable<AppRoutes.OwnerTasks> { backStackEntry ->
+            val route = backStackEntry.toRoute<AppRoutes.OwnerTasks>()
+            LaunchedEffect(Unit) {
+                navController.navigate(AppRoutes.OwnerHome(initialPage = 1, taskFilter = route.filter)) {
+                    popUpTo(AppRoutes.OwnerHome()) { inclusive = true }
                 }
-            )
+            }
         }
 
         composable<AppRoutes.CreateTask> { backStackEntry ->
@@ -88,14 +86,14 @@ fun NavGraphBuilder.taskNavigation(navController: NavController) {
             )
         }
 
-        // Employee Routes
-        composable<AppRoutes.EmployeeTasks> {
-            EmployeeTasksScreen(
-                navController = navController,
-                onTaskClick = { taskId ->
-                    navController.navigate(AppRoutes.EmployeeTaskDetails(taskId))
+        // Employee Routes - Redirect to Pager
+        composable<AppRoutes.EmployeeTasks> { backStackEntry ->
+            val route = backStackEntry.toRoute<AppRoutes.EmployeeTasks>()
+            LaunchedEffect(Unit) {
+                navController.navigate(AppRoutes.EmployeeHome(initialPage = 1, taskFilter = route.filter)) {
+                    popUpTo(AppRoutes.EmployeeHome()) { inclusive = true }
                 }
-            )
+            }
         }
 
         composable<AppRoutes.EmployeeTaskDetails> { backStackEntry ->

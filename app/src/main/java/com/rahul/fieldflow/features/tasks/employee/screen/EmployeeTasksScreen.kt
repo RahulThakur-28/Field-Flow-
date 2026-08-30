@@ -34,12 +34,28 @@ import com.rahul.fieldflow.ui.theme.TextSecondary
 fun EmployeeTasksScreen(
     navController: NavController,
     onTaskClick: (String) -> Unit,
-    viewModel: EmployeeTasksViewModel = hiltViewModel()
+    viewModel: EmployeeTasksViewModel = hiltViewModel(),
+    paddingValues: PaddingValues = PaddingValues(0.dp),
+    taskFilter: String? = null
 ) {
     val uiState by viewModel.uiState.collectAsState()
 
+    LaunchedEffect(taskFilter) {
+        taskFilter?.let { filterStr ->
+            val index = when (filterStr.lowercase()) {
+                "all" -> 0
+                "active" -> 1
+                "completed" -> 2
+                "overdue" -> 3
+                else -> null
+            }
+            index?.let { viewModel.onTabSelected(it) }
+        }
+    }
+
     Scaffold(
         containerColor = MaterialTheme.colorScheme.background,
+        modifier = Modifier.padding(bottom = paddingValues.calculateBottomPadding()),
         topBar = {
             TopAppBar(
                 title = { 
@@ -73,18 +89,12 @@ fun EmployeeTasksScreen(
                     containerColor = androidx.compose.ui.graphics.Color.Transparent
                 )
             )
-        },
-        bottomBar = {
-            FieldFlowBottomNavigation(
-                items = BottomNavigationConfig.employeeItems,
-                navController = navController
-            )
         }
     ) { padding ->
         PullToRefreshBox(
             isRefreshing = uiState.isLoading,
             onRefresh = viewModel::loadTasks,
-            modifier = Modifier.padding(padding)
+            modifier = Modifier.padding(top = padding.calculateTopPadding())
         ) {
             Column(
                 modifier = Modifier
@@ -122,7 +132,7 @@ fun EmployeeTasksScreen(
                     } else {
                         LazyColumn(
                             modifier = Modifier.fillMaxSize(),
-                            contentPadding = PaddingValues(bottom = 80.dp),
+                            contentPadding = PaddingValues(bottom = padding.calculateBottomPadding() + 24.dp),
                             verticalArrangement = Arrangement.spacedBy(12.dp)
                         ) {
                             items(filteredTasks, key = { it.id }) { task ->

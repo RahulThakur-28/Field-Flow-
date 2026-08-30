@@ -34,17 +34,20 @@ import com.rahul.fieldflow.ui.theme.*
 @Composable
 fun OwnerHomeScreen(
     navController: NavController,
-    viewModel: OwnerHomeViewModel = hiltViewModel()
+    viewModel: OwnerHomeViewModel = hiltViewModel(),
+    paddingValues: PaddingValues = PaddingValues(0.dp)
 ) {
     val uiState by viewModel.uiState.collectAsState()
 
     PullToRefreshBox(
         isRefreshing = uiState.isLoading,
-        onRefresh = { viewModel.refresh() }
+        onRefresh = { viewModel.refresh() },
+        modifier = Modifier.padding(bottom = paddingValues.calculateBottomPadding())
     ) {
         OwnerHomeContent(
             uiState = uiState,
-            navController = navController
+            navController = navController,
+            paddingValues = paddingValues
         )
     }
 }
@@ -52,22 +55,15 @@ fun OwnerHomeScreen(
 @Composable
 fun OwnerHomeContent(
     uiState: com.rahul.fieldflow.features.home.owner.state.OwnerHomeUiState,
-    navController: NavController
+    navController: NavController,
+    paddingValues: PaddingValues
 ) {
-    Scaffold(
-        bottomBar = {
-            FieldFlowBottomNavigation(
-                items = BottomNavigationConfig.ownerItems,
-                navController = navController
-            )
-        }
-    ) { paddingValues ->
-        LazyColumn(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(paddingValues),
-            contentPadding = PaddingValues(bottom = 24.dp)
-        ) {
+    LazyColumn(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(top = paddingValues.calculateTopPadding()),
+        contentPadding = PaddingValues(bottom = 24.dp)
+    ) {
             item {
                 Column(
                     modifier = Modifier
@@ -207,30 +203,6 @@ fun OwnerHomeContent(
                 Spacer(modifier = Modifier.height(32.dp))
             }
         }
-    }
-}
-
-@Composable
-fun EmptyStatePlaceholder(text: String, modifier: Modifier = Modifier) {
-    Surface(
-        modifier = modifier
-            .fillMaxWidth()
-            .height(80.dp),
-        shape = RoundedCornerShape(16.dp),
-        color = MaterialTheme.colorScheme.surfaceVariant,
-        border = androidx.compose.foundation.BorderStroke(
-            1.dp, 
-            MaterialTheme.colorScheme.outline.copy(alpha = 0.1f)
-        )
-    ) {
-        Box(contentAlignment = Alignment.Center) {
-            Text(
-                text = text, 
-                style = MaterialTheme.typography.bodyMedium, 
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
-        }
-    }
 }
 
 @Preview(showBackground = true)

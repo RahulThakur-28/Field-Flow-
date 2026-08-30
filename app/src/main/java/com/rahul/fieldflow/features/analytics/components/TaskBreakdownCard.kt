@@ -24,7 +24,7 @@ fun TaskBreakdownCard(data: List<DonutChartData>) {
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(containerColor = Color.White),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
@@ -32,12 +32,12 @@ fun TaskBreakdownCard(data: List<DonutChartData>) {
                 text = "Task Breakdown",
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.Bold,
-                color = TextDark
+                color = MaterialTheme.colorScheme.onSurface
             )
             Text(
                 text = "This month",
                 style = MaterialTheme.typography.labelSmall,
-                color = TextSecondary
+                color = MaterialTheme.colorScheme.onSurfaceVariant
             )
 
             Spacer(modifier = Modifier.height(24.dp))
@@ -71,12 +71,12 @@ fun TaskBreakdownCard(data: List<DonutChartData>) {
                             text = "86%",
                             style = MaterialTheme.typography.headlineSmall,
                             fontWeight = FontWeight.Bold,
-                            color = TextDark
+                            color = MaterialTheme.colorScheme.onSurface
                         )
                         Text(
                             text = "completion",
                             style = MaterialTheme.typography.labelSmall,
-                            color = TextSecondary
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                     }
                 }
@@ -108,14 +108,14 @@ private fun BreakdownLegendItem(item: DonutChartData) {
         Text(
             text = item.label,
             fontSize = 12.sp,
-            color = TextSecondary,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
             modifier = Modifier.width(80.dp)
         )
         Text(
             text = "${item.value}",
             fontSize = 12.sp,
             fontWeight = FontWeight.Bold,
-            color = TextDark
+            color = MaterialTheme.colorScheme.onSurface
         )
     }
 }

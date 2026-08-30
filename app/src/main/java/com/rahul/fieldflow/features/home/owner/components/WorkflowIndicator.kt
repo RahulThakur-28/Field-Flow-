@@ -58,17 +58,21 @@ private fun WorkflowStep(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = modifier
     ) {
+        val completedColor = Color(0xFF4CAF50)
+        val activeColor = MaterialTheme.colorScheme.primary
+        val inactiveColor = MaterialTheme.colorScheme.outline.copy(alpha = 0.3f)
+
         Box(
             modifier = Modifier
                 .size(24.dp)
                 .clip(CircleShape)
                 .background(
-                    if (isCompleted) Color(0xFF2E7D32) 
-                    else if (isCurrent) PrimaryBlue 
-                    else Color.White
+                    if (isCompleted) completedColor 
+                    else if (isCurrent) activeColor 
+                    else MaterialTheme.colorScheme.surface
                 )
                 .then(
-                    if (isFuture || isCurrent) Modifier.border(1.5.dp, if (isCurrent) PrimaryBlue else Color(0xFFE0E0E0), CircleShape) 
+                    if (isFuture || isCurrent) Modifier.border(1.5.dp, if (isCurrent) activeColor else inactiveColor, CircleShape) 
                     else Modifier
                 ),
             contentAlignment = Alignment.Center
@@ -77,7 +81,7 @@ private fun WorkflowStep(
                 Icon(
                     imageVector = Icons.Default.Check,
                     contentDescription = null,
-                    tint = Color.White,
+                    tint = MaterialTheme.colorScheme.onPrimary,
                     modifier = Modifier.size(14.dp)
                 )
             } else if (isCurrent) {
@@ -85,7 +89,7 @@ private fun WorkflowStep(
                     modifier = Modifier
                         .size(8.dp)
                         .clip(CircleShape)
-                        .background(Color.White)
+                        .background(MaterialTheme.colorScheme.onPrimary)
                 )
             }
         }
@@ -96,7 +100,7 @@ private fun WorkflowStep(
             text = label,
             style = MaterialTheme.typography.labelSmall,
             fontWeight = if (isCurrent) FontWeight.Bold else FontWeight.Medium,
-            color = if (isCurrent) PrimaryBlue else if (isCompleted) Color(0xFF2E7D32) else Color.Gray,
+            color = if (isCurrent) activeColor else if (isCompleted) completedColor else MaterialTheme.colorScheme.onSurfaceVariant,
             maxLines = 1,
             fontSize = 9.sp
         )

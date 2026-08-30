@@ -48,7 +48,7 @@ fun OnboardingScreen(onFinish: () -> Unit) {
     )
 
     Scaffold(
-        containerColor = BackgroundLight,
+        containerColor = MaterialTheme.colorScheme.background,
         topBar = {
             if (pagerState.currentPage < 2) {
                 Box(
@@ -60,7 +60,7 @@ fun OnboardingScreen(onFinish: () -> Unit) {
                     TextButton(onClick = onFinish) {
                         Text(
                             text = "Skip",
-                            color = TextSecondary,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
                             fontSize = 14.sp,
                             fontWeight = FontWeight.Medium
                         )
@@ -103,7 +103,7 @@ fun OnboardingScreen(onFinish: () -> Unit) {
                             targetValue = if (pagerState.currentPage == iteration) 24.dp else 8.dp,
                             label = "indicatorWidth"
                         )
-                        val color = if (pagerState.currentPage == iteration) PrimaryBlue else GrayLight
+                        val color = if (pagerState.currentPage == iteration) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outline.copy(alpha = 0.3f)
                         Box(
                             modifier = Modifier
                                 .padding(horizontal = 4.dp)
@@ -132,8 +132,8 @@ fun OnboardingScreen(onFinish: () -> Unit) {
                         .height(56.dp),
                     shape = RoundedCornerShape(16.dp),
                     colors = ButtonDefaults.buttonColors(
-                        containerColor = PrimaryBlue,
-                        contentColor = Color.White
+                        containerColor = MaterialTheme.colorScheme.primary,
+                        contentColor = MaterialTheme.colorScheme.onPrimary
                     )
                 ) {
                     Text(
@@ -162,7 +162,7 @@ fun OnboardingPage(data: OnboardingPageData) {
         
         Text(
             text = data.title,
-            color = TextDark,
+            color = MaterialTheme.colorScheme.onBackground,
             fontSize = 28.sp,
             fontWeight = FontWeight.Bold,
             textAlign = TextAlign.Center,
@@ -173,7 +173,7 @@ fun OnboardingPage(data: OnboardingPageData) {
         
         Text(
             text = data.description,
-            color = TextSecondary,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
             fontSize = 16.sp,
             fontWeight = FontWeight.Normal,
             textAlign = TextAlign.Center,
@@ -218,19 +218,19 @@ fun AssignIllustration() {
         Surface(
             modifier = Modifier.size(120.dp, 160.dp),
             shape = RoundedCornerShape(12.dp),
-            color = Color.White,
+            color = MaterialTheme.colorScheme.surface,
             shadowElevation = 8.dp
         ) {
             Column(Modifier.padding(12.dp)) {
-                Box(Modifier.size(40.dp, 8.dp).clip(RoundedCornerShape(4.dp)).background(GrayLight))
+                Box(Modifier.size(40.dp, 8.dp).clip(RoundedCornerShape(4.dp)).background(MaterialTheme.colorScheme.outline.copy(alpha = 0.2f)))
                 Spacer(Modifier.height(8.dp))
-                Box(Modifier.size(80.dp, 8.dp).clip(RoundedCornerShape(4.dp)).background(GrayLight.copy(alpha = 0.5f)))
+                Box(Modifier.size(80.dp, 8.dp).clip(RoundedCornerShape(4.dp)).background(MaterialTheme.colorScheme.outline.copy(alpha = 0.1f)))
                 Spacer(Modifier.height(16.dp))
                 repeat(3) {
                     Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(vertical = 4.dp)) {
-                        Box(Modifier.size(16.dp).clip(CircleShape).background(if (it == 0) PrimaryBlue else GrayLight))
+                        Box(Modifier.size(16.dp).clip(CircleShape).background(if (it == 0) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outline.copy(alpha = 0.2f)))
                         Spacer(Modifier.width(8.dp))
-                        Box(Modifier.size(60.dp, 6.dp).clip(RoundedCornerShape(3.dp)).background(GrayLight.copy(alpha = 0.3f)))
+                        Box(Modifier.size(60.dp, 6.dp).clip(RoundedCornerShape(3.dp)).background(MaterialTheme.colorScheme.outline.copy(alpha = 0.1f)))
                     }
                 }
             }
@@ -239,11 +239,11 @@ fun AssignIllustration() {
         Surface(
             modifier = Modifier.size(48.dp).offset(x = 40.dp, y = 60.dp),
             shape = CircleShape,
-            color = PrimaryBlue,
+            color = MaterialTheme.colorScheme.primary,
             shadowElevation = 12.dp
         ) {
             Box(contentAlignment = Alignment.Center) {
-                Text("✓", color = Color.White, fontSize = 24.sp, fontWeight = FontWeight.Bold)
+                Text("✓", color = MaterialTheme.colorScheme.onPrimary, fontSize = 24.sp, fontWeight = FontWeight.Bold)
             }
         }
     }
@@ -265,11 +265,11 @@ fun VerifyIllustration() {
         Surface(
             modifier = Modifier.size(40.dp).offset(y = (-20).dp),
             shape = CircleShape,
-            color = PrimaryBlue,
+            color = MaterialTheme.colorScheme.primary,
             shadowElevation = 8.dp
         ) {
             Box(contentAlignment = Alignment.Center) {
-                Box(Modifier.size(16.dp).clip(CircleShape).background(Color.White))
+                Box(Modifier.size(16.dp).clip(CircleShape).background(MaterialTheme.colorScheme.onPrimary))
             }
         }
         // Radius
@@ -287,7 +287,7 @@ fun ReportsIllustration() {
         Surface(
             modifier = Modifier.size(140.dp),
             shape = CircleShape,
-            color = Color.White,
+            color = MaterialTheme.colorScheme.surface,
             shadowElevation = 12.dp
         ) {
             Box(contentAlignment = Alignment.Center) {
@@ -295,7 +295,7 @@ fun ReportsIllustration() {
                 Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
                     val heights = listOf(20, 40, 60, 30, 50, 20)
                     heights.forEach { h ->
-                        Box(Modifier.size(6.dp, h.dp).clip(RoundedCornerShape(3.dp)).background(PrimaryBlue))
+                        Box(Modifier.size(6.dp, h.dp).clip(RoundedCornerShape(3.dp)).background(MaterialTheme.colorScheme.primary))
                     }
                 }
             }
@@ -304,11 +304,11 @@ fun ReportsIllustration() {
         Surface(
             modifier = Modifier.size(44.dp).offset(x = 50.dp, y = (-40).dp),
             shape = CircleShape,
-            color = SecondaryIndigo,
+            color = MaterialTheme.colorScheme.secondary,
             shadowElevation = 10.dp
         ) {
             Box(contentAlignment = Alignment.Center) {
-                Box(Modifier.size(12.dp, 20.dp).clip(RoundedCornerShape(6.dp)).background(Color.White))
+                Box(Modifier.size(12.dp, 20.dp).clip(RoundedCornerShape(6.dp)).background(MaterialTheme.colorScheme.onSecondary))
             }
         }
     }

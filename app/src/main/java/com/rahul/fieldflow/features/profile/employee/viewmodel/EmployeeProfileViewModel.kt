@@ -39,7 +39,7 @@ class EmployeeProfileViewModel @Inject constructor(
                             role = "Field Employee",
                             email = dashboard.profile.email,
                             phone = dashboard.profile.phone ?: "",
-                            company = "FieldFlow", // Fallback, would be better to get workspace name
+                            company = dashboard.workspace.name,
                             completedTasks = dashboard.taskStats.completedCount,
                             activeTasks = dashboard.taskStats.activeCount,
                             onTimePercentage = 0 // Calculate if needed
@@ -50,6 +50,10 @@ class EmployeeProfileViewModel @Inject constructor(
                     _uiState.update { it.copy(isLoading = false, error = error.message) }
                 }
         }
+    }
+
+    fun refresh() {
+        loadProfile()
     }
 
     private fun observeSettings() {
@@ -64,5 +68,17 @@ class EmployeeProfileViewModel @Inject constructor(
         viewModelScope.launch {
             settingsRepository.setTheme(theme)
         }
+    }
+
+    fun togglePushNotifications(enabled: Boolean) {
+        _uiState.update { it.copy(pushNotificationsEnabled = enabled) }
+    }
+
+    fun toggleEmailNotifications(enabled: Boolean) {
+        _uiState.update { it.copy(emailNotificationsEnabled = enabled) }
+    }
+
+    fun toggleTaskUpdates(enabled: Boolean) {
+        _uiState.update { it.copy(taskUpdatesEnabled = enabled) }
     }
 }

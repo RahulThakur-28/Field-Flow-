@@ -1,5 +1,6 @@
 package com.rahul.fieldflow.features.team.navigation
 
+import androidx.compose.runtime.LaunchedEffect
 import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
@@ -11,15 +12,11 @@ import com.rahul.fieldflow.features.team.screen.OwnerTeamScreen
 
 fun NavGraphBuilder.teamNavigation(navController: NavController) {
     composable<AppRoutes.Team> {
-        OwnerTeamScreen(
-            navController = navController,
-            onMemberClick = { employeeId: String ->
-                navController.navigate(AppRoutes.EmployeeDetails(employeeId))
-            },
-            onNavigateToRequests = {
-                navController.navigate(AppRoutes.EmployeeRequests)
+        LaunchedEffect(Unit) {
+            navController.navigate(AppRoutes.OwnerHome(initialPage = 2)) {
+                popUpTo(AppRoutes.OwnerHome()) { inclusive = true }
             }
-        )
+        }
     }
 
     composable<AppRoutes.EmployeeRequests> {

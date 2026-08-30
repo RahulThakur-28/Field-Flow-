@@ -28,10 +28,16 @@ sealed class AppRoutes {
     data object EmailVerification : AppRoutes()
     
     @Serializable
-    data object OwnerHome : AppRoutes()
+    data class OwnerHome(
+        val initialPage: Int = 0,
+        val taskFilter: String? = null
+    ) : AppRoutes()
     
     @Serializable
-    data object EmployeeHome : AppRoutes()
+    data class EmployeeHome(
+        val initialPage: Int = 0,
+        val taskFilter: String? = null
+    ) : AppRoutes()
 
     @Serializable
     data class OwnerTasks(val filter: String? = null) : AppRoutes()

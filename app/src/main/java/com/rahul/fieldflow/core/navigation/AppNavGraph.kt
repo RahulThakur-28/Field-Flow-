@@ -7,14 +7,15 @@ import androidx.navigation.NavDestination
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.toRoute
 import com.rahul.fieldflow.domain.model.UserRole
 import com.rahul.fieldflow.features.auth.navigation.authNavigation
 import com.rahul.fieldflow.features.auth.viewmodel.AuthState
 import com.rahul.fieldflow.features.auth.viewmodel.AuthViewModel
 import com.rahul.fieldflow.features.onboarding.OnboardingScreen
 import com.rahul.fieldflow.features.splash.SplashScreen
-import com.rahul.fieldflow.features.home.owner.screen.OwnerHomeScreen
-import com.rahul.fieldflow.features.home.employee.screen.EmployeeHomeScreen
+import com.rahul.fieldflow.features.main.OwnerMainPagerScreen
+import com.rahul.fieldflow.features.main.EmployeeMainPagerScreen
 import com.rahul.fieldflow.features.tasks.navigation.taskNavigation
 import com.rahul.fieldflow.features.team.navigation.teamNavigation
 import com.rahul.fieldflow.features.reports.navigation.reportsNavigation
@@ -56,8 +57,8 @@ fun AppNavGraph(
                 val targetDestination: Any = when (currentAuthState) {
                     is AuthState.Authenticated -> {
                         when (currentAuthState.user.role) {
-                            UserRole.OWNER -> AppRoutes.OwnerHome
-                            UserRole.EMPLOYEE -> AppRoutes.EmployeeHome
+                            UserRole.OWNER -> AppRoutes.OwnerHome()
+                            UserRole.EMPLOYEE -> AppRoutes.EmployeeHome()
                         }
                     }
                     is AuthState.EmailUnverified -> AppRoutes.EmailVerification
@@ -131,12 +132,22 @@ fun AppNavGraph(
             )
         }
 
-        composable<AppRoutes.OwnerHome> {
-            OwnerHomeScreen(navController = navController)
+        composable<AppRoutes.OwnerHome> { backStackEntry ->
+            val route = backStackEntry.toRoute<AppRoutes.OwnerHome>()
+            OwnerMainPagerScreen(
+                navController = navController,
+                initialPage = route.initialPage,
+                taskFilter = route.taskFilter
+            )
         }
 
-        composable<AppRoutes.EmployeeHome> {
-            EmployeeHomeScreen(navController = navController)
+        composable<AppRoutes.EmployeeHome> { backStackEntry ->
+            val route = backStackEntry.toRoute<AppRoutes.EmployeeHome>()
+            EmployeeMainPagerScreen(
+                navController = navController,
+                initialPage = route.initialPage,
+                taskFilter = route.taskFilter
+            )
         }
 
         authNavigation(navController)

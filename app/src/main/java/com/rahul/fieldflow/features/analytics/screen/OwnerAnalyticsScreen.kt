@@ -57,14 +57,19 @@ fun OwnerAnalyticsScreen(
         containerColor = BackgroundLight
     ) { padding ->
         if (uiState.isLoading) {
-            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(padding),
+                contentAlignment = Alignment.Center
+            ) {
                 CircularProgressIndicator(color = PrimaryBlue)
             }
         } else {
             OwnerAnalyticsContent(
                 uiState = uiState,
                 onPeriodSelected = viewModel::onPeriodSelected,
-                modifier = Modifier.padding(padding)
+                paddingValues = padding
             )
         }
     }
@@ -74,11 +79,16 @@ fun OwnerAnalyticsScreen(
 private fun OwnerAnalyticsContent(
     uiState: AnalyticsUiState,
     onPeriodSelected: (com.rahul.fieldflow.features.analytics.model.AnalyticsPeriod) -> Unit,
-    modifier: Modifier = Modifier
+    paddingValues: PaddingValues
 ) {
     LazyColumn(
-        modifier = modifier.fillMaxSize(),
-        contentPadding = PaddingValues(16.dp),
+        modifier = Modifier.fillMaxSize(),
+        contentPadding = PaddingValues(
+            top = paddingValues.calculateTopPadding() + 16.dp,
+            start = 16.dp,
+            end = 16.dp,
+            bottom = paddingValues.calculateBottomPadding() + 24.dp
+        ),
         verticalArrangement = Arrangement.spacedBy(24.dp)
     ) {
         item {
@@ -126,7 +136,7 @@ private fun OwnerAnalyticsContent(
         }
 
         item {
-            Spacer(modifier = Modifier.height(80.dp))
+            Spacer(modifier = Modifier.height(16.dp))
         }
     }
 }

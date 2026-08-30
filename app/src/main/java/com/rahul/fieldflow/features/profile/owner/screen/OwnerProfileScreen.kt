@@ -31,6 +31,7 @@ import com.rahul.fieldflow.features.profile.components.ProfileContactItem
 import com.rahul.fieldflow.features.profile.components.ProfileSettingItem
 import com.rahul.fieldflow.features.profile.components.ProfileStatCard
 import com.rahul.fieldflow.features.profile.components.ProfileVerticalDivider
+import com.rahul.fieldflow.features.profile.components.ThemeSelectionDialog
 import com.rahul.fieldflow.features.profile.owner.viewmodel.OwnerProfileViewModel
 import com.rahul.fieldflow.ui.theme.FieldFlowTheme
 import com.rahul.fieldflow.ui.theme.PrimaryBlue
@@ -42,10 +43,12 @@ import com.rahul.fieldflow.ui.theme.TextSecondary
 fun OwnerProfileScreen(
     navController: NavController,
     viewModel: OwnerProfileViewModel = hiltViewModel(),
-    authViewModel: AuthViewModel = hiltViewModel()
+    authViewModel: AuthViewModel = hiltViewModel(),
+    paddingValues: PaddingValues = PaddingValues(0.dp)
 ) {
     val uiState by viewModel.uiState.collectAsState()
     var showSignOutDialog by remember { mutableStateOf(false) }
+    var showThemeDialog by remember { mutableStateOf(false) }
 
     if (showSignOutDialog) {
         AlertDialog(
@@ -72,26 +75,33 @@ fun OwnerProfileScreen(
         )
     }
 
+    if (showThemeDialog) {
+        ThemeSelectionDialog(
+            currentTheme = uiState.appTheme,
+            onThemeSelected = {
+                viewModel.setTheme(it)
+                showThemeDialog = false
+            },
+            onDismiss = { showThemeDialog = false }
+        )
+    }
+
     Scaffold(
         topBar = {
             TopAppBar(
                 title = { Text("Profile", fontWeight = FontWeight.Bold) }
             )
         },
-        bottomBar = {
-            FieldFlowBottomNavigation(
-                items = BottomNavigationConfig.ownerItems,
-                navController = navController
-            )
-        },
-        containerColor = MaterialTheme.colorScheme.background
+        containerColor = MaterialTheme.colorScheme.background,
+        modifier = Modifier.padding(bottom = paddingValues.calculateBottomPadding())
     ) { padding ->
         LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(padding)
+                .padding(top = padding.calculateTopPadding())
                 .padding(horizontal = 16.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
+            horizontalAlignment = Alignment.CenterHorizontally,
+            contentPadding = PaddingValues(bottom = padding.calculateBottomPadding() + 24.dp)
         ) {
             item {
                 Spacer(modifier = Modifier.height(24.dp))
@@ -244,11 +254,13 @@ fun OwnerProfileScreen(
                         )
                         HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f))
                         ProfileSettingItem(
-                            title = "Dark Theme",
-                            trailingSwitch = uiState.appTheme == AppTheme.DARK,
-                            onSwitchChange = { isDark ->
-                                viewModel.setTheme(if (isDark) AppTheme.DARK else AppTheme.LIGHT)
-                            }
+                            title = "App Theme",
+                            trailingValue = when (uiState.appTheme) {
+                                AppTheme.LIGHT -> "Light"
+                                AppTheme.DARK -> "Dark"
+                                AppTheme.SYSTEM -> "System"
+                            },
+                            onClick = { showThemeDialog = true }
                         )
                         HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f))
                         ProfileSettingItem(

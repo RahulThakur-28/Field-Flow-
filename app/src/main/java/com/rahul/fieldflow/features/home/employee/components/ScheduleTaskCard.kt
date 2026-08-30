@@ -20,8 +20,8 @@ fun ScheduleTaskCard(task: ScheduleTaskUiModel, onClick: () -> Unit) {
         onClick = onClick,
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(16.dp),
-        color = Color.White,
-        border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFFF0F2F5))
+        color = MaterialTheme.colorScheme.surface,
+        border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.1f))
     ) {
         Row(
             modifier = Modifier.padding(16.dp),
@@ -30,14 +30,14 @@ fun ScheduleTaskCard(task: ScheduleTaskUiModel, onClick: () -> Unit) {
             Surface(
                 modifier = Modifier.size(40.dp),
                 shape = RoundedCornerShape(10.dp),
-                color = Color(0xFFF8F9FB)
+                color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
             ) {
                 Box(contentAlignment = Alignment.Center) {
                     Text(
                         text = task.time.take(2), // Just the hour as a visual hint
                         style = MaterialTheme.typography.labelMedium,
                         fontWeight = FontWeight.Bold,
-                        color = TextSecondary
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }
             }
@@ -49,14 +49,14 @@ fun ScheduleTaskCard(task: ScheduleTaskUiModel, onClick: () -> Unit) {
                     text = task.title, 
                     style = MaterialTheme.typography.bodyLarge,
                     fontWeight = FontWeight.SemiBold, 
-                    color = TextDark,
+                    color = MaterialTheme.colorScheme.onSurface,
                     maxLines = 1,
                     overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis
                 )
                 Text(
                     text = "${task.time} • ${task.location}", 
                     style = MaterialTheme.typography.labelSmall, 
-                    color = TextSecondary
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
             

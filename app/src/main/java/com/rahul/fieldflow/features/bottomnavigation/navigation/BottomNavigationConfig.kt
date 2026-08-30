@@ -7,7 +7,7 @@ import com.rahul.fieldflow.features.bottomnavigation.model.NavigationItemUiModel
 
 object BottomNavigationConfig {
     val ownerItems = listOf(
-        NavigationItemUiModel("Home", Icons.Default.Home, AppRoutes.OwnerHome),
+        NavigationItemUiModel("Home", Icons.Default.Home, AppRoutes.OwnerHome()),
         NavigationItemUiModel("Tasks", Icons.Default.Assignment, AppRoutes.OwnerTasks()),
         NavigationItemUiModel("Team", Icons.Default.Group, AppRoutes.Team),
         NavigationItemUiModel("Reports", Icons.Default.Description, AppRoutes.OwnerReports),
@@ -15,7 +15,7 @@ object BottomNavigationConfig {
     )
 
     val employeeItems = listOf(
-        NavigationItemUiModel("Home", Icons.Default.Home, AppRoutes.EmployeeHome),
+        NavigationItemUiModel("Home", Icons.Default.Home, AppRoutes.EmployeeHome()),
         NavigationItemUiModel("Tasks", Icons.Default.Assignment, AppRoutes.EmployeeTasks()),
         NavigationItemUiModel("Reports", Icons.Default.Description, AppRoutes.EmployeeReports),
         NavigationItemUiModel("Profile", Icons.Default.Person, AppRoutes.EmployeeProfile)

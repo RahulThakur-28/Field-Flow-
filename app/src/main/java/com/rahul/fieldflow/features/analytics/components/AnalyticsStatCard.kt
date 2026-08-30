@@ -22,7 +22,7 @@ fun AnalyticsStatCard(
     Card(
         modifier = modifier,
         shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(containerColor = Color.White),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {
         Column(
@@ -32,18 +32,18 @@ fun AnalyticsStatCard(
                 text = stat.value,
                 style = MaterialTheme.typography.headlineMedium,
                 fontWeight = FontWeight.Bold,
-                color = TextDark
+                color = MaterialTheme.colorScheme.onSurface
             )
             Text(
                 text = stat.label,
                 style = MaterialTheme.typography.labelSmall,
-                color = TextSecondary
+                color = MaterialTheme.colorScheme.onSurfaceVariant
             )
             Spacer(modifier = Modifier.height(8.dp))
             Text(
                 text = stat.comparisonText,
                 fontSize = 10.sp,
-                color = if (stat.isPositive) Color(0xFF4CAF50) else Color(0xFFF44336),
+                color = if (stat.isPositive) com.rahul.fieldflow.ui.theme.SuccessGreen else com.rahul.fieldflow.ui.theme.ErrorRed,
                 fontWeight = FontWeight.Medium
             )
         }

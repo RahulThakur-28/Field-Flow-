@@ -10,23 +10,31 @@ class GetEmployeeHomeDashboardUseCase @Inject constructor(
     private val authRepository: AuthRepository,
     private val taskRepository: TaskRepository,
     private val reportRepository: ReportRepository,
-    private val notificationRepository: NotificationRepository
+    private val notificationRepository: NotificationRepository,
+    private val workspaceRepository: WorkspaceRepository
 ) {
     suspend operator fun invoke(): Result<EmployeeHomeDashboard> {
         val user = authRepository.currentUser.first() ?: return Result.failure(Exception("Not logged in"))
         
+        val workspaceResult = user.workspaceId?.let { workspaceRepository.getWorkspaceById(it) }
+            ?: Result.failure(Exception("No workspace assigned"))
+
         val tasksResult = taskRepository.getEmployeeTasks()
         val reportsResult = reportRepository.getEmployeeReports(user.id)
         val notificationsResult = notificationRepository.getUnreadCount()
 
-        return tasksResult.map { allTasks ->
+        return tasksResult.mapCatching { allTasks ->
+            val workspace = workspaceResult.getOrThrow()
             val allReports = reportsResult.getOrDefault(emptyList())
             val unreadCount = notificationsResult.getOrDefault(0)
 
             val now = OffsetDateTime.now()
             
             val taskStats = TaskStats(
-                totalCount = allTasks.size,
+                totalCount = allTasks.count { 
+                    it.dueDate?.toLocalDate()?.isEqual(now.toLocalDate()) == true || 
+                    (it.dueDate == null && it.createdAt.toLocalDate().isEqual(now.toLocalDate()))
+                },
                 activeCount = allTasks.count { it.status == TaskStatus.IN_PROGRESS },
                 completedCount = allTasks.count { it.status == TaskStatus.COMPLETED },
                 pendingCount = allTasks.count { it.status == TaskStatus.PENDING || it.status == TaskStatus.ASSIGNED },
@@ -48,6 +56,7 @@ class GetEmployeeHomeDashboardUseCase @Inject constructor(
 
             EmployeeHomeDashboard(
                 profile = user,
+                workspace = workspace,
                 taskStats = taskStats,
                 nextTask = nextTask,
                 upcomingTasks = upcomingTasks,

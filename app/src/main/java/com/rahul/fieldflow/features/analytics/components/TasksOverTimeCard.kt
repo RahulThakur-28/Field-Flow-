@@ -21,7 +21,7 @@ fun TasksOverTimeCard(data: List<BarChartData>) {
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(containerColor = Color.White),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
@@ -29,12 +29,12 @@ fun TasksOverTimeCard(data: List<BarChartData>) {
                 text = "Tasks Over Time",
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.Bold,
-                color = TextDark
+                color = MaterialTheme.colorScheme.onSurface
             )
             Text(
                 text = "Last 8 months",
                 style = MaterialTheme.typography.labelSmall,
-                color = TextSecondary
+                color = MaterialTheme.colorScheme.onSurfaceVariant
             )
             
             Spacer(modifier = Modifier.height(24.dp))
@@ -57,7 +57,7 @@ fun TasksOverTimeCard(data: List<BarChartData>) {
                                 .fillMaxWidth(0.6f)
                                 .fillMaxHeight(item.value / maxValue)
                                 .background(
-                                    color = if (item.label == "Aug") PrimaryBlue else PrimaryBlue.copy(alpha = 0.3f),
+                                    color = if (item.label == "Aug") MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.primary.copy(alpha = 0.3f),
                                     shape = RoundedCornerShape(topStart = 4.dp, topEnd = 4.dp)
                                 )
                         )
@@ -65,7 +65,7 @@ fun TasksOverTimeCard(data: List<BarChartData>) {
                         Text(
                             text = item.label,
                             fontSize = 10.sp,
-                            color = TextSecondary
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                     }
                 }

@@ -37,12 +37,14 @@ import com.rahul.fieldflow.features.reports.owner.state.ReportFilter
 fun OwnerReportsScreen(
     navController: NavController,
     onReportClick: (String) -> Unit,
-    viewModel: OwnerReportsViewModel = hiltViewModel()
+    viewModel: OwnerReportsViewModel = hiltViewModel(),
+    paddingValues: PaddingValues = PaddingValues(0.dp)
 ) {
     val uiState by viewModel.uiState.collectAsState()
 
     Scaffold(
         containerColor = MaterialTheme.colorScheme.background,
+        modifier = Modifier.padding(bottom = paddingValues.calculateBottomPadding()),
         topBar = {
             TopAppBar(
                 title = {
@@ -67,18 +69,12 @@ fun OwnerReportsScreen(
                     containerColor = Color.Transparent
                 )
             )
-        },
-        bottomBar = {
-            FieldFlowBottomNavigation(
-                items = BottomNavigationConfig.ownerItems,
-                navController = navController
-            )
         }
     ) { padding ->
         PullToRefreshBox(
             isRefreshing = uiState.isLoading,
             onRefresh = viewModel::onRefresh,
-            modifier = Modifier.padding(padding)
+            modifier = Modifier.padding(top = padding.calculateTopPadding())
         ) {
             Column(
                 modifier = Modifier
@@ -121,7 +117,7 @@ fun OwnerReportsScreen(
                 } else {
                     LazyColumn(
                         modifier = Modifier.fillMaxSize(),
-                        contentPadding = PaddingValues(bottom = 16.dp),
+                        contentPadding = PaddingValues(bottom = padding.calculateBottomPadding() + 24.dp),
                         verticalArrangement = Arrangement.spacedBy(12.dp)
                     ) {
                         items(uiState.filteredReports, key = { it.reportId }) { report ->
