@@ -54,7 +54,6 @@ fun EmployeeHomeContent(
     navController: NavController
 ) {
     Scaffold(
-        containerColor = Color(0xFFF8F9FB),
         bottomBar = {
             FieldFlowBottomNavigation(
                 items = BottomNavigationConfig.employeeItems,
@@ -75,8 +74,8 @@ fun EmployeeHomeContent(
                         .background(
                             brush = Brush.verticalGradient(
                                 colors = listOf(
-                                    PrimaryBlue.copy(alpha = 0.08f),
-                                    Color(0xFFF8F9FB)
+                                    MaterialTheme.colorScheme.primary.copy(alpha = 0.08f),
+                                    MaterialTheme.colorScheme.background
                                 )
                             )
                         )
@@ -92,14 +91,14 @@ fun EmployeeHomeContent(
 
                     Spacer(modifier = Modifier.height(8.dp))
 
-                    // Stats Row
+                    // Stats Row - 4 compact cards
                     Row(
                         modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(10.dp)
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
                         CompactStatCard(
                             value = "${uiState.allTasksCount}",
-                            label = "All Tasks",
+                            label = "All",
                             color = PrimaryBlue,
                             onClick = { navController.navigate(AppRoutes.EmployeeTasks(filter = "all")) },
                             modifier = Modifier.weight(1f)
@@ -113,9 +112,16 @@ fun EmployeeHomeContent(
                         )
                         CompactStatCard(
                             value = "${uiState.completedTasksCount}",
-                            label = "Completed",
+                            label = "Complete",
                             color = Color(0xFF4CAF50),
                             onClick = { navController.navigate(AppRoutes.EmployeeTasks(filter = "completed")) },
+                            modifier = Modifier.weight(1f)
+                        )
+                        CompactStatCard(
+                            value = "${uiState.lateTasksCount}",
+                            label = "Overdue",
+                            color = Color(0xFFF44336),
+                            onClick = { navController.navigate(AppRoutes.EmployeeTasks(filter = "overdue")) },
                             modifier = Modifier.weight(1f)
                         )
                     }
@@ -155,7 +161,10 @@ fun EmployeeHomeContent(
                             .height(80.dp),
                         contentAlignment = Alignment.Center
                     ) {
-                        Text(text = "No upcoming tasks", color = Color.Gray)
+                        Text(
+                            text = "No upcoming tasks", 
+                            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
+                        )
                     }
                 }
             } else {
@@ -188,7 +197,10 @@ fun EmployeeHomeContent(
                             .height(80.dp),
                         contentAlignment = Alignment.Center
                     ) {
-                        Text(text = "No reports submitted yet", color = Color.Gray)
+                        Text(
+                            text = "No reports submitted yet", 
+                            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
+                        )
                     }
                 }
             } else {

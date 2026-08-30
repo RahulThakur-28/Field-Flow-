@@ -11,6 +11,7 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.Assignment
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -54,17 +55,12 @@ fun EmployeeRequestsScreen(
         },
         containerColor = MaterialTheme.colorScheme.background
     ) { padding ->
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(padding)
+        PullToRefreshBox(
+            isRefreshing = uiState.isLoading,
+            onRefresh = { viewModel.loadRequests() },
+            modifier = Modifier.padding(padding)
         ) {
-            if (uiState.isLoading) {
-                CircularProgressIndicator(
-                    modifier = Modifier.align(Alignment.Center),
-                    color = MaterialTheme.colorScheme.primary
-                )
-            } else if (uiState.requests.isEmpty()) {
+            if (uiState.requests.isEmpty() && !uiState.isLoading) {
                 EmptyRequestsState()
             } else {
                 LazyColumn(
@@ -72,7 +68,7 @@ fun EmployeeRequestsScreen(
                     contentPadding = PaddingValues(16.dp),
                     verticalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
-                    items(uiState.requests) { request ->
+                    items(uiState.requests, key = { it.id }) { request ->
                         RequestCard(
                             request = request,
                             isProcessing = uiState.processingRequestId == request.id,
@@ -103,6 +99,8 @@ fun RequestCard(
     onAccept: () -> Unit,
     onReject: () -> Unit
 ) {
+    val statusColor = WarningOrange
+    
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(24.dp),
@@ -126,25 +124,25 @@ fun RequestCard(
                 Column(modifier = Modifier.weight(1f)) {
                     Text(
                         text = request.employeeName ?: "New Employee",
-                        style = MaterialTheme.typography.titleMedium,
+                        style = MaterialTheme.typography.titleLarge,
                         fontWeight = FontWeight.Bold,
                         color = MaterialTheme.colorScheme.onSurface
                     )
                     Text(
                         text = (request.employeeRole ?: "Employee").replaceFirstChar { it.uppercase() },
-                        style = MaterialTheme.typography.bodySmall,
+                        style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }
 
                 Surface(
-                    color = Color(0xFFFFF3E0),
+                    color = statusColor.copy(alpha = 0.1f),
                     shape = RoundedCornerShape(8.dp)
                 ) {
                     Text(
                         text = "Pending",
                         modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
-                        color = Color(0xFFFF9800),
+                        color = statusColor,
                         fontSize = 11.sp,
                         fontWeight = FontWeight.Bold
                     )
@@ -165,44 +163,16 @@ fun RequestCard(
                 }
             }
 
-            DetailRow(icon = Icons.Default.Event, label = "Requested On", value = formattedDate)
-            Spacer(modifier = Modifier.height(16.dp))
             DetailRow(icon = Icons.Default.Email, label = "Email", value = request.employeeEmail ?: "Not provided")
             Spacer(modifier = Modifier.height(16.dp))
             DetailRow(icon = Icons.Default.Phone, label = "Phone Number", value = request.employeePhone ?: "Not provided")
+            Spacer(modifier = Modifier.height(16.dp))
+            DetailRow(icon = Icons.Default.Event, label = "Requested On", value = formattedDate)
             Spacer(modifier = Modifier.height(16.dp))
             DetailRow(icon = Icons.AutoMirrored.Filled.Assignment, label = "Request ID", value = request.id)
 
             Spacer(modifier = Modifier.height(24.dp))
 
-            // Info Box
-            Surface(
-                modifier = Modifier.fillMaxWidth(),
-                color = MaterialTheme.colorScheme.primary.copy(alpha = 0.05f),
-                shape = RoundedCornerShape(12.dp)
-            ) {
-                Row(
-                    modifier = Modifier.padding(12.dp),
-                    verticalAlignment = Alignment.Top
-                ) {
-                    Icon(
-                        Icons.Default.Info, 
-                        contentDescription = null, 
-                        tint = MaterialTheme.colorScheme.primary, 
-                        modifier = Modifier.size(16.dp)
-                    )
-                    Spacer(modifier = Modifier.width(12.dp))
-                    Text(
-                        text = "This employee has requested to join your organization. You can accept or reject this request.",
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        lineHeight = 18.sp
-                    )
-                }
-            }
-
-            Spacer(modifier = Modifier.height(24.dp))
-            
             // Actions
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -212,9 +182,9 @@ fun RequestCard(
                     onClick = onReject,
                     modifier = Modifier.weight(1f).height(48.dp),
                     enabled = !isProcessing,
-                    colors = ButtonDefaults.outlinedButtonColors(contentColor = Color.Red),
+                    colors = ButtonDefaults.outlinedButtonColors(contentColor = ErrorRed),
                     shape = RoundedCornerShape(12.dp),
-                    border = androidx.compose.foundation.BorderStroke(1.dp, Color.Red.copy(alpha = 0.5f))
+                    border = androidx.compose.foundation.BorderStroke(1.dp, ErrorRed.copy(alpha = 0.5f))
                 ) {
                     Icon(Icons.Default.Close, contentDescription = null, modifier = Modifier.size(18.dp))
                     Spacer(modifier = Modifier.width(8.dp))
@@ -225,7 +195,7 @@ fun RequestCard(
                     onClick = onAccept,
                     modifier = Modifier.weight(1f).height(48.dp),
                     enabled = !isProcessing,
-                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF43A047)),
+                    colors = ButtonDefaults.buttonColors(containerColor = SuccessGreen),
                     shape = RoundedCornerShape(12.dp)
                 ) {
                     if (isProcessing) {
@@ -243,28 +213,32 @@ fun RequestCard(
 
 @Composable
 fun DetailRow(icon: ImageVector, label: String, value: String) {
-    Row(verticalAlignment = Alignment.CenterVertically) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
         Icon(
             imageVector = icon,
             contentDescription = null,
             modifier = Modifier.size(18.dp),
-            tint = MaterialTheme.colorScheme.onSurfaceVariant
+            tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f)
         )
         Spacer(modifier = Modifier.width(12.dp))
-        Text(
-            text = label,
-            style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-            modifier = Modifier.width(100.dp)
-        )
-        Text(
-            text = value,
-            style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.onSurface,
-            fontWeight = FontWeight.Medium,
-            maxLines = 1,
-            overflow = TextOverflow.Ellipsis
-        )
+        Column {
+            Text(
+                text = label,
+                style = MaterialTheme.typography.labelSmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
+            )
+            Text(
+                text = value,
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurface,
+                fontWeight = FontWeight.SemiBold,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
+            )
+        }
     }
 }
 

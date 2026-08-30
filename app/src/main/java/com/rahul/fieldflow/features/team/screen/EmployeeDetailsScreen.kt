@@ -29,8 +29,7 @@ import com.rahul.fieldflow.features.team.components.StatusIndicator
 import com.rahul.fieldflow.features.team.model.toUiStatus
 import com.rahul.fieldflow.features.team.viewmodel.TeamViewModel
 import com.rahul.fieldflow.core.utils.DateUtils
-import com.rahul.fieldflow.ui.theme.FieldFlowTheme
-import com.rahul.fieldflow.ui.theme.PrimaryBlue
+import com.rahul.fieldflow.ui.theme.*
 import java.time.format.DateTimeFormatter
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -101,19 +100,8 @@ fun EmployeeDetailsScreen(
                     Spacer(modifier = Modifier.height(16.dp))
 
                     // Profile Card - Premium Blue Themed
-                    val cardBgColor = if (MaterialTheme.colorScheme.primary.red < 0.5f) {
-                        // Dark theme
-                        MaterialTheme.colorScheme.primary.copy(alpha = 0.12f)
-                    } else {
-                        // Light theme
-                        Color(0xFFE3F2FD)
-                    }
-                    
-                    val cardTextColor = if (MaterialTheme.colorScheme.primary.red < 0.5f) {
-                        MaterialTheme.colorScheme.onSurface
-                    } else {
-                        Color(0xFF0D47A1)
-                    }
+                    val cardBgColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.5f)
+                    val cardTextColor = MaterialTheme.colorScheme.onPrimaryContainer
 
                     Card(
                         modifier = Modifier.fillMaxWidth(),
@@ -379,12 +367,12 @@ fun PastTaskCard(task: Task, onViewReport: () -> Unit) {
             ) {
                 Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     Surface(
-                        color = Color(0xFFE8F5E9),
+                        color = SuccessGreen.copy(alpha = 0.15f),
                         shape = RoundedCornerShape(6.dp)
                     ) {
                         Text(
                             text = "✓ Completed",
-                            color = Color(0xFF2E7D32),
+                            color = SuccessGreen,
                             style = MaterialTheme.typography.labelSmall,
                             modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
                             fontWeight = FontWeight.ExtraBold
@@ -393,12 +381,12 @@ fun PastTaskCard(task: Task, onViewReport: () -> Unit) {
                     
                     if (task.hasReport) {
                         Surface(
-                            color = Color(0xFFFFF3E0),
+                            color = WarningOrange.copy(alpha = 0.15f),
                             shape = RoundedCornerShape(6.dp)
                         ) {
                             Text(
                                 text = "✨ AI Report",
-                                color = Color(0xFFEF6C00),
+                                color = WarningOrange,
                                 style = MaterialTheme.typography.labelSmall,
                                 modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
                                 fontWeight = FontWeight.ExtraBold

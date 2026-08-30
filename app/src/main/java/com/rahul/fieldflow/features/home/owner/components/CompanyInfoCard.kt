@@ -27,21 +27,18 @@ fun CompanyInfoCard(
     Card(
         modifier = modifier.fillMaxWidth(),
         shape = RoundedCornerShape(20.dp),
-        colors = CardDefaults.cardColors(containerColor = Color.White),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surfaceVariant
+        ),
         elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
-        border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFFF0F2F5))
+        border = androidx.compose.foundation.BorderStroke(
+            1.dp, 
+            MaterialTheme.colorScheme.outline.copy(alpha = 0.1f)
+        )
     ) {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .background(
-                    brush = Brush.horizontalGradient(
-                        colors = listOf(
-                            Color.White,
-                            PrimaryBlue.copy(alpha = 0.03f)
-                        )
-                    )
-                )
                 .padding(20.dp)
         ) {
             Row(verticalAlignment = Alignment.CenterVertically) {
@@ -65,14 +62,14 @@ fun CompanyInfoCard(
                         text = companyName,
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.Bold,
-                        color = TextDark,
+                        color = MaterialTheme.colorScheme.onSurface,
                         maxLines = 1
                     )
                     Spacer(modifier = Modifier.height(2.dp))
                     Text(
                         text = "Company ID: $companyId",
                         style = MaterialTheme.typography.labelSmall,
-                        color = TextSecondary,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
                         letterSpacing = 0.5.sp
                     )
                 }

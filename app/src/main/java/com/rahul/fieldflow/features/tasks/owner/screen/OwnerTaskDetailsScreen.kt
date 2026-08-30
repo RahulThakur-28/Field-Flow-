@@ -227,9 +227,12 @@ private fun EmployeeAssignmentCard(employee: com.rahul.fieldflow.features.tasks.
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(20.dp),
         colors = CardDefaults.cardColors(
-            containerColor = PrimaryBlue.copy(alpha = 0.08f)
+            containerColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.5f)
         ),
-        border = androidx.compose.foundation.BorderStroke(1.dp, PrimaryBlue.copy(alpha = 0.2f))
+        border = androidx.compose.foundation.BorderStroke(
+            1.dp, 
+            MaterialTheme.colorScheme.primary.copy(alpha = 0.2f)
+        )
     ) {
         Row(
             modifier = Modifier.padding(16.dp),
@@ -245,12 +248,12 @@ private fun EmployeeAssignmentCard(employee: com.rahul.fieldflow.features.tasks.
                     text = employee.name,
                     style = MaterialTheme.typography.titleLarge,
                     fontWeight = FontWeight.Bold,
-                    color = PrimaryBlue
+                    color = MaterialTheme.colorScheme.onPrimaryContainer
                 )
                 Text(
                     text = "Assigned Employee",
                     style = MaterialTheme.typography.labelMedium,
-                    color = PrimaryBlue.copy(alpha = 0.7f),
+                    color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.7f),
                     fontWeight = FontWeight.SemiBold
                 )
             }
@@ -295,34 +298,34 @@ private fun TaskScheduleCardDetailed(task: Task) {
                     Icon(
                         imageVector = Icons.Default.Schedule, 
                         contentDescription = null, 
-                        tint = if (isOverdue) Color.Red else MaterialTheme.colorScheme.primary
+                        tint = if (isOverdue) ErrorRed else MaterialTheme.colorScheme.primary
                     )
                     Spacer(modifier = Modifier.width(12.dp))
                     Column {
                         Text(
                             text = "Deadline", 
                             style = MaterialTheme.typography.labelSmall, 
-                            color = if (isOverdue) Color.Red else Color.Red,
+                            color = if (isOverdue) ErrorRed else ErrorRed,
                             fontWeight = FontWeight.Bold
                         )
                         Text(
                             (task.deadline ?: task.scheduledDate).format(DateTimeFormatter.ofPattern("hh:mm a")),
                             style = MaterialTheme.typography.bodyLarge,
                             fontWeight = FontWeight.Bold,
-                            color = if (isOverdue) Color.Red else MaterialTheme.colorScheme.onSurface
+                            color = if (isOverdue) ErrorRed else MaterialTheme.colorScheme.onSurface
                         )
                     }
                 }
                 
                 if (isOverdue) {
                     Surface(
-                        color = Color.Red.copy(alpha = 0.1f),
+                        color = ErrorRed.copy(alpha = 0.1f),
                         shape = RoundedCornerShape(8.dp)
                     ) {
                         Text(
                             "OVERDUE",
                             modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp),
-                            color = Color.Red,
+                            color = ErrorRed,
                             style = MaterialTheme.typography.labelSmall,
                             fontWeight = FontWeight.ExtraBold
                         )

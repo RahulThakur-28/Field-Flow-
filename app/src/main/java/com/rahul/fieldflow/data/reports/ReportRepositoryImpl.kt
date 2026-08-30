@@ -2,7 +2,6 @@ package com.rahul.fieldflow.data.reports
 
 import com.rahul.fieldflow.domain.model.*
 import com.rahul.fieldflow.domain.repository.ReportRepository
-import kotlinx.serialization.json.*
 import java.time.OffsetDateTime
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -34,9 +33,9 @@ class ReportRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun getOwnerReports(ownerId: String): Result<List<TaskReportContext>> {
+    override suspend fun getOwnerReports(workspaceId: String): Result<List<TaskReportContext>> {
         return runCatching {
-            reportDataSource.getOwnerReports(ownerId).map { dto ->
+            reportDataSource.getOwnerReports(workspaceId).map { dto ->
                 dto.toTaskReportContext()
             }
         }
@@ -75,21 +74,8 @@ class ReportRepositoryImpl @Inject constructor(
             id = id,
             taskId = taskId,
             summary = summary,
-            keyFindings = keyFindings?.map { 
-                val obj = it.jsonObject
-                KeyFinding(
-                    title = obj["title"]?.jsonPrimitive?.content ?: "",
-                    description = obj["description"]?.jsonPrimitive?.content ?: ""
-                )
-            } ?: emptyList(),
-            actionItems = actionItems?.map { 
-                val obj = it.jsonObject
-                ActionItem(
-                    title = obj["title"]?.jsonPrimitive?.content ?: "",
-                    description = obj["description"]?.jsonPrimitive?.content ?: "",
-                    priority = obj["priority"]?.jsonPrimitive?.content ?: "medium"
-                )
-            } ?: emptyList(),
+            keyFindings = keyFindings ?: emptyList(),
+            actionItems = actionItems ?: emptyList(),
             status = status,
             version = version,
             createdAt = try { OffsetDateTime.parse(createdAt) } catch (e: Exception) { try { OffsetDateTime.parse(createdAt, formatter) } catch (e2: Exception) { OffsetDateTime.now() } },
@@ -103,21 +89,8 @@ class ReportRepositoryImpl @Inject constructor(
             id = id,
             taskId = taskId,
             summary = summary,
-            keyFindings = keyFindings?.map { 
-                val obj = it.jsonObject
-                KeyFinding(
-                    title = obj["title"]?.jsonPrimitive?.content ?: "",
-                    description = obj["description"]?.jsonPrimitive?.content ?: ""
-                )
-            } ?: emptyList(),
-            actionItems = actionItems?.map { 
-                val obj = it.jsonObject
-                ActionItem(
-                    title = obj["title"]?.jsonPrimitive?.content ?: "",
-                    description = obj["description"]?.jsonPrimitive?.content ?: "",
-                    priority = obj["priority"]?.jsonPrimitive?.content ?: "medium"
-                )
-            } ?: emptyList(),
+            keyFindings = keyFindings ?: emptyList(),
+            actionItems = actionItems ?: emptyList(),
             status = status,
             version = version,
             createdAt = try { OffsetDateTime.parse(createdAt) } catch (e: Exception) { try { OffsetDateTime.parse(createdAt, formatter) } catch (e2: Exception) { OffsetDateTime.now() } },

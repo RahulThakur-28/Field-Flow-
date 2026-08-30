@@ -84,10 +84,7 @@ class OwnerTasksViewModel @Inject constructor(
         val allTasks = state.tasks
         
         val allCount = allTasks.size
-        val activeCount = allTasks.count { 
-            it.status == com.rahul.fieldflow.features.tasks.model.TaskStatus.PENDING || 
-            it.status == com.rahul.fieldflow.features.tasks.model.TaskStatus.IN_PROGRESS 
-        }
+        val activeCount = allTasks.count { it.status == com.rahul.fieldflow.features.tasks.model.TaskStatus.IN_PROGRESS }
         val completedCount = allTasks.count { it.status == com.rahul.fieldflow.features.tasks.model.TaskStatus.COMPLETED }
         val overdueCount = allTasks.count { it.status == com.rahul.fieldflow.features.tasks.model.TaskStatus.OVERDUE }
 
@@ -98,10 +95,7 @@ class OwnerTasksViewModel @Inject constructor(
 
             val matchesFilter = when (state.selectedFilter) {
                 TaskFilter.ALL -> true
-                TaskFilter.ACTIVE -> {
-                    task.status == com.rahul.fieldflow.features.tasks.model.TaskStatus.PENDING ||
-                            task.status == com.rahul.fieldflow.features.tasks.model.TaskStatus.IN_PROGRESS
-                }
+                TaskFilter.ACTIVE -> task.status == com.rahul.fieldflow.features.tasks.model.TaskStatus.IN_PROGRESS
                 TaskFilter.COMPLETED -> task.status == com.rahul.fieldflow.features.tasks.model.TaskStatus.COMPLETED
                 TaskFilter.OVERDUE -> task.status == com.rahul.fieldflow.features.tasks.model.TaskStatus.OVERDUE
             }

@@ -1,9 +1,11 @@
 package com.rahul.fieldflow.features.home.components
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AutoAwesome
+import androidx.compose.material.icons.filled.Mic
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -12,13 +14,11 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import com.rahul.fieldflow.domain.model.TaskReportContext
 import com.rahul.fieldflow.features.tasks.components.TaskStatusBadge
 import com.rahul.fieldflow.features.team.model.toUiStatus
 import com.rahul.fieldflow.ui.theme.PrimaryBlue
-import com.rahul.fieldflow.ui.theme.TextDark
-import com.rahul.fieldflow.ui.theme.TextSecondary
+import com.rahul.fieldflow.ui.theme.WarningOrange
 import java.time.format.DateTimeFormatter
 
 @Composable
@@ -31,12 +31,17 @@ fun HomeReportCard(
 
     Card(
         modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(containerColor = Color.White),
+        shape = RoundedCornerShape(20.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surface
+        ),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
-        border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFFF0F2F5))
+        border = androidx.compose.foundation.BorderStroke(
+            1.dp, 
+            MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f)
+        )
     ) {
-        Column(modifier = Modifier.padding(16.dp)) {
+        Column(modifier = Modifier.padding(18.dp)) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
@@ -46,7 +51,7 @@ fun HomeReportCard(
                     text = task.title,
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Bold,
-                    color = TextDark,
+                    color = MaterialTheme.colorScheme.onSurface,
                     modifier = Modifier.weight(1f),
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
@@ -54,12 +59,12 @@ fun HomeReportCard(
                 TaskStatusBadge(task.status.toUiStatus())
             }
 
-            Spacer(modifier = Modifier.height(4.dp))
+            Spacer(modifier = Modifier.height(6.dp))
 
             Text(
-                text = "${task.assignedEmployee?.fullName ?: "Unknown"} • ${task.createdAt.format(DateTimeFormatter.ofPattern("MMM dd"))}",
+                text = "${task.assignedEmployee?.fullName ?: "Unknown"} • ${task.createdAt.format(DateTimeFormatter.ofPattern("MMM dd, yyyy"))}",
                 style = MaterialTheme.typography.bodySmall,
-                color = TextSecondary
+                color = MaterialTheme.colorScheme.onSurfaceVariant
             )
 
             Spacer(modifier = Modifier.height(16.dp))
@@ -72,27 +77,58 @@ fun HomeReportCard(
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     if (report != null) {
                         Surface(
-                            color = Color(0xFFFFF3E0),
-                            shape = RoundedCornerShape(6.dp)
+                            color = WarningOrange.copy(alpha = 0.1f),
+                            shape = RoundedCornerShape(8.dp)
                         ) {
-                            Text(
-                                text = "✨ AI Report Ready",
-                                color = Color(0xFFEF6C00),
-                                style = MaterialTheme.typography.labelSmall,
-                                fontWeight = FontWeight.Bold,
-                                modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
-                            )
+                            Row(
+                                modifier = Modifier.padding(horizontal = 10.dp, vertical = 5.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.AutoAwesome,
+                                    contentDescription = null,
+                                    modifier = Modifier.size(12.dp),
+                                    tint = WarningOrange
+                                )
+                                Spacer(modifier = Modifier.width(6.dp))
+                                Text(
+                                    text = "AI Report",
+                                    color = WarningOrange,
+                                    style = MaterialTheme.typography.labelSmall,
+                                    fontWeight = FontWeight.Bold
+                                )
+                            }
                         }
                     } else {
                         Surface(
-                            color = Color(0xFFF5F5F5),
-                            shape = RoundedCornerShape(6.dp)
+                            color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f),
+                            shape = RoundedCornerShape(8.dp)
                         ) {
                             Text(
                                 text = "Processing...",
-                                color = Color.Gray,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f),
                                 style = MaterialTheme.typography.labelSmall,
-                                modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
+                                modifier = Modifier.padding(horizontal = 10.dp, vertical = 5.dp),
+                                fontWeight = FontWeight.Medium
+                            )
+                        }
+                    }
+                    
+                    if (reportContext.sessions.isNotEmpty()) {
+                        Spacer(modifier = Modifier.width(12.dp))
+                        val duration = reportContext.sessions.sumOf { it.durationSeconds ?: 0 }
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Icon(
+                                imageVector = Icons.Default.Mic,
+                                contentDescription = null,
+                                modifier = Modifier.size(14.dp),
+                                tint = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                            Spacer(modifier = Modifier.width(4.dp))
+                            Text(
+                                text = "%02d:%02d".format(duration / 60, duration % 60),
+                                style = MaterialTheme.typography.labelSmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
                         }
                     }

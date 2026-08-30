@@ -2,13 +2,14 @@ package com.rahul.fieldflow.data.reports
 
 import com.rahul.fieldflow.data.recording.RecordingSessionDto
 import com.rahul.fieldflow.data.tasks.TaskDto
+import com.rahul.fieldflow.domain.model.ActionItem
+import com.rahul.fieldflow.domain.model.KeyFinding
 import io.github.jan.supabase.SupabaseClient
 import io.github.jan.supabase.functions.functions
 import io.github.jan.supabase.postgrest.postgrest
 import io.github.jan.supabase.postgrest.query.Columns
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put
 import javax.inject.Inject
@@ -65,13 +66,13 @@ class ReportDataSource @Inject constructor(
         }
     }
 
-    suspend fun getOwnerReports(ownerId: String): List<TaskReportWithDetailsDto> {
-        android.util.Log.d("REPORT_DEBUG", "OWNER_REPORTS_DATASOURCE_START ownerId=$ownerId")
+    suspend fun getOwnerReports(workspaceId: String): List<TaskReportWithDetailsDto> {
+        android.util.Log.d("REPORT_DEBUG", "OWNER_REPORTS_DATASOURCE_START workspaceId=$workspaceId")
         return try {
             val response = supabaseClient.postgrest["task_reports"]
-                .select(Columns.raw("*, tasks!inner(*, task_assignments(*, profiles:profiles!task_assignments_employee_id_fkey(*)), recording_sessions(*))")) {
+                .select(Columns.raw("*, tasks!inner(*, task_assignments!inner(*, profiles:profiles!task_assignments_employee_id_fkey!inner(*)), recording_sessions(*))")) {
                     filter {
-                        eq("tasks.created_by", ownerId)
+                        eq("tasks.task_assignments.profiles.workspace_id", workspaceId)
                     }
                 }
             
@@ -102,7 +103,21 @@ class ReportDataSource @Inject constructor(
                     eq("id", reportId)
                 }
             }
-            android.util.Log.d("REPORT_DEBUG", "UPDATE_REPORT_STATUS_SUCCESS")
+            
+            // Verification step as per plan
+            val verifyResponse = supabaseClient.postgrest["task_reports"]
+                .select {
+                    filter {
+                        eq("id", reportId)
+                    }
+                }
+            val updatedReport = verifyResponse.decodeList<TaskReportDto>().firstOrNull()
+            if (updatedReport?.status == status) {
+                android.util.Log.d("REPORT_DEBUG", "UPDATE_REPORT_STATUS_SUCCESS")
+            } else {
+                android.util.Log.e("REPORT_DEBUG", "UPDATE_REPORT_STATUS_VERIFY_FAILED: status is ${updatedReport?.status}")
+                throw Exception("Status update verification failed")
+            }
         } catch (e: Exception) {
             android.util.Log.e("REPORT_DEBUG", "UPDATE_REPORT_STATUS_ERROR", e)
             throw e
@@ -115,8 +130,8 @@ data class TaskReportWithDetailsDto(
     @SerialName("id") val id: String,
     @SerialName("task_id") val taskId: String,
     val summary: String? = null,
-    @SerialName("key_findings") val keyFindings: JsonArray? = null,
-    @SerialName("action_items") val actionItems: JsonArray? = null,
+    @SerialName("key_findings") val keyFindings: List<KeyFinding>? = null,
+    @SerialName("action_items") val actionItems: List<ActionItem>? = null,
     val status: String,
     val version: Int,
     @SerialName("created_at") val createdAt: String,
@@ -129,8 +144,8 @@ data class TaskReportDto(
     val id: String,
     @SerialName("task_id") val taskId: String,
     val summary: String? = null,
-    @SerialName("key_findings") val keyFindings: JsonArray? = null,
-    @SerialName("action_items") val actionItems: JsonArray? = null,
+    @SerialName("key_findings") val keyFindings: List<KeyFinding>? = null,
+    @SerialName("action_items") val actionItems: List<ActionItem>? = null,
     val status: String,
     val version: Int,
     @SerialName("created_at") val createdAt: String,

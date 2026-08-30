@@ -1,5 +1,6 @@
 package com.rahul.fieldflow.domain.model
 
+import kotlinx.serialization.Serializable
 import java.time.OffsetDateTime
 
 data class TaskReport(
@@ -14,11 +15,13 @@ data class TaskReport(
     val updatedAt: OffsetDateTime
 )
 
+@Serializable
 data class KeyFinding(
     val title: String,
     val description: String
 )
 
+@Serializable
 data class ActionItem(
     val title: String,
     val description: String,

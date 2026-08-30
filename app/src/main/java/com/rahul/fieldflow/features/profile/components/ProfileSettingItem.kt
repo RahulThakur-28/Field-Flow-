@@ -14,7 +14,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.rahul.fieldflow.ui.theme.PrimaryBlue
-import com.rahul.fieldflow.ui.theme.TextDark
 import com.rahul.fieldflow.ui.theme.TextSecondary
 
 @Composable
@@ -37,13 +36,13 @@ fun ProfileSettingItem(
             Text(
                 text = title,
                 style = MaterialTheme.typography.bodyLarge,
-                color = TextDark
+                color = MaterialTheme.colorScheme.onSurface
             )
             if (subtitle != null) {
                 Text(
                     text = subtitle,
                     style = MaterialTheme.typography.bodySmall,
-                    color = TextSecondary
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
         }
@@ -53,15 +52,17 @@ fun ProfileSettingItem(
                 checked = trailingSwitch,
                 onCheckedChange = onSwitchChange,
                 colors = SwitchDefaults.colors(
-                    checkedThumbColor = androidx.compose.ui.graphics.Color.White,
-                    checkedTrackColor = PrimaryBlue
+                    checkedThumbColor = MaterialTheme.colorScheme.onPrimary,
+                    checkedTrackColor = MaterialTheme.colorScheme.primary,
+                    uncheckedThumbColor = MaterialTheme.colorScheme.outline,
+                    uncheckedTrackColor = MaterialTheme.colorScheme.surfaceVariant
                 )
             )
         } else if (onClick != null) {
             Icon(
                 imageVector = Icons.Default.ChevronRight,
                 contentDescription = null,
-                tint = TextSecondary,
+                tint = MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier = Modifier.size(20.dp)
             )
         }

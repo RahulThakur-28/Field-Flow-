@@ -27,6 +27,7 @@ class EmployeeTasksViewModel @Inject constructor(
             when (filter.lowercase()) {
                 "active" -> 1
                 "completed" -> 2
+                "overdue" -> 3
                 else -> 0
             }
         } ?: 0

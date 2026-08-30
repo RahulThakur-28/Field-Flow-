@@ -28,7 +28,7 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import com.rahul.fieldflow.features.tasks.model.Employee
 import com.rahul.fieldflow.features.tasks.model.TaskPriority
-import com.rahul.fieldflow.ui.theme.PrimaryBlue
+import com.rahul.fieldflow.ui.theme.*
 import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalTime
@@ -160,10 +160,10 @@ fun TaskForm(
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(12.dp),
                     isError = locationError != null,
-                    leadingIcon = { Icon(Icons.Default.LocationOn, contentDescription = null, tint = PrimaryBlue) },
+                    leadingIcon = { Icon(Icons.Default.LocationOn, contentDescription = null, tint = MaterialTheme.colorScheme.primary) },
                     trailingIcon = {
                         IconButton(onClick = onPickOnMap) {
-                            Icon(Icons.Default.Map, contentDescription = "Pick on map", tint = PrimaryBlue)
+                            Icon(Icons.Default.Map, contentDescription = "Pick on map", tint = MaterialTheme.colorScheme.primary)
                         }
                     },
                     keyboardOptions = KeyboardOptions(
@@ -428,10 +428,10 @@ data class PriorityUiConfig(val color: Color, val backgroundColor: Color)
 @Composable
 fun getPriorityConfig(priority: TaskPriority): PriorityUiConfig {
     return when (priority) {
-        TaskPriority.LOW -> PriorityUiConfig(Color(0xFF2E7D32), Color(0xFFE8F5E9).copy(alpha = if (MaterialTheme.colorScheme.primary.red < 0.5f) 0.1f else 1.0f))
-        TaskPriority.MEDIUM -> PriorityUiConfig(Color(0xFFF9A825), Color(0xFFFFFDE7).copy(alpha = if (MaterialTheme.colorScheme.primary.red < 0.5f) 0.1f else 1.0f))
-        TaskPriority.HIGH -> PriorityUiConfig(Color(0xFFEF6C00), Color(0xFFFFF3E0).copy(alpha = if (MaterialTheme.colorScheme.primary.red < 0.5f) 0.1f else 1.0f))
-        TaskPriority.URGENT -> PriorityUiConfig(Color(0xFFC62828), Color(0xFFFFEBEE).copy(alpha = if (MaterialTheme.colorScheme.primary.red < 0.5f) 0.1f else 1.0f))
+        TaskPriority.LOW -> PriorityUiConfig(SuccessGreen, SuccessGreen.copy(alpha = 0.15f))
+        TaskPriority.MEDIUM -> PriorityUiConfig(WarningOrange, WarningOrange.copy(alpha = 0.15f))
+        TaskPriority.HIGH -> PriorityUiConfig(Color(0xFFEF6C00), Color(0xFFFFF3E0).copy(alpha = 0.15f))
+        TaskPriority.URGENT -> PriorityUiConfig(ErrorRed, ErrorRed.copy(alpha = 0.15f))
     }
 }
 

@@ -1,15 +1,18 @@
 package com.rahul.fieldflow.features.profile.employee.state
 
+import com.rahul.fieldflow.domain.model.AppTheme
+
 data class EmployeeProfileUiState(
-    val userName: String = "Rahul Thakur",
-    val initials: String = "RT",
+    val userName: String = "",
+    val initials: String = "",
     val role: String = "Field Employee",
-    val company: String = "FieldFlow Inc.",
-    val email: String = "rahul.thakur@fieldflow.in",
-    val phone: String = "+91 98765 43210",
-    val completedTasks: Int = 24,
-    val onTimePercentage: Int = 92,
-    val activeTasks: Int = 2,
+    val company: String = "",
+    val email: String = "",
+    val phone: String = "",
+    val completedTasks: Int = 0,
+    val onTimePercentage: Int = 0,
+    val activeTasks: Int = 0,
+    val appTheme: AppTheme = AppTheme.SYSTEM,
     val isLoading: Boolean = false,
     val error: String? = null
 )

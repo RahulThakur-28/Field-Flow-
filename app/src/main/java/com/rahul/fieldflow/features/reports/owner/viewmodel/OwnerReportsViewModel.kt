@@ -7,6 +7,7 @@ import com.rahul.fieldflow.domain.usecase.reports.MarkReportAsReviewedUseCase
 import com.rahul.fieldflow.features.reports.model.*
 import com.rahul.fieldflow.features.reports.owner.state.OwnerReportDetailsUiState
 import com.rahul.fieldflow.features.reports.owner.state.OwnerReportsUiState
+import com.rahul.fieldflow.features.reports.owner.state.ReportFilter
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -38,15 +39,19 @@ class OwnerReportsViewModel @Inject constructor(
             getReportsUseCase()
                 .onSuccess { contexts ->
                     android.util.Log.d("REPORT_DEBUG", "OWNER_REPORTS_LOAD_SUCCESS count=${contexts.size}")
-                    val reports = contexts.map { 
-                        android.util.Log.d("REPORT_DEBUG", "OWNER_REPORTS_MAPPING task_id=${it.task.id}")
-                        it.toUiModel() 
-                    }
+                    val reports = contexts.map { it.toUiModel() }
+                    
+                    val needsReviewCount = reports.count { r -> r.status == ReportStatus.NEEDS_REVIEW }
+                    val reviewedCount = reports.count { r -> r.status == ReportStatus.REVIEWED }
+                    
+                    android.util.Log.d("REPORT_DEBUG", "OWNER_REPORTS_COUNTS total=${reports.size} needs_review=$needsReviewCount reviewed=$reviewedCount")
+                    
                     _uiState.update { 
                         it.copy(
                             reports = reports,
                             isLoading = false,
-                            needsReviewCount = reports.count { r -> r.status != ReportStatus.REVIEWED && r.status != ReportStatus.FAILED }
+                            needsReviewCount = needsReviewCount,
+                            reviewedCount = reviewedCount
                         )
                     }
                     applyFilters()
@@ -63,6 +68,11 @@ class OwnerReportsViewModel @Inject constructor(
         }
     }
 
+    fun onRefresh() {
+        android.util.Log.d("REPORT_DEBUG", "OWNER_REPORTS_REFRESH")
+        loadReports()
+    }
+
     fun onSearchQueryChange(query: String) {
         _uiState.update { state ->
             state.copy(searchQuery = query)
@@ -70,9 +80,9 @@ class OwnerReportsViewModel @Inject constructor(
         applyFilters()
     }
 
-    fun onTabSelected(index: Int) {
+    fun onFilterSelected(filter: ReportFilter) {
         _uiState.update { state ->
-            state.copy(selectedTab = index)
+            state.copy(selectedFilter = filter)
         }
         applyFilters()
     }
@@ -84,13 +94,13 @@ class OwnerReportsViewModel @Inject constructor(
                         report.employee.name.contains(state.searchQuery, ignoreCase = true) ||
                         report.location.contains(state.searchQuery, ignoreCase = true)
                 
-                val matchesTab = when (state.selectedTab) {
-                    1 -> report.status != ReportStatus.REVIEWED && report.status != ReportStatus.FAILED
-                    2 -> report.status == ReportStatus.REVIEWED
-                    else -> true
+                val matchesFilter = when (state.selectedFilter) {
+                    ReportFilter.NEEDS_REVIEW -> report.status == ReportStatus.NEEDS_REVIEW
+                    ReportFilter.REVIEWED -> report.status == ReportStatus.REVIEWED
+                    ReportFilter.ALL -> true
                 }
                 
-                matchesSearch && matchesTab
+                matchesSearch && matchesFilter
             }
             state.copy(filteredReports = filtered)
         }

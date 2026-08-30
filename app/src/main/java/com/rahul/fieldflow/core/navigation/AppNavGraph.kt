@@ -71,16 +71,8 @@ fun AppNavGraph(
                 Log.d("FIELD_FLOW_STARTUP", "Target route name: $targetRouteName")
 
                 // Only navigate if we are in an "auth" destination (Splash, Onboarding, Login etc.)
-                // OR if we are not already at the target destination
-                if (isAuthDestination(currentDestination) || (currentRoute != null && !currentRoute.contains(targetRouteName))) {
-
-                    // Special case: if we are already at the correct sub-onboarding screen, don't re-navigate
-                    if (currentRoute != null && currentRoute.contains(targetRouteName)) {
-                         Log.d("FIELD_FLOW_STARTUP", "Already at target destination: $currentRoute")
-                         return@LaunchedEffect
-                    }
-
-                    Log.d("FIELD_FLOW_STARTUP", "Navigating to: $targetDestination")
+                if (isAuthDestination(currentDestination)) {
+                    Log.d("FIELD_FLOW_STARTUP", "Redirecting from auth to: $targetDestination")
                     navController.navigate(targetDestination) {
                         popUpTo(0) { inclusive = true }
                     }

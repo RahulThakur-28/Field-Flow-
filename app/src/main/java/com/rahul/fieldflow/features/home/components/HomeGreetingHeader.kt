@@ -65,13 +65,13 @@ fun HomeGreetingHeader(
                 Text(
                     text = "$greeting,",
                     style = MaterialTheme.typography.titleLarge,
-                    color = TextDark.copy(alpha = 0.7f)
+                    color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.7f)
                 )
             }
             Text(
                 text = "$userName 👋",
                 style = MaterialTheme.typography.headlineSmall,
-                color = TextDark,
+                color = MaterialTheme.colorScheme.onBackground,
                 fontWeight = FontWeight.ExtraBold
             )
         }

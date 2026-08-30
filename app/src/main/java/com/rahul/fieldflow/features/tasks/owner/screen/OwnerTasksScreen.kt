@@ -29,11 +29,7 @@ import com.rahul.fieldflow.features.tasks.components.PremiumTaskCard
 import com.rahul.fieldflow.features.tasks.components.TaskSearchBar
 import com.rahul.fieldflow.features.tasks.owner.components.OwnerTaskFilter
 import com.rahul.fieldflow.features.tasks.owner.viewmodel.OwnerTasksViewModel
-import com.rahul.fieldflow.ui.theme.BackgroundLight
-import com.rahul.fieldflow.ui.theme.FieldFlowTheme
-import com.rahul.fieldflow.ui.theme.PrimaryBlue
-import com.rahul.fieldflow.ui.theme.TextDark
-import com.rahul.fieldflow.ui.theme.TextSecondary
+import com.rahul.fieldflow.ui.theme.*
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

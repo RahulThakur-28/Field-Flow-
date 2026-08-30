@@ -21,8 +21,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.rahul.fieldflow.features.profile.owner.viewmodel.OwnerProfileViewModel
-import com.rahul.fieldflow.ui.theme.FieldFlowTheme
-import com.rahul.fieldflow.ui.theme.PrimaryBlue
+import com.rahul.fieldflow.ui.theme.*
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -73,7 +72,7 @@ fun OwnerEditProfileScreen(
                         .fillMaxWidth()
                         .padding(16.dp)
                         .height(50.dp),
-                    colors = ButtonDefaults.buttonColors(containerColor = PrimaryBlue),
+                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
                     shape = RoundedCornerShape(8.dp)
                 ) {
                     Text("Save Changes", fontWeight = FontWeight.Bold)

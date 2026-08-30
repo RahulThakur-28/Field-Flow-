@@ -11,8 +11,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.rahul.fieldflow.ui.theme.TextDark
-import com.rahul.fieldflow.ui.theme.TextSecondary
+import com.rahul.fieldflow.ui.theme.*
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -28,7 +27,7 @@ fun PrivacyPolicyScreen(onBack: () -> Unit) {
                 }
             )
         },
-        containerColor = Color(0xFFF8F9FB)
+        containerColor = MaterialTheme.colorScheme.background
     ) { padding ->
         LazyColumn(
             modifier = Modifier
@@ -67,13 +66,13 @@ fun PrivacySection(title: String, content: String) {
             text = title,
             style = MaterialTheme.typography.titleLarge,
             fontWeight = FontWeight.Bold,
-            color = TextDark
+            color = MaterialTheme.colorScheme.onSurface
         )
         Spacer(modifier = Modifier.height(8.dp))
         Text(
             text = content,
             style = MaterialTheme.typography.bodyMedium,
-            color = TextSecondary,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
             lineHeight = 22.sp
         )
     }

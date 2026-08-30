@@ -23,7 +23,7 @@ import com.rahul.fieldflow.features.tasks.components.TaskStatusBadge
 import com.rahul.fieldflow.features.team.model.EmployeeTeamUiModel
 import com.rahul.fieldflow.features.team.model.toUiStatus
 import com.rahul.fieldflow.core.utils.DateUtils
-import com.rahul.fieldflow.ui.theme.PrimaryBlue
+import com.rahul.fieldflow.ui.theme.*
 
 @Composable
 fun TeamMemberCard(
@@ -193,7 +193,7 @@ fun ContactInfoRow(icon: androidx.compose.ui.graphics.vector.ImageVector, text: 
 @Composable
 fun StatusIndicator(status: String) {
     val isActive = status.equals("Active", ignoreCase = true)
-    val color = if (isActive) Color(0xFF2E7D32) else MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
+    val color = if (isActive) SuccessGreen else MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
     
     Row(verticalAlignment = Alignment.CenterVertically) {
         Box(
@@ -205,7 +205,7 @@ fun StatusIndicator(status: String) {
         Spacer(modifier = Modifier.width(6.dp))
         Text(
             text = status,
-            color = color,
+            color = if (MaterialTheme.colorScheme.surface == Color(0xFF161C2C) && isActive) color.copy(alpha = 0.9f) else color,
             style = MaterialTheme.typography.labelSmall,
             fontWeight = FontWeight.ExtraBold,
             letterSpacing = 0.5.sp

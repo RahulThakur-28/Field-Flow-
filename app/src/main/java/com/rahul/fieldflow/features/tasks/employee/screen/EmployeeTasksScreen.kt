@@ -84,7 +84,7 @@ fun EmployeeTasksScreen(
                 Spacer(modifier = Modifier.height(8.dp))
                 
                 TaskFilterTabs(
-                    tabs = listOf("Upcoming", "Active", "Completed"),
+                    tabs = listOf("All", "Active", "Completed", "Overdue"),
                     selectedTab = uiState.selectedTab,
                     onTabSelected = viewModel::onTabSelected
                 )
@@ -98,11 +98,10 @@ fun EmployeeTasksScreen(
                     )
                 } else {
                     val filteredTasks = when (uiState.selectedTab) {
-                        0 -> uiState.tasks.filter { 
-                            it.status == TaskStatus.PENDING || it.status == TaskStatus.ASSIGNED 
-                        }
+                        0 -> uiState.tasks
                         1 -> uiState.tasks.filter { it.status == TaskStatus.IN_PROGRESS }
                         2 -> uiState.tasks.filter { it.status == TaskStatus.COMPLETED }
+                        3 -> uiState.tasks.filter { it.status == TaskStatus.OVERDUE }
                         else -> uiState.tasks
                     }
 
@@ -171,9 +170,10 @@ private fun ErrorState(
 @Composable
 private fun EmptyState(tabIndex: Int) {
     val message = when (tabIndex) {
-        0 -> "No upcoming tasks"
+        0 -> "No tasks found"
         1 -> "No active tasks"
         2 -> "No completed tasks"
+        3 -> "No overdue tasks"
         else -> "You're all caught up!"
     }
 

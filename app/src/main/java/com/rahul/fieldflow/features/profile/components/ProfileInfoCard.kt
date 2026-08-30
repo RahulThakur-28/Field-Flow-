@@ -8,7 +8,6 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -24,7 +23,10 @@ fun ProfileInfoCard(
     Card(
         modifier = modifier.fillMaxWidth(),
         shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(containerColor = Color.White),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surface,
+            contentColor = MaterialTheme.colorScheme.onSurface
+        ),
         elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
     ) {
         Column(
@@ -52,8 +54,17 @@ fun ProfileContactItem(
         }
         Spacer(modifier = Modifier.width(16.dp))
         Column {
-            Text(text = label, style = MaterialTheme.typography.labelSmall, color = TextSecondary)
-            Text(text = value, style = MaterialTheme.typography.bodyMedium, color = TextDark, fontWeight = FontWeight.Medium)
+            Text(
+                text = label, 
+                style = MaterialTheme.typography.labelSmall, 
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+            Text(
+                text = value, 
+                style = MaterialTheme.typography.bodyMedium, 
+                color = MaterialTheme.colorScheme.onSurface, 
+                fontWeight = FontWeight.Medium
+            )
         }
     }
 }
@@ -64,6 +75,6 @@ fun ProfileVerticalDivider() {
         modifier = Modifier
             .width(1.dp)
             .height(40.dp)
-            .background(Color.LightGray.copy(alpha = 0.3f))
+            .background(MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.3f))
     )
 }

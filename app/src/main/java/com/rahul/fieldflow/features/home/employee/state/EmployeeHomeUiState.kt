@@ -10,6 +10,7 @@ data class EmployeeHomeUiState(
     val allTasksCount: Int = 0,
     val activeTasksCount: Int = 0,
     val completedTasksCount: Int = 0,
+    val lateTasksCount: Int = 0,
     val nextTask: Task? = null,
     val upcomingTasks: List<Task> = emptyList(),
     val recentReports: List<TaskReportContext> = emptyList(),

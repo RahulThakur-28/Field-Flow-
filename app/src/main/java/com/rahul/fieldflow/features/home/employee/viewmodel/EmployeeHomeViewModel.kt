@@ -38,6 +38,7 @@ class EmployeeHomeViewModel @Inject constructor(
                             allTasksCount = dashboard.taskStats.totalCount,
                             activeTasksCount = dashboard.taskStats.activeCount,
                             completedTasksCount = dashboard.taskStats.completedCount,
+                            lateTasksCount = dashboard.taskStats.lateCount,
                             nextTask = dashboard.nextTask,
                             upcomingTasks = dashboard.upcomingTasks,
                             recentReports = dashboard.recentReports,
