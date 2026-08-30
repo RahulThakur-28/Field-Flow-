@@ -43,12 +43,22 @@ fun EmployeeTasksScreen(
         topBar = {
             TopAppBar(
                 title = { 
-                    Text(
-                        text = "My Tasks", 
-                        style = MaterialTheme.typography.titleLarge,
-                        fontWeight = FontWeight.Bold,
-                        color = MaterialTheme.colorScheme.onBackground
-                    ) 
+                    Column {
+                        Text(
+                            text = "My Tasks", 
+                            style = MaterialTheme.typography.headlineSmall,
+                            fontWeight = FontWeight.ExtraBold,
+                            color = MaterialTheme.colorScheme.onBackground
+                        )
+                        if (!uiState.isLoading && uiState.tasks.isNotEmpty()) {
+                            Text(
+                                text = "${uiState.tasks.size} assignments",
+                                style = MaterialTheme.typography.labelSmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                letterSpacing = 0.5.sp
+                            )
+                        }
+                    }
                 },
                 actions = {
                     IconButton(onClick = viewModel::loadTasks) {
@@ -99,7 +109,9 @@ fun EmployeeTasksScreen(
                 } else {
                     val filteredTasks = when (uiState.selectedTab) {
                         0 -> uiState.tasks
-                        1 -> uiState.tasks.filter { it.status == TaskStatus.IN_PROGRESS }
+                        1 -> uiState.tasks.filter { 
+                            it.status == TaskStatus.IN_PROGRESS || it.status == TaskStatus.PENDING || it.status == TaskStatus.ASSIGNED 
+                        }
                         2 -> uiState.tasks.filter { it.status == TaskStatus.COMPLETED }
                         3 -> uiState.tasks.filter { it.status == TaskStatus.OVERDUE }
                         else -> uiState.tasks

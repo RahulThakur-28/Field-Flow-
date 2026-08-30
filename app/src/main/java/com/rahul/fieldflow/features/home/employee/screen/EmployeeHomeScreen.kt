@@ -106,21 +106,21 @@ fun EmployeeHomeContent(
                         CompactStatCard(
                             value = "${uiState.activeTasksCount}",
                             label = "Active",
-                            color = Color(0xFF2196F3),
+                            color = InfoBlue,
                             onClick = { navController.navigate(AppRoutes.EmployeeTasks(filter = "active")) },
                             modifier = Modifier.weight(1f)
                         )
                         CompactStatCard(
                             value = "${uiState.completedTasksCount}",
                             label = "Complete",
-                            color = Color(0xFF4CAF50),
+                            color = SuccessGreen,
                             onClick = { navController.navigate(AppRoutes.EmployeeTasks(filter = "completed")) },
                             modifier = Modifier.weight(1f)
                         )
                         CompactStatCard(
                             value = "${uiState.lateTasksCount}",
                             label = "Overdue",
-                            color = Color(0xFFF44336),
+                            color = ErrorRed,
                             onClick = { navController.navigate(AppRoutes.EmployeeTasks(filter = "overdue")) },
                             modifier = Modifier.weight(1f)
                         )

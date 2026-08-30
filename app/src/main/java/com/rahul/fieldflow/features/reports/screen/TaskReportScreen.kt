@@ -5,7 +5,9 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material3.*
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -42,106 +44,113 @@ fun TaskReportScreen(
                     IconButton(onClick = onBackClick) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
                     }
+                },
+                actions = {
+                    IconButton(onClick = { viewModel.loadReport(taskId) }) {
+                        Icon(Icons.Default.Refresh, contentDescription = "Refresh")
+                    }
                 }
             )
         }
     ) { padding ->
-        if (uiState.isLoading) {
-            Box(modifier = Modifier.fillMaxSize().padding(padding), contentAlignment = Alignment.Center) {
-                CircularProgressIndicator(color = PrimaryBlue)
-            }
-        } else if (uiState.error != null) {
-            Box(modifier = Modifier.fillMaxSize().padding(padding), contentAlignment = Alignment.Center) {
-                Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                    Text(text = "Error: ${uiState.error}", color = MaterialTheme.colorScheme.error)
-                    Button(onClick = { viewModel.loadReport(taskId) }) {
-                        Text("Retry")
-                    }
+        PullToRefreshBox(
+            isRefreshing = uiState.isLoading,
+            onRefresh = { viewModel.loadReport(taskId) },
+            modifier = Modifier.padding(padding)
+        ) {
+            if (uiState.isLoading && uiState.reportContext == null) {
+                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                    CircularProgressIndicator(color = PrimaryBlue)
                 }
-            }
-        } else if (uiState.reportContext != null) {
-            val context = uiState.reportContext!!
-            LaunchedEffect(context) {
-                android.util.Log.d("REPORT_DEBUG", "REPORT_UI_VISIBLE taskId=${context.task.id} aiReportPresent=${context.aiReport != null} sessions=${context.sessions.size} transcripts=${context.transcripts.size}")
-            }
-            LazyColumn(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(padding)
-                    .background(MaterialTheme.colorScheme.background),
-                contentPadding = PaddingValues(bottom = 40.dp)
-            ) {
-                item {
-                    Surface(
-                        modifier = Modifier.fillMaxWidth(),
-                        color = MaterialTheme.colorScheme.surface,
-                        tonalElevation = 2.dp
-                    ) {
-                        Column(modifier = Modifier.padding(20.dp)) {
-                            ReportOverview(context)
+            } else if (uiState.error != null && uiState.reportContext == null) {
+                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                        Text(text = "Error: ${uiState.error}", color = MaterialTheme.colorScheme.error)
+                        Button(onClick = { viewModel.loadReport(taskId) }) {
+                            Text("Retry")
                         }
                     }
                 }
-
-                if (context.aiReport != null) {
+            } else if (uiState.reportContext != null) {
+                val context = uiState.reportContext!!
+                LazyColumn(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .background(MaterialTheme.colorScheme.background),
+                    contentPadding = PaddingValues(bottom = 40.dp)
+                ) {
                     item {
-                        Column(modifier = Modifier.padding(horizontal = 20.dp, vertical = 24.dp)) {
-                            AiReportSection(context.aiReport)
-                        }
-                    }
-                } else {
-                    item {
-                        Box(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(vertical = 48.dp),
-                            contentAlignment = Alignment.Center
+                        Surface(
+                            modifier = Modifier.fillMaxWidth(),
+                            color = MaterialTheme.colorScheme.surface,
+                            tonalElevation = 2.dp
                         ) {
-                            Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                                CircularProgressIndicator(
-                                    modifier = Modifier.size(32.dp),
-                                    strokeWidth = 3.dp,
-                                    color = PrimaryBlue
-                                )
-                                Spacer(modifier = Modifier.height(16.dp))
-                                Text(
-                                    text = "AI is analyzing the report...", 
-                                    style = MaterialTheme.typography.bodyMedium,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                                )
+                            Column(modifier = Modifier.padding(20.dp)) {
+                                ReportOverview(context)
                             }
                         }
                     }
-                }
 
-                item {
-                    Column(modifier = Modifier.padding(horizontal = 20.dp)) {
-                        Text(
-                            text = "Recordings", 
-                            style = MaterialTheme.typography.titleLarge, 
-                            fontWeight = FontWeight.Bold,
-                            color = MaterialTheme.colorScheme.onSurface
-                        )
-                        Spacer(modifier = Modifier.height(12.dp))
+                    if (context.aiReport != null) {
+                        item {
+                            Column(modifier = Modifier.padding(horizontal = 20.dp, vertical = 24.dp)) {
+                                AiReportSection(context.aiReport)
+                            }
+                        }
+                    } else {
+                        item {
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(vertical = 48.dp),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                    CircularProgressIndicator(
+                                        modifier = Modifier.size(32.dp),
+                                        strokeWidth = 3.dp,
+                                        color = PrimaryBlue
+                                    )
+                                    Spacer(modifier = Modifier.height(16.dp))
+                                    Text(
+                                        text = "AI is analyzing the report...", 
+                                        style = MaterialTheme.typography.bodyMedium,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                                    )
+                                }
+                            }
+                        }
                     }
-                }
 
-                items(context.sessions.size) { index ->
-                    Box(modifier = Modifier.padding(horizontal = 20.dp)) {
-                        val session = context.sessions[index]
-                        RecordingSessionItem(
-                            session = session,
-                            onGetUrl = { viewModel.getAudioUrl(session.storagePath ?: "") }
-                        )
-                    }
-                }
-
-                if (context.transcripts.isNotEmpty()) {
                     item {
-                        Column(modifier = Modifier.padding(horizontal = 20.dp, vertical = 24.dp)) {
-                            HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f))
-                            Spacer(modifier = Modifier.height(24.dp))
-                            TimelineSection(context.sessions, context.transcripts)
+                        Column(modifier = Modifier.padding(horizontal = 20.dp)) {
+                            Text(
+                                text = "Recordings", 
+                                style = MaterialTheme.typography.titleLarge, 
+                                fontWeight = FontWeight.Bold,
+                                color = MaterialTheme.colorScheme.onSurface
+                            )
+                            Spacer(modifier = Modifier.height(12.dp))
+                        }
+                    }
+
+                    items(context.sessions.size) { index ->
+                        Box(modifier = Modifier.padding(horizontal = 20.dp)) {
+                            val session = context.sessions[index]
+                            RecordingSessionItem(
+                                session = session,
+                                onGetUrl = { viewModel.getAudioUrl(session.storagePath ?: "") }
+                            )
+                        }
+                    }
+
+                    if (context.transcripts.isNotEmpty()) {
+                        item {
+                            Column(modifier = Modifier.padding(horizontal = 20.dp, vertical = 24.dp)) {
+                                HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f))
+                                Spacer(modifier = Modifier.height(24.dp))
+                                TimelineSection(context.sessions, context.transcripts)
+                            }
                         }
                     }
                 }

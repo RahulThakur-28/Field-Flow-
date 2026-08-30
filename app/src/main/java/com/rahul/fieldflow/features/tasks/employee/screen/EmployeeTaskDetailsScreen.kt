@@ -15,6 +15,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -87,136 +88,146 @@ fun EmployeeTaskDetailsScreen(
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = Color.Transparent,
                     titleContentColor = MaterialTheme.colorScheme.onBackground
-                )
+                ),
+                actions = {
+                    IconButton(onClick = { viewModel.loadTask(taskId) }) {
+                        Icon(Icons.Default.Refresh, contentDescription = "Refresh")
+                    }
+                }
             )
         }
     ) { padding ->
-        if (uiState.isLoading) {
-            Box(modifier = Modifier.fillMaxSize().padding(padding), contentAlignment = Alignment.Center) {
-                CircularProgressIndicator(color = PrimaryBlue)
-            }
-        } else if (uiState.error != null && uiState.task == null) {
-            Box(modifier = Modifier.fillMaxSize().padding(padding), contentAlignment = Alignment.Center) {
-                Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                    Icon(Icons.Default.ErrorOutline, contentDescription = null, modifier = Modifier.size(64.dp), tint = MaterialTheme.colorScheme.error)
-                    Spacer(modifier = Modifier.height(16.dp))
-                    Text(text = uiState.error!!, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                    Spacer(modifier = Modifier.height(24.dp))
-                    Button(onClick = { viewModel.loadTask(taskId) }) {
-                        Text("Retry")
+        PullToRefreshBox(
+            isRefreshing = uiState.isLoading,
+            onRefresh = { viewModel.loadTask(taskId) },
+            modifier = Modifier.padding(padding)
+        ) {
+            if (uiState.isLoading && uiState.task == null) {
+                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                    CircularProgressIndicator(color = PrimaryBlue)
+                }
+            } else if (uiState.error != null && uiState.task == null) {
+                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                        Icon(Icons.Default.ErrorOutline, contentDescription = null, modifier = Modifier.size(64.dp), tint = MaterialTheme.colorScheme.error)
+                        Spacer(modifier = Modifier.height(16.dp))
+                        Text(text = uiState.error!!, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        Spacer(modifier = Modifier.height(24.dp))
+                        Button(onClick = { viewModel.loadTask(taskId) }) {
+                            Text("Retry")
+                        }
                     }
                 }
-            }
-        } else if (uiState.task != null) {
-            val task = uiState.task!!
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(padding)
-                    .verticalScroll(rememberScrollState())
-                    .padding(16.dp),
-                verticalArrangement = Arrangement.spacedBy(20.dp)
-            ) {
-                // 1. Task Header Card
-                TaskHeaderCard(task)
+            } else if (uiState.task != null) {
+                val task = uiState.task!!
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .verticalScroll(rememberScrollState())
+                        .padding(16.dp),
+                    verticalArrangement = Arrangement.spacedBy(20.dp)
+                ) {
+                    // 1. Task Header Card
+                    TaskHeaderCard(task)
 
-                // 2. Geofence & Location
-                GeofenceStatusCard(
-                    locationName = task.location,
-                    radius = task.radiusMeters,
-                    isInside = uiState.isInsideGeofence,
-                    distance = uiState.distanceToDestination
-                )
-
-                // 3. Schedule Card
-                TaskScheduleCardDetailed(task)
-
-                // 4. Instructions Card
-                InstructionsCard(instructions = task.description)
-
-                // 5. Checklist
-                if (task.checklist.isNotEmpty()) {
-                    TaskChecklistCard(
-                        items = task.checklist,
-                        onItemToggle = viewModel::toggleChecklistItem
+                    // 2. Geofence & Location
+                    GeofenceStatusCard(
+                        locationName = task.location,
+                        radius = task.radiusMeters,
+                        isInside = uiState.isInsideGeofence,
+                        distance = uiState.distanceToDestination
                     )
-                }
 
-                // 6. Journey Status
-                TaskJourneyStatus(currentStatus = task.status)
-                
-                // 7. Recording Status
-                RecordingStatusIndicator(
-                    state = uiState.recordingState,
-                    onRetry = { viewModel.startRecordingManual() }
-                )
-                
-                // 8. Bottom Actions
-                if (task.status == com.rahul.fieldflow.features.tasks.model.TaskStatus.COMPLETED) {
-                    Button(
-                        onClick = { onViewReportClick(task.id) },
-                        modifier = Modifier.fillMaxWidth().height(56.dp),
-                        shape = RoundedCornerShape(16.dp),
-                        colors = ButtonDefaults.buttonColors(containerColor = SecondaryIndigo)
-                    ) {
-                        Icon(Icons.Default.Assessment, contentDescription = null)
-                        Spacer(modifier = Modifier.width(10.dp))
-                        Text(text = "View Field Report", fontWeight = FontWeight.Bold, fontSize = 16.sp)
+                    // 3. Schedule Card
+                    TaskScheduleCardDetailed(task)
+
+                    // 4. Instructions Card
+                    InstructionsCard(instructions = task.description)
+
+                    // 5. Checklist
+                    if (task.checklist.isNotEmpty()) {
+                        TaskChecklistCard(
+                            items = task.checklist,
+                            onItemToggle = viewModel::toggleChecklistItem
+                        )
                     }
-                } else {
-                    if (task.status == com.rahul.fieldflow.features.tasks.model.TaskStatus.IN_PROGRESS) {
+
+                    // 6. Journey Status
+                    TaskJourneyStatus(currentStatus = task.status)
+                    
+                    // 7. Recording Status
+                    RecordingStatusIndicator(
+                        state = uiState.recordingState,
+                        onRetry = { viewModel.startRecordingManual() }
+                    )
+                    
+                    // 8. Bottom Actions
+                    if (task.status == com.rahul.fieldflow.features.tasks.model.TaskStatus.COMPLETED) {
                         Button(
-                            onClick = { viewModel.stopTask() },
+                            onClick = { onViewReportClick(task.id) },
                             modifier = Modifier.fillMaxWidth().height(56.dp),
                             shape = RoundedCornerShape(16.dp),
-                            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFC62828))
+                            colors = ButtonDefaults.buttonColors(containerColor = SecondaryIndigo)
                         ) {
-                            Text(text = "Complete Field Work", fontWeight = FontWeight.Bold, fontSize = 16.sp)
+                            Icon(Icons.Default.Assessment, contentDescription = null)
+                            Spacer(modifier = Modifier.width(10.dp))
+                            Text(text = "View Field Report", fontWeight = FontWeight.Bold, fontSize = 16.sp)
                         }
                     } else {
-                        Button(
-                            onClick = {
-                                val hasLocationPermission = ContextCompat.checkSelfPermission(
-                                    context, Manifest.permission.ACCESS_FINE_LOCATION
-                                ) == PackageManager.PERMISSION_GRANTED
-                                val hasAudioPermission = ContextCompat.checkSelfPermission(
-                                    context, Manifest.permission.RECORD_AUDIO
-                                ) == PackageManager.PERMISSION_GRANTED
-                                
-                                if (hasLocationPermission && hasAudioPermission) {
-                                    viewModel.startTask()
-                                } else {
-                                    val permissions = mutableListOf(
-                                        Manifest.permission.ACCESS_FINE_LOCATION,
-                                        Manifest.permission.ACCESS_COARSE_LOCATION,
-                                        Manifest.permission.RECORD_AUDIO
-                                    )
-                                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                                        permissions.add(Manifest.permission.POST_NOTIFICATIONS)
+                        if (task.status == com.rahul.fieldflow.features.tasks.model.TaskStatus.IN_PROGRESS) {
+                            Button(
+                                onClick = { viewModel.stopTask() },
+                                modifier = Modifier.fillMaxWidth().height(56.dp),
+                                shape = RoundedCornerShape(16.dp),
+                                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFC62828))
+                            ) {
+                                Text(text = "Complete Field Work", fontWeight = FontWeight.Bold, fontSize = 16.sp)
+                            }
+                        } else {
+                            Button(
+                                onClick = {
+                                    val hasLocationPermission = ContextCompat.checkSelfPermission(
+                                        context, Manifest.permission.ACCESS_FINE_LOCATION
+                                    ) == PackageManager.PERMISSION_GRANTED
+                                    val hasAudioPermission = ContextCompat.checkSelfPermission(
+                                        context, Manifest.permission.RECORD_AUDIO
+                                    ) == PackageManager.PERMISSION_GRANTED
+                                    
+                                    if (hasLocationPermission && hasAudioPermission) {
+                                        viewModel.startTask()
+                                    } else {
+                                        val permissions = mutableListOf(
+                                            Manifest.permission.ACCESS_FINE_LOCATION,
+                                            Manifest.permission.ACCESS_COARSE_LOCATION,
+                                            Manifest.permission.RECORD_AUDIO
+                                        )
+                                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                                            permissions.add(Manifest.permission.POST_NOTIFICATIONS)
+                                        }
+                                        permissionLauncher.launch(permissions.toTypedArray())
                                     }
-                                    permissionLauncher.launch(permissions.toTypedArray())
-                                }
-                            },
-                            modifier = Modifier.fillMaxWidth().height(56.dp),
-                            shape = RoundedCornerShape(16.dp),
-                            colors = ButtonDefaults.buttonColors(containerColor = PrimaryBlue)
-                        ) {
-                            Text(text = "Start Field Work", fontWeight = FontWeight.Bold, fontSize = 16.sp)
+                                },
+                                modifier = Modifier.fillMaxWidth().height(56.dp),
+                                shape = RoundedCornerShape(16.dp),
+                                colors = ButtonDefaults.buttonColors(containerColor = PrimaryBlue)
+                            ) {
+                                Text(text = "Start Field Work", fontWeight = FontWeight.Bold, fontSize = 16.sp)
+                            }
                         }
                     }
-                }
 
-                uiState.error?.let { error ->
-                    Text(
-                        text = error,
-                        color = MaterialTheme.colorScheme.error,
-                        style = MaterialTheme.typography.bodySmall,
-                        textAlign = androidx.compose.ui.text.style.TextAlign.Center,
-                        modifier = Modifier.fillMaxWidth()
-                    )
+                    uiState.error?.let { error ->
+                        Text(
+                            text = error,
+                            color = MaterialTheme.colorScheme.error,
+                            style = MaterialTheme.typography.bodySmall,
+                            textAlign = androidx.compose.ui.text.style.TextAlign.Center,
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                    }
+                    
+                    Spacer(modifier = Modifier.height(40.dp))
                 }
-                
-                Spacer(modifier = Modifier.height(40.dp))
             }
         }
     }
