@@ -28,3 +28,7 @@ Thumbs.db
 # AI Artifacts
 .artifacts/
 **/*.artifact.md
+
+# Android signing
+*.jks
+*.keystore
