@@ -114,7 +114,61 @@ Owners can:
 - Handle employee join requests
 
 ---
+## 📸 Screenshots
 
+### 🚀 Splash Screen
+
+| Splash Screen |
+|---|
+| <img src="ScreenShots/splassh.jpeg" width="250"/> |
+
+---
+
+### 🔐 Authentication & Onboarding
+
+| Login Screen | Registration Screen | Onboarding Screen |
+|---|---|---|
+| <img src="ScreenShots/login_screen.jpeg" width="250"/> | <img src="ScreenShots/registeration_screen.jpeg" width="250"/> | <img src="ScreenShots/onboarding.jpeg" width="250"/> |
+
+---
+
+### 👨‍💼 Owner / Manager
+
+| Owner Dashboard | Owner Task Management | Create Task |
+|---|---|---|
+| <img src="ScreenShots/ownerhome.jpeg" width="250"/> | <img src="ScreenShots/owner_task.jpeg" width="250"/> | <img src="ScreenShots/create_task.jpeg" width="250"/> |
+
+| Employee List | Owner Profile | Owner Reports |
+|---|---|---|
+| <img src="ScreenShots/owner_employee_list.jpeg" width="250"/> | <img src="ScreenShots/owner_profile.jpeg" width="250"/> | <img src="ScreenShots/owner_report.jpeg" width="250"/> |
+
+---
+
+### 👷 Field Employee
+
+| Employee Home Dashboard | Employee Task | Task Details |
+|---|---|---|
+| <img src="ScreenShots/employee_home.jpeg" width="250"/> | <img src="ScreenShots/employee_task.jpeg" width="250"/> | <img src="ScreenShots/task_details.jpeg" width="250"/> |
+
+| Employee Location / Field Work | Employee Reports | Employee Dashboard |
+|---|---|---|
+| <img src="ScreenShots/employee_location.jpeg" width="250"/> | <img src="ScreenShots/employee_reports.jpeg" width="250"/> | <img src="ScreenShots/employee-dashboard.jpeg" width="250"/> |
+
+---
+
+### 📊 Reports
+
+| Task Report | AI Summary, Key Findings & Recordings |
+|---|---|
+| <img src="ScreenShots/report.jpeg" width="250"/> | <img src="ScreenShots/report_summary.jpeg" width="250"/> |
+
+---
+
+### 🎨 UI & Themes
+
+| Dark Mode | Splash Screen |
+|---|---|
+| <img src="ScreenShots/dark_mode.jpeg" width="250"/> | <img src="ScreenShots/splassh.jpeg" width="250"/> |
 ### 🔐 Authentication & Company Onboarding
 
 FieldFlow uses a role-based authentication and onboarding flow.
@@ -812,33 +866,6 @@ git push origin main
 
 ---
 
-## 📸 Screenshots
-
-Add application screenshots here to demonstrate the main flows.
-
-Suggested sections:
-
-- Owner Dashboard
-- Employee Dashboard
-- Task Management
-- Task Details
-- Team Management
-- Reports
-- AI Report
-- Smart Recording
-- Profile
-- Dark Theme
-
-Example:
-
-```markdown
-![Owner Dashboard](docs/screenshots/owner-home.png)
-![Employee Dashboard](docs/screenshots/employee-home.png)
-![Task Details](docs/screenshots/task-details.png)
-![AI Report](docs/screenshots/ai-report.png)
-```
-
----
 
 ## 🏆 Key Highlights
 
